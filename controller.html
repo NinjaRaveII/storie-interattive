@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Controller — Storie Interattive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0a0a0f;--card:#1a1a26;--gold:#c9a84c;--gold2:#e8c96b;--text:#f0ead6;--muted:#8a8070;--accent:#4a90a4}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;max-width:430px;margin:0 auto;padding:24px 20px 80px}
+
+.logo{text-align:center;padding-top:16px;margin-bottom:28px}
+.logo h1{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold2);letter-spacing:1px}
+.logo p{font-size:14px;color:var(--muted);margin-top:4px;font-style:italic}
+
+.section-lbl{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+
+/* --- ISTRUZIONI --- */
+#how-to{background:var(--card);border:1px solid rgba(201,168,76,.15);border-radius:14px;padding:18px 20px;margin-bottom:24px}
+#how-to p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:8px}
+#how-to p:last-child{margin-bottom:0}
+.step-num{display:inline-block;background:rgba(201,168,76,.12);color:var(--gold);width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:12px;margin-right:8px;flex-shrink:0}
+
+/* --- STORIES --- */
+#ctrl-list .story-btn{
+  width:100%;background:var(--card);border:1px solid rgba(201,168,76,.2);border-radius:14px;
+  padding:18px 20px;margin-bottom:12px;text-align:left;cursor:pointer;
+  transition:all .18s;display:flex;align-items:center;gap:14px
+}
+#ctrl-list .story-btn:active{transform:scale(.97);background:rgba(201,168,76,.1);border-color:var(--gold)}
+.s-icon{font-size:32px;min-width:40px;text-align:center}
+.s-info h3{font-family:'Playfair Display',serif;font-size:19px;color:var(--text);margin-bottom:4px}
+.s-info p{font-size:13px;color:var(--muted);font-style:italic}
+
+/* --- CHOICES --- */
+#ctrl-choices{display:none}
+.phase-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--gold);margin-bottom:18px;letter-spacing:1px}
+.phase-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pdot 1.5s infinite}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+.preview{background:var(--card);border-left:3px solid rgba(201,168,76,.35);border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:22px;font-size:15px;color:var(--muted);font-style:italic;line-height:1.5}
+.choice-card{
+  width:100%;background:var(--card);border:1px solid rgba(201,168,76,.18);border-radius:14px;
+  padding:18px 20px;margin-bottom:12px;text-align:left;cursor:pointer;
+  display:flex;align-items:center;gap:14px;transition:all .18s
+}
+.choice-card:active{transform:scale(.97);background:rgba(201,168,76,.12);border-color:var(--gold)}
+.c-num{min-width:36px;height:36px;border-radius:50%;border:1px solid rgba(201,168,76,.35);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gold);flex-shrink:0}
+.c-txt{font-size:17px;line-height:1.4;color:var(--text)}
+
+/* feedback tap */
+.sent{opacity:.4;pointer-events:none}
+
+/* --- END --- */
+#ctrl-end{display:none;text-align:center;padding-top:40px}
+.end-icon{font-size:64px;margin-bottom:20px}
+.end-title{font-family:'Playfair Display',serif;font-size:28px;color:var(--gold2);margin-bottom:10px}
+.end-sub{font-size:16px;color:var(--muted);font-style:italic;margin-bottom:36px;line-height:1.5}
+.btn-restart{background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Crimson Pro',serif;font-size:17px;padding:14px 0;border-radius:30px;cursor:pointer;width:100%;transition:all .2s}
+.btn-restart:active{background:rgba(201,168,76,.1)}
+
+/* --- STATUS BAR --- */
+.status-bar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;
+  background:rgba(10,10,15,.96);
+  border-top:1px solid rgba(201,168,76,.1);
+  padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;color:var(--muted);
+  z-index:99
+}
+.s-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:sdot 2s infinite}
+@keyframes sdot{0%,100%{opacity:1}50%{opacity:.2}}
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <h1>✦ Controller</h1>
+  <p>Storie Interattive — Famiglia</p>
+</div>
+
+<!-- istruzioni primo uso -->
+<div id="how-to">
+  <p class="section-lbl" style="margin-bottom:10px">Come funziona</p>
+  <p><span class="step-num">1</span>Apri <strong>tv.html</strong> sul browser della TV (o del computer grande)</p>
+  <p><span class="step-num">2</span>Apri <strong>controller.html</strong> sul telefono nello stesso browser</p>
+  <p><span class="step-num">3</span>Scegli la storia dal telefono — la TV si aggiorna in tempo reale ✓</p>
+  <p style="margin-top:10px;font-size:12px;color:var(--muted)">⚠️ Devono essere aperti sullo stesso computer/browser per comunicare.</p>
+</div>
+
+<!-- LISTA STORIE -->
+<div id="ctrl-list">
+  <p class="section-lbl">Scegli una storia</p>
+  <div id="story-btns"></div>
+</div>
+
+<!-- SCELTE -->
+<div id="ctrl-choices">
+  <div class="phase-badge"><div class="phase-dot"></div><span id="phase-lbl">Fase 1 di 2</span></div>
+  <div class="preview" id="preview-txt">La storia sta per cominciare…</div>
+  <p class="section-lbl">La vostra scelta</p>
+  <div id="choice-btns"></div>
+</div>
+
+<!-- FINE -->
+<div id="ctrl-end">
+  <div class="end-icon">🌟</div>
+  <h2 class="end-title">Bravi!</h2>
+  <p class="end-sub">Avete completato la storia insieme.<br>Qual è la prossima avventura?</p>
+  <button class="btn-restart" onclick="doRestart()">↩ Torna alle storie</button>
+</div>
+
+<!-- STATUS -->
+<div class="status-bar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="s-dot" id="s-dot"></div>
+    <span id="s-txt">Pronto</span>
+  </div>
+  <span id="s-story" style="color:var(--gold);font-size:12px"></span>
+</div>
+
+<script>
+const STORIES=[
+  {id:'forest',icon:'🌲',title:'Il Bosco dei Sussurri',tag:'Avventura',
+   phases:[
+    {lbl:'Scelta 1 di 2',preview:'Luce si avventura nel bosco e sente una voce misteriosa chiamare il suo nome…',
+     choices:[{txt:'Seguire la voce nel bosco più fitto',key:'deep'},{txt:'Rispondere ad alta voce e aspettare',key:'wait'},{txt:'Tornare di corsa dai nonni',key:'run'}]},
+    {lbl:'Scelta 2 di 2',preview:'La storia continua… cosa farà Luce adesso?',
+     choices:[{txt:'Prima opzione',key:'x1'},{txt:'Seconda opzione',key:'x2'},{txt:'Terza opzione',key:'x3'}]}
+  ]},
+  {id:'sea',icon:'⚓',title:'La Nave dei Mille Anni',tag:'Mistero',
+   phases:[
+    {lbl:'Scelta 1 di 2',preview:'Marco trova nella nebbia una nave antica che non dovrebbe esistere…',
+     choices:[{txt:'Salire a bordo della nave',key:'board'},{txt:'Girarle intorno per ispezionarla',key:'look'},{txt:'Chiamare la guardia costiera',key:'call'}]},
+    {lbl:'Scelta 2 di 2',preview:'La scoperta si fa più profonda… cosa fa Marco?',
+     choices:[{txt:'Prima opzione',key:'y1'},{txt:'Seconda opzione',key:'y2'},{txt:'Terza opzione',key:'y3'}]}
+  ]},
+  {id:'mountain',icon:'🏔️',title:'Luna e il Cristallo della Montagna',tag:'Fantasy · bambini',
+   phases:[
+    {lbl:'Scelta 1 di 2',preview:'Luna parte per riaccendere il Cristallo della Primavera. Come inizia la sua avventura?',
+     choices:[{txt:'Seguire il sentiero dei fiori di ghiaccio',key:'flowers'},{txt:'Chiedere aiuto all\'orso del bosco',key:'bear'},{txt:'Seguire una stella luminosa nel cielo',key:'star'}]},
+    {lbl:'Scelta 2 di 2',preview:'Luna incontra un amico speciale. Come lo aiuta?',
+     choices:[{txt:'Scaldarla/lo con un abbraccio caldo',key:'hug_pet'},{txt:'Cantare una canzone della primavera',key:'sing_song'},{txt:'Costruire insieme qualcosa di magico',key:'fire_family'}]}
+  ]}
+];
+
+/* Allinea le scelte fase 2 alle chiavi reali della storia */
+const PHASE2_KEYS={
+  forest:{deep:['msg','who','listen'],wait:['help','where','home'],run:['map','nonno','together']},
+  sea:{board:['hatch','read','escape'],look:['port','witness','photo'],call:['ask','return','elders']},
+  mountain:{flowers:['hug','sing','fire'],bear:['torch','call','honey'],star:['pet','song','family']}
+};
+
+let cur=null,phase=0,c1key=null;
+let bc;
+try{bc=new BroadcastChannel('storie-interattive');}catch(e){}
+
+function send(data){
+  try{if(bc)bc.postMessage(data);}catch(e){}
+  setStatus('Inviato ✓','#4caf50');
+  setTimeout(()=>setStatus('In ascolto…'),1800);
+}
+
+function init(){
+  document.getElementById('story-btns').innerHTML=STORIES.map(s=>`
+    <div class="story-btn" onclick="selectStory('${s.id}')">
+      <div class="s-icon">${s.icon}</div>
+      <div class="s-info"><h3>${s.title}</h3><p>${s.tag}</p></div>
+    </div>`).join('');
+}
+
+function selectStory(id){
+  cur=STORIES.find(s=>s.id===id);phase=0;c1key=null;
+  document.getElementById('s-story').textContent=cur.title;
+  send({action:'start',id});
+  document.getElementById('ctrl-list').style.display='none';
+  document.getElementById('how-to').style.display='none';
+  showPhase();
+}
+
+function showPhase(){
+  const p=cur.phases[phase];
+  document.getElementById('ctrl-choices').style.display='block';
+  document.getElementById('ctrl-end').style.display='none';
+  document.getElementById('phase-lbl').textContent=p.lbl;
+  document.getElementById('preview-txt').textContent=p.preview;
+
+  let choices=p.choices;
+  /* fase 2: usa chiavi reali basate sulla scelta 1 */
+  if(phase===1 && c1key && PHASE2_KEYS[cur.id]){
+    const realKeys=PHASE2_KEYS[cur.id][c1key]||['a','b','c'];
+    choices=choices.map((c,i)=>({...c,key:realKeys[i]||c.key}));
+  }
+
+  document.getElementById('choice-btns').innerHTML=choices.map((c,i)=>`
+    <div class="choice-card" onclick="pickChoice('${c.key}',this)">
+      <div class="c-num">${i+1}</div>
+      <div class="c-txt">${c.txt}</div>
+    </div>`).join('');
+  setStatus('In attesa della scelta…');
+}
+
+function pickChoice(key,el){
+  document.querySelectorAll('.choice-card').forEach(c=>c.classList.add('sent'));
+  if(phase===0) c1key=key;
+  send({action:'pick',key,si:phase});
+  phase++;
+  if(phase>=cur.phases.length){
+    setTimeout(()=>{
+      document.getElementById('ctrl-choices').style.display='none';
+      document.getElementById('ctrl-end').style.display='block';
+      setStatus('Storia completata 🌟','#c9a84c');
+    },1000);
+  } else {
+    setTimeout(showPhase,900);
+  }
+}
+
+function doRestart(){
+  cur=null;phase=0;c1key=null;
+  document.getElementById('ctrl-end').style.display='none';
+  document.getElementById('ctrl-list').style.display='block';
+  document.getElementById('how-to').style.display='block';
+  document.getElementById('s-story').textContent='';
+  send({action:'restart'});
+  setStatus('Pronto');
+}
+
+function setStatus(msg,color='var(--accent)'){
+  document.getElementById('s-txt').textContent=msg;
+  document.getElementById('s-dot').style.background=color;
+}
+
+init();
+</script>
+</body>
+</html>
