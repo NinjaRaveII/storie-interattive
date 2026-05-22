@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storie Interattive ✦ TV</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--card:#1a1a26;
+  --gold:#c9a84c;--gold2:#e8c96b;
+  --text:#f0ead6;--muted:#8a8070;--accent:#4a90a4;
+  --radius:16px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;overflow:hidden}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+#app{position:relative;z-index:1;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 40px 24px;overflow:hidden}
+
+/* ===== HOME: MAPPA DEL MONDO ===== */
+#screen-list{
+  width:100%;max-width:1400px;
+  animation:fadeIn .6s ease;
+  display:flex;flex-direction:column;
+  align-items:center;
+  height:100%;
+}
+.header-title{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,52px);font-weight:700;color:var(--gold2);text-align:center;margin-bottom:4px;letter-spacing:2px}
+.header-sub{text-align:center;color:var(--muted);font-size:clamp(13px,1.5vw,20px);font-weight:300;font-style:italic;margin-bottom:20px}
+
+/* mappa SVG wrapper */
+#world-map-wrap{
+  width:100%;flex:1;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;min-height:0;
+}
+#world-map{width:100%;height:100%;max-height:calc(100vh - 180px)}
+
+/* tooltip sulla mappa */
+#map-tooltip{
+  position:absolute;
+  background:rgba(18,18,26,.96);
+  border:1px solid rgba(201,168,76,.35);
+  border-radius:12px;padding:12px 18px;
+  pointer-events:none;opacity:0;
+  transition:opacity .2s;z-index:50;
+  text-align:center;min-width:160px;
+}
+#map-tooltip.show{opacity:1}
+#map-tooltip .tt-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold2);margin-bottom:4px}
+#map-tooltip .tt-count{font-size:13px;color:var(--muted);font-style:italic}
+
+/* ===== SCHERMATA REGNO (lista storie del regno) ===== */
+#screen-realm{
+  display:none;width:100%;max-width:900px;
+  animation:fadeIn .5s ease;
+  margin:auto 0;
+}
+.realm-header{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.realm-icon-big{font-size:52px;line-height:1}
+.realm-name{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,48px);color:var(--gold2)}
+.realm-desc{font-size:clamp(13px,1.5vw,18px);color:var(--muted);font-style:italic;margin-top:4px}
+.realm-stories{display:flex;flex-direction:column;gap:14px}
+
+.story-card{background:var(--card);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);padding:22px 28px;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;display:flex;align-items:center;gap:20px}
+.story-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,168,76,.06),transparent);opacity:0;transition:opacity .3s}
+.story-card:hover{border-color:var(--gold);transform:translateX(6px);box-shadow:0 12px 40px rgba(201,168,76,.1)}
+.story-card:hover::before{opacity:1}
+.story-card-icon{font-size:36px;flex-shrink:0}
+.story-card-body{flex:1}
+.story-tag{display:inline-block;background:rgba(201,168,76,.12);color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-bottom:8px}
+.story-title{font-family:'Playfair Display',serif;font-size:clamp(18px,2vw,26px);font-weight:700;margin-bottom:6px;color:var(--text)}
+.story-desc{color:var(--muted);font-size:clamp(13px,1.3vw,17px);line-height:1.5;font-style:italic}
+.story-arrow{font-size:22px;color:var(--gold);opacity:.35;transition:all .3s;flex-shrink:0}
+.story-card:hover .story-arrow{opacity:1;transform:translateX(4px)}
+
+/* regno vuoto */
+.realm-empty{
+  text-align:center;padding:48px 24px;
+  color:var(--muted);font-style:italic;font-size:clamp(15px,1.6vw,20px);
+}
+.realm-empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+
+/* regioni mappa hover */
+.map-region{cursor:pointer;transition:filter .2s, opacity .2s}
+.map-region:hover{filter:brightness(1.35)}
+.map-region.locked{cursor:default;opacity:.55}
+.map-region.locked:hover{filter:none}
+
+/* STORY */
+#screen-story{display:none;width:100%;max-width:1300px;animation:fadeIn .7s ease}
+.progress-bar{width:100%;height:3px;background:rgba(255,255,255,.05);border-radius:2px;margin-bottom:14px;flex-shrink:0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .9s ease}
+
+/* immagine full-width con sottotitoli sovrapposti */
+.scene-img-block{
+  position:relative;width:100%;
+  border-radius:20px;overflow:hidden;
+  background:var(--surface);
+  height:clamp(200px,42vh,420px);
+  flex-shrink:0;
+}
+.scene-img-block img{width:100%;height:100%;object-fit:cover;display:block}
+.img-loading{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);font-size:14px;font-style:italic;
+}
+
+/* gradiente scuro in basso per leggibilità sottotitoli */
+.scene-img-block::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:55%;
+  background:linear-gradient(transparent, rgba(5,5,10,.92));
+  pointer-events:none;
+}
+
+/* SOTTOTITOLI — frase intera con fade */
+.subtitle-text{
+  font-family:'Crimson Pro',serif;
+  font-size:clamp(18px,2.2vw,30px);
+  font-style:italic;
+  font-weight:300;
+  color:#fff;
+  line-height:1.5;
+  text-shadow:0 2px 14px rgba(0,0,0,.9),0 1px 4px rgba(0,0,0,1);
+  transition:opacity 0.3s ease;
+}
+
+/* etichetta fase + indicatore voce */
+.scene-meta{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:10px;margin-top:14px;
+  flex-shrink:0;
+}
+.scene-label-pill{
+  font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold);background:rgba(201,168,76,.1);
+  border:1px solid rgba(201,168,76,.2);
+  padding:4px 12px;border-radius:20px;
+}
+.speak-ind{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-size:12px;opacity:0;transition:opacity .3s}
+.speak-ind.on{opacity:1}
+.speak-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);animation:sdot 1s ease-in-out infinite}
+.speak-dot:nth-child(2){animation-delay:.18s}.speak-dot:nth-child(3){animation-delay:.36s}
+@keyframes sdot{0%,100%{transform:scaleY(1)}50%{transform:scaleY(2.5)}}
+
+/* SCELTE — sotto l'immagine, sempre visibili */
+.choices-block{
+  margin-top:12px;flex-shrink:0;
+}
+.choices-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice-btn{
+  background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.14);
+  border-radius:10px;padding:12px 18px;text-align:left;cursor:pointer;
+  color:var(--text);font-family:'Crimson Pro',serif;
+  font-size:clamp(14px,1.5vw,20px);
+  transition:all .2s;display:flex;align-items:center;gap:12px;
+}
+.choice-btn .cnum{min-width:28px;height:28px;border-radius:50%;border:1px solid rgba(201,168,76,.28);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold);flex-shrink:0}
+.choice-btn:hover,.choice-btn.focused{background:rgba(201,168,76,.09);border-color:var(--gold);transform:translateX(6px)}
+
+/* MORAL CARD */
+.moral-card{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:18px 22px;margin-bottom:24px;display:none}
+.moral-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.moral-text{font-size:clamp(15px,1.6vw,20px);color:var(--text);font-style:italic;line-height:1.6}
+
+/* END */
+#screen-end{display:none;text-align:center;animation:fadeIn .8s ease;max-width:700px}
+.end-icon{font-size:72px;margin-bottom:28px}
+.end-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,52px);color:var(--gold2);margin-bottom:12px}
+.end-sub{font-size:clamp(15px,1.8vw,21px);color:var(--muted);font-style:italic;margin-bottom:36px}
+.btn-restart{background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Crimson Pro',serif;font-size:19px;padding:14px 44px;border-radius:40px;cursor:pointer;transition:all .3s;letter-spacing:1px}
+.btn-restart:hover{background:rgba(201,168,76,.1);transform:scale(1.03)}
+
+/* QR PANEL */
+#qr-panel{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(18,18,26,.97);
+  border:1px solid rgba(201,168,76,.3);
+  border-radius:20px;padding:32px 36px;
+  display:none;flex-direction:column;align-items:center;gap:16px;
+  z-index:200;text-align:center;
+}
+#qr-panel h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold2)}
+#qr-panel p{font-size:14px;color:var(--muted);line-height:1.5;max-width:280px}
+#qr-img{border-radius:10px;border:2px solid rgba(201,168,76,.3)}
+#qr-url{font-size:11px;color:var(--muted);font-family:monospace;margin-top:-8px}
+.qr-dismiss{background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--muted);font-family:'Crimson Pro',serif;font-size:14px;padding:8px 20px;border-radius:20px;cursor:pointer;margin-top:4px}
+.qr-dismiss:hover{border-color:var(--gold);color:var(--gold)}
+.ctrl-badge{position:fixed;bottom:20px;right:20px;background:rgba(18,18,26,.92);border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;z-index:100}
+.ctrl-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:cdot 2s infinite}
+@keyframes cdot{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* PULSANTE HOME FISSO */
+#btn-home{
+  position:fixed;top:20px;left:24px;z-index:150;
+  background:rgba(18,18,26,.88);
+  border:1px solid rgba(201,168,76,.25);
+  border-radius:30px;
+  padding:9px 18px 9px 14px;
+  color:var(--gold);
+  font-family:'Crimson Pro',serif;
+  font-size:15px;
+  cursor:pointer;
+  display:none;
+  align-items:center;gap:8px;
+  transition:all .2s;
+  backdrop-filter:blur(4px);
+}
+#btn-home:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
+#btn-home.visible{display:flex}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<!-- PULSANTE HOME SEMPRE VISIBILE durante la storia -->
+<button id="btn-home" onclick="goHome()">← Home</button>
+
+<div id="app">
+
+  <div id="screen-list">
+    <h1 class="header-title">✦ Il Mondo delle Storie ✦</h1>
+    <p class="header-sub">Scegli un regno e parti per l'avventura</p>
+    <div id="world-map-wrap">
+      <!-- SVG mappa generata da JS -->
+      <div id="map-tooltip"><div class="tt-name" id="tt-name"></div><div class="tt-count" id="tt-count"></div></div>
+    </div>
+  </div>
+
+  <!-- SCHERMATA REGNO -->
+  <div id="screen-realm">
+    <div class="realm-header">
+      <div class="realm-icon-big" id="realm-icon"></div>
+      <div>
+        <div class="realm-name" id="realm-name"></div>
+        <div class="realm-desc" id="realm-desc"></div>
+      </div>
+    </div>
+    <div class="realm-stories" id="realm-stories"></div>
+  </div>
+
+  <div id="screen-story">
+    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+
+    <!-- immagine full-width con sottotitoli sovrapposti -->
+    <div class="scene-img-block" id="scene-img-block">
+      <div class="img-loading" id="img-loading">Caricamento scena…</div>
+      <div class="subtitle-bar">
+        <p class="subtitle-text" id="subtitle-text"></p>
+      </div>
+    </div>
+
+    <!-- etichetta fase + indicatore voce -->
+    <div class="scene-meta">
+      <span class="scene-label-pill" id="scene-label">Inizio</span>
+      <span class="speak-ind" id="speak-ind">
+        <span class="speak-dot"></span><span class="speak-dot"></span><span class="speak-dot"></span>
+        in lettura…
+      </span>
+    </div>
+
+    <!-- morale (finale) -->
+    <div class="moral-card" id="moral-card" style="display:none">
+      <div class="moral-label">✦ La morale di questa storia</div>
+      <div class="moral-text" id="moral-text"></div>
+    </div>
+
+    <!-- scelte — sempre sotto, sempre visibili -->
+    <div class="choices-block" id="choices-wrap" style="display:none">
+      <p class="choices-title">Cosa succede adesso?</p>
+      <div class="choices" id="choices"></div>
+    </div>
+  </div>
+
+  <div id="screen-end">
+    <div class="end-icon">🌟</div>
+    <h2 class="end-title">Fine della storia!</h2>
+    <p class="end-sub">Che bella avventura insieme</p>
+    <button class="btn-restart" onclick="restart()">↩ Torna alle storie</button>
+  </div>
+</div>
+
+<!-- QR CODE PANEL -->
+<div id="qr-panel">
+  <h3>📱 Controller</h3>
+  <p>Inquadra il QR con il telefono per usarlo come telecomando</p>
+  <img id="qr-img" width="160" height="160" alt="QR controller">
+  <div id="qr-url"></div>
+  <button class="qr-dismiss" onclick="document.getElementById('qr-panel').style.display='none'">Ho scansionato il QR ✓</button>
+</div>
+
+<div class="ctrl-badge" onclick="showQR()" style="cursor:pointer" title="Mostra QR controller">
+  <div class="ctrl-dot" id="ctrl-dot"></div>
+  <span id="ctrl-text">📱 Controller</span>
+</div>
+
+<script>
+/* ===================== DATI STORIE ===================== */
+const STORIES = [
+  /* ---- 1. IL BOSCO DEI SUSSURRI ---- */
+  {
+    id:'forest', tag:'Avventura', icon:'🌲',
+    title:'Il Bosco dei Sussurri',
+    desc:'Una bambina sente voci tra gli alberi durante una passeggiata al tramonto.',
+    steps:[
+      {
+        type:'intro', label:'L\'inizio',
+        text:'Era un pomeriggio di ottobre quando Luce si avventurò nel bosco oltre la casa dei nonni. Le foglie rosse e dorate cadevano lente, e nell\'aria c\'era un profumo di terra bagnata e funghi. Ma poi, tra il frusciare delle foglie, sentì qualcosa di insolito: una voce sottile come un filo d\'argento che chiamava il suo nome.',
+        keyword:'autumn forest sunset golden leaves',
+        choices:[
+          {text:'Seguire la voce nel bosco più fitto', key:'deep'},
+          {text:'Rispondere ad alta voce e aspettare', key:'wait'},
+          {text:'Tornare di corsa dai nonni', key:'run'}
+        ]
+      },
+      {
+        type:'middle', label:'Il cuore della storia',
+        variants:{
+          deep:{
+            text:'Luce spinse tra i rami finché non trovò una piccola radura illuminata da una luce dorata. Al centro, seduta su un masso di muschio, c\'era una volpe bianca con gli occhi color ambra. "Finalmente arrivi," disse la volpe. "Ti aspettavo da tre inverni."',
+            keyword:'white fox magical clearing golden light forest',
+            choices:[
+              {text:'Chiederle del messaggio segreto', key:'msg'},
+              {text:'Chiederle chi l\'ha mandata', key:'who'},
+              {text:'Sedersi in silenzio ad ascoltare', key:'listen'}
+            ]
+          },
+          wait:{
+            text:'Dal silenzio emerse un bambino vestito di foglie e ramoscelli, i capelli pieni di terra. "Sono Rowan," disse, "il guardiano di questo bosco. Mi sono perso durante l\'ultima bufera e non ricordo la strada per casa." I suoi occhi erano color di muschio antico.',
+            keyword:'forest child lost autumn leaves magic',
+            choices:[
+              {text:'Promettergli di aiutarlo a trovare la strada', key:'help'},
+              {text:'Chiedergli dove abita', key:'where'},
+              {text:'Portarlo dai nonni', key:'home'}
+            ]
+          },
+          run:{
+            text:'I nonni ascoltarono la storia di Luce con attenzione. Il nonno aprì un vecchio cassetto e tirò fuori una mappa ingiallita. "Anch\'io ho sentito quella voce, quando ero piccolo come te. Il bosco parla solo a chi sa ascoltare davvero."',
+            keyword:'old map grandfather cozy kitchen autumn',
+            choices:[
+              {text:'Guardare la mappa insieme', key:'map'},
+              {text:'Chiedere cosa successe al nonno', key:'nonno'},
+              {text:'Tornare nel bosco con il nonno', key:'together'}
+            ]
+          }
+        }
+      },
+      {
+        type:'end', label:'Il finale',
+        ends:{
+          deep_msg:{text:'La volpe le consegnò una piccola pietra luminosa. "Portala sempre con te. Quando ti senti sola, brillerà." Luce tornò a casa stringendo la pietra al petto, sapendo che il bosco sarebbe sempre stato suo amico.', moral:'Chi ascolta con il cuore trova amici in ogni luogo.', keyword:'glowing stone child forest magical light'},
+          deep_who:{text:'"Sono la memoria del bosco," disse la volpe. "Ogni albero qui ha una storia da raccontare. Tu sei venuta ad ascoltarle." Quella notte Luce sognò tutte le storie degli alberi, e al mattino sapeva parlare con il vento.', moral:'Le storie degli altri ci rendono più ricchi dentro.', keyword:'child dreaming forest trees stars night'},
+          deep_listen:{text:'Nel silenzio, Luce capì tutto senza parole. La volpe sorrise e sparì tra gli alberi. Ma ogni volta che Luce tornava in quel bosco, la radura era lì ad aspettarla, calda e dorata come la prima volta.', moral:'A volte il silenzio ci insegna più di mille parole.', keyword:'peaceful forest clearing golden light autumn'},
+          wait_help:{text:'Insieme seguirono le tracce delle radici finché trovarono un grande albero cavo: la casa di Rowan. "Grazie," disse lui. "Senza di te non avrei mai trovato la strada." Da quel giorno Luce e Rowan furono amici per sempre.', moral:'Aiutare gli altri è la cosa più bella che possiamo fare.', keyword:'forest hollow tree child friendship warm light'},
+          wait_where:{text:'Rowan indicò una collina lontana dove brillava una luce verde. "Là vive mia nonna, la strega buona del bosco." Lo accompagnarono fino in cima e la nonna abbracciò Rowan tra le lacrime. "Grazie piccola," disse alla bambina.', moral:'Con coraggio e gentilezza si possono compiere grandi imprese.', keyword:'hilltop cottage green light forest child adventure'},
+          wait_home:{text:'I nonni di Luce riconobbero subito Rowan: era il nipote della vecchia Marta, la loro vicina di trent\'anni prima. Quella sera cenarono tutti insieme, e il bosco sembrò festeggiare con le sue foglie danzanti.', moral:'Le buone azioni uniscono le famiglie e scalano il tempo.', keyword:'cozy family dinner autumn evening warm kitchen'},
+          run_map:{text:'La mappa mostrava un sentiero segreto che portava a una casetta di pietra nel bosco. Ci andarono insieme e trovarono un vecchio libro di fiabe che nessuno leggeva da generazioni. Luce lo lesse ai nonni tutta la sera.', moral:'I tesori più preziosi si trovano solo se si va a cercarli.', keyword:'old cottage stone forest secret path discovery'},
+          run_nonno:{text:'Il nonno raccontò di quando aveva incontrato un cervo bianco che parlava. "Non devi avere paura delle voci del bosco, Luce. Sono le storie che cercano qualcuno che le ascolti." Da quel giorno Luce tornò sempre nel bosco.', moral:'I racconti dei nonni sono ponti tra il passato e il futuro.', keyword:'grandfather child storytelling fireplace autumn evening'},
+          run_together:{text:'Nonno e Luce entrarono nel bosco di mano. Questa volta la voce li chiamò entrambi. Trovarono una vecchia quercia con due nomi scolpiti: il nonno da bambino e… il nome di Luce. "Lo sapevo," disse lui sorridendo.', moral:'Alcune storie aspettano di essere vissute da due generazioni.', keyword:'ancient oak tree two names carved magical forest light'}
+        }
+      }
+    ]
+  },
+
+  /* ---- 2. LA NAVE DEI MILLE ANNI ---- */
+  {
+    id:'sea', tag:'Mistero', icon:'⚓',
+    title:'La Nave dei Mille Anni',
+    desc:'Un giovane pescatore trova un relitto che non dovrebbe esistere.',
+    steps:[
+      {
+        type:'intro', label:'L\'inizio',
+        text:'Marco aveva pescato in quelle acque tutta la vita, come suo padre e suo nonno prima di lui. Ma quella mattina, immerso nella nebbia più fitta dell\'anno, la prua della sua barca urtò qualcosa di solido. Era uno scafo di legno antico, coperto di barnacoli e alghe, con ancora le vele alzate come se aspettasse un vento che non era mai arrivato.',
+        keyword:'mysterious old sailing ship fog ocean',
+        choices:[
+          {text:'Salire a bordo della nave', key:'board'},
+          {text:'Girarle intorno per ispezionarla', key:'look'},
+          {text:'Chiamare la guardia costiera', key:'call'}
+        ]
+      },
+      {
+        type:'middle', label:'Il cuore della storia',
+        variants:{
+          board:{
+            text:'Il ponte cigolava sotto i suoi piedi. Nella cabina del capitano trovò un diario aperto all\'ultima pagina. La scrittura era chiara, come se fosse stata tracciata il giorno prima: "La tempesta ci ha portati fin qui. Ma non siamo soli su questa nave. C\'è qualcosa che aspetta sotto le assi del ponte."',
+            keyword:'old ship cabin lantern captain log book',
+            choices:[
+              {text:'Aprire il portello sotto coperta', key:'hatch'},
+              {text:'Leggere il diario dall\'inizio', key:'read'},
+              {text:'Uscire subito dalla nave', key:'escape'}
+            ]
+          },
+          look:{
+            text:'Sul fianco dello scafo era inciso il nome "Stella Maris" e sotto, una data: 1743. Impossibile. Eppure la nave galleggiava, le vele erano intatte, e dal boccaporto aperto saliva un filo di fumo, come di un fuoco ancora acceso.',
+            keyword:'old ship hull name inscription sea mystery',
+            choices:[
+              {text:'Avvicinarsi al boccaporto fumante', key:'port'},
+              {text:'Cercare testimoni al porto', key:'witness'},
+              {text:'Fotografare e cercare archivi storici', key:'photo'}
+            ]
+          },
+          call:{
+            text:'La guardia costiera impiegò quaranta minuti. Ma quando arrivarono, la nebbia si era alzata e del relitto non c\'era traccia. Solo Marco aveva visto la nave. Il comandante lo guardò con un sorriso strano: "Non è la prima volta che succede qui."',
+            keyword:'coast guard patrol boat sea fog mystery',
+            choices:[
+              {text:'Chiedere al comandante cosa sa', key:'ask'},
+              {text:'Tornare sul posto la notte dopo', key:'return'},
+              {text:'Cercare vecchi pescatori del porto', key:'elders'}
+            ]
+          }
+        }
+      },
+      {
+        type:'end', label:'Il finale',
+        ends:{
+          board_hatch:{text:'Sotto coperta trovò una bambina in abiti d\'epoca che dormiva in un\'amaca. Si svegliò sorridendo: "Aspettavo che qualcuno aprisse quella porta da trecento anni." Sparì all\'alba, lasciando solo un ciondolo d\'argento sul palmo di Marco.', moral:'Chi ha coraggio di aprire porte sconosciute trova ciò che nessuno ha mai trovato.', keyword:'old ship below deck lantern silver pendant mystery'},
+          board_read:{text:'Il diario raccontava di un capitano che aveva scelto di restare in mare per proteggere le coste. Marco capì: la nave era ancora lì perché qualcuno doveva finire di leggere la storia. L\'ultima pagina era per lui.', moral:'Ogni storia merita di essere letta fino in fondo.', keyword:'old diary ship captain letter candlelight sea'},
+          board_escape:{text:'Appena risalì sulla sua barca, la nave antica si dissolse nella nebbia come zucchero nell\'acqua. Sull\'acqua rimase solo un piccolo forziere di legno. Dentro: una mappa di luoghi che Marco non aveva ancora esplorato.', moral:'A volte la cosa più saggia è saper fermarsi al momento giusto.', keyword:'wooden chest sea map treasure discovery ocean'},
+          look_port:{text:'Dal boccaporto sbucò fuori un vecchio gatto rosso che borbottava come se stesse raccontando qualcosa. Marco lo seguì giù per una scaletta e trovò una stiva piena di libri mai letti da nessuno.', moral:'I tesori più grandi sono quelli che nutrono la mente.', keyword:'old ship cat books library lantern golden light'},
+          look_witness:{text:'Al porto, una vecchia signora lo riconobbe: "Anche mio padre vide quella nave." Passò tre ore a raccontargli storie del mare che nessuno conosceva più. Quando tornò a casa, Marco cominciò a scrivere.', moral:'Le storie degli anziani sono tesori che non dobbiamo lasciar perdere.', keyword:'old harbor woman storytelling fishing village evening'},
+          look_photo:{text:'Negli archivi del municipio trovò una fotografia del 1912 che ritraeva la stessa nave — con suo bisnonno a bordo. Il mare aveva voluto che Marco la ritrovasse, per riconnettere una catena spezzata di famiglia.', moral:'Le radici della famiglia ci raggiungono anche quando non le cerchiamo.', keyword:'old photograph archive harbor family history discovery'},
+          call_ask:{text:'Il comandante aprì un cassetto e tirò fuori un registro antico. "Ogni generazione ne vede una diversa. Significa che il mare si fida di te." Da quel giorno Marco divenne il custode di quelle acque, come i suoi avi prima di lui.', moral:'La fiducia si eredita, ma va guadagnata ogni giorno.', keyword:'harbor master old register sea lighthouse duty'},
+          call_return:{text:'Quella notte la nave era di nuovo lì, illuminata da mille candele. A bordo c\'erano tutti i capitani che erano venuti prima di Marco. "Benvenuto," dissero in coro. "Sei uno di noi."', moral:'Chi ama il mare porta dentro di sé tutte le generazioni che lo hanno amato prima.', keyword:'ship night candlelight ghostly sea reunion'},
+          call_elders:{text:'I vecchi pescatori sapevano. Si passavano la storia da padre in figlio: "La Stella Maris appare quando il mare ha bisogno di un nuovo guardiano." Marco capì. Aveva ereditato qualcosa di più grande di una barca.', moral:'Le tradizioni ci consegnano responsabilità e orgoglio.', keyword:'old fishermen harbor evening lanterns tradition sea'}
+        }
+      }
+    ]
+  },
+
+  /* ---- 3. LUNA E IL CRISTALLO DELLA MONTAGNA ---- */
+  {
+    id:'mountain', tag:'Fantasy · bambini', icon:'🏔️',
+    title:'Luna e il Cristallo della Montagna',
+    desc:'Una bambina coraggiosa parte alla ricerca di un cristallo magico per salvare la primavera.',
+    steps:[
+      {
+        type:'intro', label:'C\'era una volta…',
+        text:'C\'era una volta una bambina di nome Luna che viveva in un piccolo villaggio ai piedi di una grande montagna innevata. Un mattino Luna si svegliò e vide che tutti i fiori erano diventati di ghiaccio, e gli uccellini non cantavano più. La fata del villaggio le disse: "Il Cristallo della Primavera si è spento lassù sulla montagna. Solo un cuore coraggioso può riaccenderlo!" Luna prese il suo zaino colorato e partì.',
+        keyword:'cute cartoon snowy mountain village child adventure illustration',
+        choices:[
+          {text:'Seguire il sentiero dei fiori di ghiaccio', key:'flowers'},
+          {text:'Chiedere aiuto all\'orso del bosco', key:'bear'},
+          {text:'Seguire una stella luminosa nel cielo', key:'star'}
+        ]
+      },
+      {
+        type:'middle', label:'Nel mezzo del viaggio',
+        variants:{
+          flowers:{
+            text:'I fiori di ghiaccio la portarono fino a una cascata congelata bellissima, dove abitava una fatina blu di nome Gelo. "Io ho raffreddato il cristallo per sbaglio!" disse Gelo con le lacrime agli occhi. "Volevo fare una sorpresa, ma ho esagerato con la neve." Luna le prese la manina: "Non piangere. Lo sistemiamo insieme!"',
+            keyword:'cute cartoon ice fairy frozen waterfall mountain child illustration',
+            choices:[
+              {text:'Scaldarla con un abbraccio caldo', key:'hug'},
+              {text:'Cantare una canzone della primavera', key:'sing'},
+              {text:'Costruire insieme un fuoco di stelle', key:'fire'}
+            ]
+          },
+          bear:{
+            text:'L\'orso si chiamava Bernardo e aveva un naso enorme e buffo sempre pieno di miele. "So dove sta il cristallo!" disse, e la caricò sulla schiena. Salirono su per i sentieri innevati finché non trovarono una grotta tappezzata di ghiaccioli luccicanti. "È qui dentro," bisbigliò Bernardo.',
+            keyword:'cute cartoon bear child riding mountain snow adventure illustration',
+            choices:[
+              {text:'Entrare nella grotta con la torcia', key:'torch'},
+              {text:'Chiamare il cristallo con voce gentile', key:'call'},
+              {text:'Lasciare miele all\'ingresso come regalo', key:'honey'}
+            ]
+          },
+          star:{
+            text:'La stella scese dal cielo e si trasformò in un piccolo drago dorato grande come un gattino. Si chiamava Scintilla e soffiava bollicine dorate invece del fuoco. "Ti porto io al cristallo!" disse, e volarono insieme sopra le nuvole di neve fino a una cima altissima.',
+            keyword:'cute cartoon golden dragon child flying mountain clouds illustration',
+            choices:[
+              {text:'Accarezzare Scintilla per dargli coraggio', key:'pet'},
+              {text:'Cantargli la canzone preferita', key:'song'},
+              {text:'Chiedergli della sua famiglia', key:'family'}
+            ]
+          }
+        }
+      },
+      {
+        type:'end', label:'Il grande finale',
+        ends:{
+          flowers_hug:{
+            text:'Luna abbracciò Gelo forte forte. Il calore del suo abbraccio si propagò come onde dorate e il Cristallo della Primavera tornò a brillare. I fiori sbocciarono tutti insieme, e Gelo imparò che il calore degli amici è la magia più potente di tutte. Luna tornò a casa tra i petali e i cinguettii degli uccellini.',
+            moral:'Un abbraccio sincero può scaldare anche il cuore più freddo.',
+            keyword:'cute cartoon child hugging fairy spring flowers blooming illustration'
+          },
+          flowers_sing:{
+            text:'Luna cantò la canzone della primavera che le aveva insegnato la nonna. Le note diventarono farfalle colorate che danzavano intorno al cristallo, finché non riprese a splendere. Gelo ballò di gioia e da quel giorno imparò a fare solo nevischio gentile.',
+            moral:'La musica e la gioia hanno il potere di cambiare il mondo.',
+            keyword:'cute cartoon child singing butterflies spring crystal mountain illustration'
+          },
+          flowers_fire:{
+            text:'Insieme raccoglievano stelle cadenti e le mettevano in un cesto. Fecero un piccolo falò di luce stellare che riscaldò il cristallo lentamente. Quando si riaccese, era ancora più bello di prima, con dentro i colori di tutte le stelle.',
+            moral:'Lavorare insieme rende ogni impresa possibile.',
+            keyword:'cute cartoon children stars campfire mountain night magic illustration'
+          },
+          bear_torch:{
+            text:'Nella grotta, il cristallo era circondato da decine di scoiattolini che ci dormivano sopra. "Avevano freddo!" disse Luna ridendo. Insieme, lei e Bernardo costruirono calde casette di paglia per gli scoiattolini, e il cristallo fu libero di brillare ancora.',
+            moral:'Prendersi cura degli altri ci rende tutti più felici.',
+            keyword:'cute cartoon squirrels bear child cozy mountain cave illustration'
+          },
+          bear_call:{
+            text:'Luna chiamò dolcemente: "Cristallo, sei sveglio?" Una voce piccola e tintinnante rispose: "Stavo aspettando che qualcuno mi chiedesse come stavo." Il cristallo brillò di un arcobaleno di colori. A volte basta chiedere con gentilezza.',
+            moral:'Chiedere come sta qualcuno è il gesto più gentile che esista.',
+            keyword:'cute cartoon glowing crystal rainbow mountain cave child illustration'
+          },
+          bear_honey:{
+            text:'Appena Bernardo posò il miele, sbucò fuori un vecchio gnomo con la barba bianca. Era lui il guardiano del cristallo! Mangiò un po\' di miele, ringraziò e riaccese il cristallo con un soffio. "Avevo solo bisogno di uno spuntino," disse borbottando.',
+            moral:'La gentilezza apre porte che la forza non riuscirebbe mai ad aprire.',
+            keyword:'cute cartoon gnome bear honey crystal mountain cave illustration'
+          },
+          star_pet:{
+            text:'Scintilla si fece così coraggioso grazie alle carezze di Luna che soffiò le sue bollicine dorate direttamente sul cristallo. Tornò a splendere all\'istante! Da quel giorno Scintilla diventò il drago guardiano della montagna, e ogni primavera veniva a trovare Luna.',
+            moral:'Sentirsi amati ci dà il coraggio di fare cose meravigliose.',
+            keyword:'cute cartoon dragon child mountain spring flowers friendship illustration'
+          },
+          star_song:{
+            text:'Luna cantò e Scintilla soffiò bollicine a ritmo di musica. Le bollicine si posarono sul cristallo come pioggia dorata finché riprese a brillare. Tutta la montagna si risvegliò di colori. "La canzone giusta apre ogni cuore," disse Scintilla.',
+            moral:'La gentilezza e la musica toccano ogni cuore.',
+            keyword:'cute cartoon dragon child singing mountain flowers spring magic illustration'
+          },
+          star_family:{
+            text:'Scintilla raccontò della sua famiglia di draghi dorati che vivevano dietro le stelle. "Anche tu hai una famiglia che ti aspetta," disse a Luna. Si abbracciarono, poi Scintilla soffiò sul cristallo con tutto il calore del suo cuore. La primavera tornò ancora più bella.',
+            moral:'Ricordare chi amiamo ci dà la forza più grande.',
+            keyword:'cute cartoon dragon child hug mountain family stars spring illustration'
+          }
+        }
+      }
+    ]
+  }
+];
+
+/* ===================== STATO ===================== */
+let story=null, stepIdx=0, choice1=null, choice2=null;
+
+/* ===================== STELLE ===================== */
+function makeStars(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<90;i++){
+    const s=document.createElement('div');s.className='star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${(Math.random()*2+.5).toFixed(1)}px;height:${(Math.random()*2+.5).toFixed(1)}px;--d:${(Math.random()*4+2).toFixed(1)}s;animation-delay:${(Math.random()*6).toFixed(1)}s`;
+    c.appendChild(s);
+  }
+}
+
+/* ===================== REGNI DEL MONDO ===================== */
+const REALMS = [
+  {
+    id:'forest', icon:'🌲', name:'La Grande Foresta',
+    desc:'Boschi antichi, animali parlanti e segreti tra le foglie',
+    color:'#2d5a27', colorLight:'#4a8c42', colorDark:'#1a3518',
+    storyIds:['forest'],
+    /* coordinate SVG del poligono della regione */
+    shape:'M 120,80 L 320,60 L 380,160 L 340,260 L 180,280 L 80,200 Z',
+    labelX:230, labelY:175,
+  },
+  {
+    id:'mountain', icon:'🏔️', name:'Le Cime Tempestose',
+    desc:'Vette innevate, cristalli magici e draghi dorati',
+    color:'#4a5568', colorLight:'#718096', colorDark:'#2d3748',
+    storyIds:['mountain'],
+    shape:'M 380,60 L 580,40 L 660,120 L 620,220 L 460,240 L 380,160 Z',
+    labelX:520, labelY:145,
+  },
+  {
+    id:'sea', icon:'🌊', name:'L\'Oceano Profondo',
+    desc:'Navi misteriose, abissi senza fondo e segreti del mare',
+    color:'#1a4a7a', colorLight:'#2c6fad', colorDark:'#0d2d4f',
+    storyIds:['sea'],
+    shape:'M 620,220 L 780,180 L 860,300 L 820,420 L 660,440 L 560,360 L 580,260 Z',
+    labelX:710, labelY:320,
+  },
+  {
+    id:'desert', icon:'🌵', name:'Le Terre Dimenticate',
+    desc:'Dune infinite, rovine antiche e tesori sepolti',
+    color:'#7a5c1a', colorLight:'#b8882a', colorDark:'#4a380f',
+    storyIds:[],
+    shape:'M 80,200 L 180,280 L 200,420 L 100,460 L 20,360 L 40,260 Z',
+    labelX:110, labelY:340,
+  },
+  {
+    id:'kingdom', icon:'🏰', name:'Le Terre di Mezzo',
+    desc:'Castelli dorati, villaggi allegri e campagne fiorite',
+    color:'#6b3a8a', colorLight:'#9b5ec4', colorDark:'#3d2050',
+    storyIds:[],
+    shape:'M 200,420 L 340,260 L 460,240 L 560,360 L 520,500 L 340,540 L 200,500 Z',
+    labelX:375, labelY:410,
+  },
+  {
+    id:'sky', icon:'✨', name:'Il Cielo Infinito',
+    desc:'Stelle danzanti, nuvole abitate e magie senza confini',
+    color:'#1a3a6b', colorLight:'#2a5aab', colorDark:'#0d1f3d',
+    storyIds:[],
+    shape:'M 580,40 L 780,20 L 860,120 L 780,180 L 660,120 Z',
+    labelX:720, labelY:100,
+  },
+];
+
+/* ===================== MAPPA SVG ===================== */
+function buildMap(){
+  const wrap = document.getElementById('world-map-wrap');
+  const tooltip = document.getElementById('map-tooltip');
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 900 560');
+  svg.setAttribute('id','world-map');
+  svg.style.cssText='width:100%;height:100%;max-height:calc(100vh - 180px);filter:drop-shadow(0 0 40px rgba(201,168,76,.08))';
+
+  /* sfondo oceano */
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('width','900');bg.setAttribute('height','560');
+  bg.setAttribute('fill','#070d1a');bg.setAttribute('rx','20');
+  svg.appendChild(bg);
+
+  /* griglia decorativa */
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  defs.innerHTML = `
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(201,168,76,.04)" stroke-width="0.5"/>
+    </pattern>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  `;
+  svg.appendChild(defs);
+  const gridRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  gridRect.setAttribute('width','900');gridRect.setAttribute('height','560');
+  gridRect.setAttribute('fill','url(#grid)');svg.appendChild(gridRect);
+
+  REALMS.forEach(realm => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.classList.add('map-region');
+    if(!realm.storyIds.length) g.classList.add('locked');
+
+    /* forma della regione */
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', realm.shape);
+    path.setAttribute('fill', realm.color);
+    path.setAttribute('stroke', realm.colorLight);
+    path.setAttribute('stroke-width','1.5');
+    g.appendChild(path);
+
+    /* texture puntini interni */
+    for(let i=0;i<6;i++){
+      const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx', realm.labelX + (Math.random()*80-40));
+      dot.setAttribute('cy', realm.labelY + (Math.random()*60-30));
+      dot.setAttribute('r','1.5');
+      dot.setAttribute('fill', realm.colorLight);
+      dot.setAttribute('opacity','0.3');
+      g.appendChild(dot);
+    }
+
+    /* icona + nome */
+    const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+    fo.setAttribute('x', realm.labelX - 60);
+    fo.setAttribute('y', realm.labelY - 40);
+    fo.setAttribute('width','120');
+    fo.setAttribute('height','80');
+    fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="text-align:center;pointer-events:none">
+      <div style="font-size:26px;line-height:1.2">${realm.icon}</div>
+      <div style="font-family:'Playfair Display',serif;font-size:11px;color:${realm.colorLight};letter-spacing:1px;line-height:1.3;margin-top:2px">${realm.name}</div>
+      ${realm.storyIds.length ? `<div style="font-size:9px;color:rgba(201,168,76,.6);margin-top:2px">${realm.storyIds.length} stor${realm.storyIds.length>1?'ie':'ia'}</div>` : '<div style="font-size:9px;color:rgba(255,255,255,.25);margin-top:2px">Presto…</div>'}
+    </div>`;
+    g.appendChild(fo);
+
+    /* interazione */
+    if(realm.storyIds.length){
+      g.addEventListener('click', ()=>openRealm(realm.id));
+      g.addEventListener('mouseenter', (e)=>{
+        const r = svg.getBoundingClientRect();
+        const x = realm.labelX / 900 * r.width + r.left;
+        const y = realm.labelY / 560 * r.height + r.top;
+        document.getElementById('tt-name').textContent = realm.name;
+        document.getElementById('tt-count').textContent = `${realm.storyIds.length} storia disponibile`;
+        tooltip.style.left = (x - tooltip.offsetWidth/2) + 'px';
+        tooltip.style.top = (y - 90) + 'px';
+        tooltip.classList.add('show');
+      });
+      g.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
+    }
+
+    svg.appendChild(g);
+  });
+
+  /* bordi decorativi della mappa */
+  const border = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  border.setAttribute('width','898');border.setAttribute('height','558');
+  border.setAttribute('x','1');border.setAttribute('y','1');
+  border.setAttribute('fill','none');
+  border.setAttribute('stroke','rgba(201,168,76,.15)');
+  border.setAttribute('stroke-width','1');
+  border.setAttribute('rx','20');
+  svg.appendChild(border);
+
+  wrap.appendChild(svg);
+}
+
+/* ===================== APERTURA REGNO ===================== */
+function openRealm(realmId){
+  const realm = REALMS.find(r=>r.id===realmId);
+  document.getElementById('realm-icon').textContent = realm.icon;
+  document.getElementById('realm-name').textContent = realm.name;
+  document.getElementById('realm-desc').textContent = realm.desc;
+
+  const container = document.getElementById('realm-stories');
+  if(!realm.storyIds.length){
+    container.innerHTML = `<div class="realm-empty"><div class="realm-empty-icon">${realm.icon}</div>Questo regno non ha ancora storie.<br>Torna presto per nuove avventure…</div>`;
+  } else {
+    container.innerHTML = realm.storyIds.map(sid=>{
+      const s = STORIES.find(x=>x.id===sid);
+      if(!s) return '';
+      return `<div class="story-card" onclick="startStory('${s.id}')">
+        <div class="story-card-icon">${s.icon}</div>
+        <div class="story-card-body">
+          <span class="story-tag">${s.tag}</span>
+          <h3 class="story-title">${s.title}</h3>
+          <p class="story-desc">${s.desc}</p>
+        </div>
+        <span class="story-arrow">→</span>
+      </div>`;
+    }).join('');
+  }
+  show('screen-realm');
+}
+
+/* ===================== LISTA (vecchia, non più usata direttamente) ===================== */
+function renderList(){
+  /* la home ora è la mappa — buildMap() la costruisce una sola volta */
+}
+
+/* ===================== STORIA ===================== */
+function startStory(id){
+  story=STORIES.find(s=>s.id===id);
+  stepIdx=0;choice1=null;choice2=null;
+  show('screen-story');
+  renderStep();
+}
+
+function renderStep(){
+  const step=story.steps[stepIdx];
+  document.getElementById('prog').style.width=(stepIdx/story.steps.length*100)+'%';
+  document.getElementById('moral-card').style.display='none';
+  document.getElementById('choices-wrap').style.display='none';
+
+  if(step.type==='intro'){
+    setLabel(step.label);
+    loadImg(imgPath(story.id,'intro',null));
+    speak(step.text, ()=>showChoices(step.choices));
+
+  } else if(step.type==='middle'){
+    const v=step.variants[choice1]||step.variants[Object.keys(step.variants)[0]];
+    setLabel(step.label);
+    loadImg(imgPath(story.id,'middle',choice1));
+    speak(v.text, ()=>showChoices(v.choices));
+
+  } else {
+    /* END */
+    const key=choice1+'_'+choice2;
+    const e=step.ends[key]||step.ends[Object.keys(step.ends)[0]];
+    setLabel(step.label);
+    loadImg(imgPath(story.id,'end',null));
+    speak(e.text, ()=>{
+      document.getElementById('prog').style.width='100%';
+      document.getElementById('moral-text').textContent=e.moral||'';
+      if(e.moral) document.getElementById('moral-card').style.display='block';
+      setTimeout(showEnd, 6000);
+    });
+  }
+}
+
+function setLabel(lbl){
+  document.getElementById('scene-label').textContent=lbl;
+}
+
+function showChoices(choices){
+  const cc=document.getElementById('choices');
+  cc.innerHTML=choices.map((c,i)=>`
+    <button class="choice-btn" onclick="pick('${c.key}',${stepIdx})">
+      <span class="cnum">${i+1}</span><span>${c.text}</span>
+    </button>`).join('');
+  document.getElementById('choices-wrap').style.display='block';
+}
+
+function pick(key,si){
+  if(si===0) choice1=key; else choice2=key;
+  document.getElementById('choices-wrap').style.display='none';
+  stepIdx++;
+  if(stepIdx<story.steps.length) setTimeout(renderStep,350);
+}
+
+function showEnd(){
+  stopSpeak();
+  show('screen-end');
+}
+
+function restart(){
+  stopSpeak();
+  const lastId = story?.id;
+  story=null;choice1=null;choice2=null;stepIdx=0;
+  const realm = REALMS.find(r=>r.storyIds.includes(lastId||''));
+  if(realm) openRealm(realm.id);
+  else show('screen-list');
+}
+
+function show(id){
+  ['screen-list','screen-story','screen-end'].forEach(s=>{
+    document.getElementById(s).style.display = s===id ? 'block' : 'none';
+  });
+  /* mostra il pulsante home solo quando si è dentro una storia */
+  const btn = document.getElementById('btn-home');
+  if(id==='screen-list') btn.classList.remove('visible');
+  else btn.classList.add('visible');
+}
+
+function goHome(){
+  stopSpeak();
+  story=null; choice1=null; choice2=null; stepIdx=0;
+  show('screen-list');
+}
+
+/* ===================== IMMAGINI LOCALI =====================
+   Struttura attesa nella cartella images/:
+   images/forest/intro.jpg
+   images/forest/middle_deep.jpg   (ramo scelta 1)
+   images/forest/middle_wait.jpg   (ramo scelta 2)
+   images/forest/middle_run.jpg    (ramo scelta 3)
+   images/forest/end.jpg
+   images/sea/intro.jpg  ... (stessa struttura)
+   images/mountain/intro.jpg ...
+   ======================================================== */
+
+function imgPath(storyId, type, variant){
+  /* type = 'intro' | 'middle' | 'end'
+     variant = chiave scelta (es. 'deep') oppure null */
+  const base = `images/${storyId}/`;
+  if(type==='intro') return base+'intro.jpg';
+  if(type==='end')   return base+'end.jpg';
+  if(type==='middle' && variant) return base+`middle_${variant}.jpg`;
+  return base+'intro.jpg';
+}
+
+function loadImg(path){
+  const block = document.getElementById('scene-img-block');
+  const old = block.querySelector('img'); if(old) old.remove();
+  const loading = document.getElementById('img-loading');
+  loading.style.display='flex';
+  loading.textContent='Caricamento scena…';
+
+  const img = new Image();
+  img.src = path;
+  img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:opacity .5s';
+  img.style.opacity = '0';
+  img.onload = ()=>{
+    loading.style.display='none';
+    block.insertBefore(img, block.firstChild);
+    requestAnimationFrame(()=>{ img.style.opacity='1'; });
+  };
+  img.onerror = ()=>{
+    /* immagine non trovata: mostra placeholder con nome file */
+    loading.textContent = '🖼 ' + path;
+  };
+}
+
+/* ===================== VOCE — ElevenLabs TTS =====================
+   1. Vai su elevenlabs.io → crea account gratuito
+   2. Profile → API Key → copia e incolla sotto
+   3. Voce consigliata: "Serena" o lascia il default italiano
+   ================================================================ */
+const ELEVENLABS_KEY    = 'REDACTED_ELEVENLABS_KEY';
+/* ID voce italiana su ElevenLabs.
+   Default: "Serena" (voce femminile italiana naturale).
+   Puoi trovare altri ID su elevenlabs.io/voice-library cercando "Italian" */
+const ELEVENLABS_VOICE  = 'pFZP5JQG7iQjIQuC4Bku'; /* Serena — Italian */
+
+let currentAudio = null;
+
+function splitSentences(text){
+  return text.match(/[^.!?]+[.!?]*/g) || [text];
+}
+
+async function speak(text, cb){
+  stopSpeak();
+  document.getElementById('speak-ind').classList.add('on');
+
+  const hasKey = ELEVENLABS_KEY && ELEVENLABS_KEY !== 'REDACTED_ELEVENLABS_KEY';
+
+  if(hasKey){
+    await speakElevenLabs(text, cb);
+  } else {
+    /* fallback Web Speech finché non si inserisce la chiave */
+    speakFallback(text, cb);
+  }
+}
+
+async function speakElevenLabs(text, cb){
+  const sentences = splitSentences(text);
+  const sub = document.getElementById('subtitle-text');
+
+  for(let i=0; i<sentences.length; i++){
+    const s = sentences[i].trim();
+    if(!s) continue;
+
+    /* sottotitolo: fade out → cambia testo → fade in */
+    sub.style.transition='opacity .25s';
+    sub.style.opacity='0';
+    await wait(260);
+    sub.textContent = s;
+    sub.style.opacity='1';
+
+    try{
+      const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE}/stream`, {
+        method:'POST',
+        headers:{
+          'xi-api-key': ELEVENLABS_KEY,
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+          text: s,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings:{ stability:0.45, similarity_boost:0.82, style:0.3, use_speaker_boost:true }
+        })
+      });
+      if(!res.ok) throw new Error('ElevenLabs error '+res.status);
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      await playAudio(url);
+      URL.revokeObjectURL(url);
+    } catch(e){
+      /* se la chiamata fallisce (quota esaurita, ecc.) cade sul fallback */
+      await new Promise(res=>wsSentence(s, res));
+    }
+  }
+
+  document.getElementById('speak-ind').classList.remove('on');
+  if(cb) cb();
+}
+
+function playAudio(url){
+  return new Promise(resolve=>{
+    const a = new Audio(url);
+    currentAudio = a;
+    a.onended  = resolve;
+    a.onerror  = resolve; /* non bloccare se errore */
+    a.play().catch(resolve);
+  });
+}
+
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/* Web Speech fallback (per uso senza chiave ElevenLabs) */
+function speakFallback(text, cb){
+  const sentences = splitSentences(text);
+  const sub = document.getElementById('subtitle-text');
+  let i = 0;
+  function next(){
+    if(i>=sentences.length){
+      document.getElementById('speak-ind').classList.remove('on');
+      if(cb)cb(); return;
+    }
+    const s=sentences[i].trim(); if(!s){i++;next();return;}
+    sub.style.opacity='0';
+    setTimeout(()=>{ sub.textContent=s; sub.style.opacity='1'; },200);
+    wsSentence(s,()=>{ i++; next(); });
+  }
+  next();
+}
+
+function wsSentence(text, cb){
+  const synth = window.speechSynthesis;
+  if(!synth){if(cb)cb();return;}
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang='it-IT'; u.rate=0.82; u.pitch=1.0;
+  const vs=synth.getVoices();
+  const v=vs.find(x=>x.name.includes('Google')&&x.lang.startsWith('it'))
+    ||vs.find(x=>x.lang==='it-IT')||vs.find(x=>x.lang.startsWith('it'));
+  if(v)u.voice=v;
+  u.onend=cb; u.onerror=cb;
+  synth.speak(u);
+}
+
+function stopSpeak(){
+  if(currentAudio){currentAudio.pause();currentAudio.src='';currentAudio=null;}
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  document.getElementById('speak-ind').classList.remove('on');
+  const sub=document.getElementById('subtitle-text');
+  if(sub){sub.textContent='';sub.style.opacity='1';}
+}
+
+/* ===================== QR CODE controller ===================== */
+function showQR(){
+  /* Genera QR che punta a controller.html nella stessa cartella */
+  const base=window.location.href.replace('tv.html','');
+  const ctrlUrl=base+'controller.html';
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(ctrlUrl)}&bgcolor=12121a&color=c9a84c&margin=10`;
+  document.getElementById('qr-img').src=qrUrl;
+  document.getElementById('qr-url').textContent=ctrlUrl.length>50?ctrlUrl.slice(0,50)+'…':ctrlUrl;
+  document.getElementById('qr-panel').style.display='flex';
+}
+
+/* ===================== CONTROLLER via BroadcastChannel ===================== */
+let bc;
+try{
+  bc=new BroadcastChannel('storie-interattive');
+  bc.onmessage=(e)=>{
+    const d=e.data;
+    if(d.action==='start') startStory(d.id);
+    if(d.action==='pick') pick(d.key,d.si);
+    if(d.action==='restart') restart();
+    document.getElementById('ctrl-text').textContent='Controller attivo ✓';
+    document.getElementById('ctrl-dot').style.background='#4caf50';
+    document.getElementById('qr-panel').style.display='none';
+  };
+}catch(err){}
+
+function show(id){
+  ['screen-list','screen-realm','screen-story','screen-end'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(el) el.style.display = s===id ? 'block' : 'none';
+  });
+  const btn = document.getElementById('btn-home');
+  btn.classList.toggle('visible', id!=='screen-list');
+  /* mostra/nascondi anche screen-realm nel btn-home */
+  if(id==='screen-realm'){
+    btn.textContent='← Mappa';
+    btn.onclick=()=>{ stopSpeak(); show('screen-list'); };
+  } else {
+    btn.textContent='← Home';
+    btn.onclick=goHome;
+  }
+}
+
+function goHome(){
+  stopSpeak();
+  story=null; choice1=null; choice2=null; stepIdx=0;
+  show('screen-list');
+}
+
+makeStars();
+buildMap();
+show('screen-list');
+showQR();
+</script>
+</body>
+</html>
