@@ -869,7 +869,7 @@ function loadImg(path){
    2. Profile → API Key → copia e incolla sotto
    3. Voce consigliata: "Serena" o lascia il default italiano
    ================================================================ */
-const ELEVENLABS_KEY    = 'REDACTED_ELEVENLABS_KEY';
+const ELEVENLABS_KEY    = '';
 /* ID voce italiana su ElevenLabs.
    Default: "Serena" (voce femminile italiana naturale).
    Puoi trovare altri ID su elevenlabs.io/voice-library cercando "Italian" */
@@ -885,7 +885,7 @@ async function speak(text, cb){
   stopSpeak();
   document.getElementById('speak-ind').classList.add('on');
 
-  const hasKey = ELEVENLABS_KEY && ELEVENLABS_KEY !== 'REDACTED_ELEVENLABS_KEY';
+  const hasKey = !!ELEVENLABS_KEY;
 
   if(hasKey){
     await speakElevenLabs(text, cb);
