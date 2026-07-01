@@ -726,11 +726,6 @@ function openRealm(realmId){
   show('screen-realm');
 }
 
-/* ===================== LISTA (vecchia, non più usata direttamente) ===================== */
-function renderList(){
-  /* la home ora è la mappa — buildMap() la costruisce una sola volta */
-}
-
 /* ===================== STORIA ===================== */
 function startStory(id){
   story=STORIES.find(s=>s.id===id);
@@ -803,22 +798,6 @@ function restart(){
   const realm = REALMS.find(r=>r.storyIds.includes(lastId||''));
   if(realm) openRealm(realm.id);
   else show('screen-list');
-}
-
-function show(id){
-  ['screen-list','screen-story','screen-end'].forEach(s=>{
-    document.getElementById(s).style.display = s===id ? 'block' : 'none';
-  });
-  /* mostra il pulsante home solo quando si è dentro una storia */
-  const btn = document.getElementById('btn-home');
-  if(id==='screen-list') btn.classList.remove('visible');
-  else btn.classList.add('visible');
-}
-
-function goHome(){
-  stopSpeak();
-  story=null; choice1=null; choice2=null; stepIdx=0;
-  show('screen-list');
 }
 
 /* ===================== IMMAGINI LOCALI =====================
