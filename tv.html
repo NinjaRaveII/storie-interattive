@@ -642,13 +642,13 @@ function renderStep(){
   if(step.type==='intro'){
     setLabel(step.label);
     loadImg(imgPath(story.id,'intro',null));
-    speak(step.text, ()=>showChoices(step.choices));
+    speak(step.text, audioPath(story.id,'intro',null), ()=>showChoices(step.choices));
 
   } else if(step.type==='middle'){
     const v=step.variants[choice1]||step.variants[Object.keys(step.variants)[0]];
     setLabel(step.label);
     loadImg(imgPath(story.id,'middle',choice1));
-    speak(v.text, ()=>showChoices(v.choices));
+    speak(v.text, audioPath(story.id,'middle',choice1), ()=>showChoices(v.choices));
 
   } else {
     /* END */
@@ -656,7 +656,7 @@ function renderStep(){
     const e=step.ends[key]||step.ends[Object.keys(step.ends)[0]];
     setLabel(step.label);
     loadImg(imgPath(story.id,'end',null));
-    speak(e.text, ()=>{
+    speak(e.text, audioPath(story.id,'end',key), ()=>{
       document.getElementById('prog').style.width='100%';
       document.getElementById('moral-text').textContent=e.moral||'';
       if(e.moral) document.getElementById('moral-card').style.display='block';
@@ -742,93 +742,72 @@ function loadImg(path){
   };
 }
 
-/* ===================== VOCE — ElevenLabs TTS =====================
-   1. Vai su elevenlabs.io → crea account gratuito
-   2. Profile → API Key → copia e incolla sotto
-   3. Voce consigliata: "Serena" o lascia il default italiano
-   ================================================================ */
-const ELEVENLABS_KEY    = '';
-/* ID voce italiana su ElevenLabs.
-   Default: "Serena" (voce femminile italiana naturale).
-   Puoi trovare altri ID su elevenlabs.io/voice-library cercando "Italian" */
-const ELEVENLABS_VOICE  = 'pFZP5JQG7iQjIQuC4Bku'; /* Serena — Italian */
-
+/* ===================== VOCE — audio pre-generati + ripiego Web Speech =====================
+   File attesi in audio/<storia>/:
+   intro.mp3
+   middle_<chiaveScelta1>.mp3
+   end_<chiaveScelta1>_<chiaveScelta2>.mp3
+   Se un file manca o non carica, si passa automaticamente alla voce del browser.
+   ============================================================================ */
 let currentAudio = null;
 
 function splitSentences(text){
   return text.match(/[^.!?]+[.!?]*/g) || [text];
 }
 
-async function speak(text, cb){
+function audioPath(storyId, type, variant){
+  const base = `audio/${storyId}/`;
+  if(type==='intro') return base+'intro.mp3';
+  if(type==='middle' && variant) return base+`middle_${variant}.mp3`;
+  if(type==='end' && variant)    return base+`end_${variant}.mp3`;
+  return null;
+}
+
+async function speak(text, audioSrc, cb){
   stopSpeak();
   document.getElementById('speak-ind').classList.add('on');
 
-  const hasKey = !!ELEVENLABS_KEY;
-
-  if(hasKey){
-    await speakElevenLabs(text, cb);
+  const played = audioSrc ? await speakPregenerated(text, audioSrc) : false;
+  if(played){
+    document.getElementById('speak-ind').classList.remove('on');
+    if(cb) cb();
   } else {
-    /* fallback Web Speech finché non si inserisce la chiave */
     speakFallback(text, cb);
   }
 }
 
-async function speakElevenLabs(text, cb){
-  const sentences = splitSentences(text);
-  const sub = document.getElementById('subtitle-text');
-
-  for(let i=0; i<sentences.length; i++){
-    const s = sentences[i].trim();
-    if(!s) continue;
-
-    /* sottotitolo: fade out → cambia testo → fade in */
-    sub.style.transition='opacity .25s';
-    sub.style.opacity='0';
-    await wait(260);
-    sub.textContent = s;
-    sub.style.opacity='1';
-
-    try{
-      const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE}/stream`, {
-        method:'POST',
-        headers:{
-          'xi-api-key': ELEVENLABS_KEY,
-          'Content-Type':'application/json'
-        },
-        body: JSON.stringify({
-          text: s,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings:{ stability:0.45, similarity_boost:0.82, style:0.3, use_speaker_boost:true }
-        })
-      });
-      if(!res.ok) throw new Error('ElevenLabs error '+res.status);
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      await playAudio(url);
-      URL.revokeObjectURL(url);
-    } catch(e){
-      /* se la chiamata fallisce (quota esaurita, ecc.) cade sul fallback */
-      await new Promise(res=>wsSentence(s, res));
-    }
-  }
-
-  document.getElementById('speak-ind').classList.remove('on');
-  if(cb) cb();
-}
-
-function playAudio(url){
+/* riproduce l'mp3 pre-generato, sincronizzando i sottotitoli in proporzione
+   alla lunghezza di ogni frase rispetto alla durata totale dell'audio */
+function speakPregenerated(text, src){
   return new Promise(resolve=>{
-    const a = new Audio(url);
-    currentAudio = a;
-    a.onended  = resolve;
-    a.onerror  = resolve; /* non bloccare se errore */
-    a.play().catch(resolve);
+    const sentences = splitSentences(text);
+    const sub = document.getElementById('subtitle-text');
+    const audio = new Audio(src);
+    currentAudio = audio;
+    let timers = [];
+    const clearTimers = ()=>{ timers.forEach(t=>clearTimeout(t)); timers=[]; };
+
+    audio.onloadedmetadata = ()=>{
+      const duration = audio.duration;
+      if(!duration || !isFinite(duration)) return;
+      const totalLen = sentences.reduce((a,s)=>a+s.length,0) || 1;
+      let elapsed = 0;
+      sentences.forEach(s=>{
+        const t = setTimeout(()=>{
+          sub.style.opacity='0';
+          setTimeout(()=>{ sub.textContent=s.trim(); sub.style.opacity='1'; },200);
+        }, elapsed*1000);
+        timers.push(t);
+        elapsed += duration*(s.length/totalLen);
+      });
+    };
+    audio.onended = ()=>{ clearTimers(); resolve(true); };
+    audio.onerror = ()=>{ clearTimers(); resolve(false); };
+    audio.play().catch(()=>{ clearTimers(); resolve(false); });
   });
 }
 
-function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-/* Web Speech fallback (per uso senza chiave ElevenLabs) */
+/* Web Speech fallback (audio pre-generato assente o non caricabile) */
 function speakFallback(text, cb){
   const sentences = splitSentences(text);
   const sub = document.getElementById('subtitle-text');
