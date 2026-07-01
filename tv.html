@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Storie Interattive ✦ TV</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -113,6 +114,14 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   content:'';position:absolute;bottom:0;left:0;right:0;height:55%;
   background:linear-gradient(transparent, rgba(5,5,10,.92));
   pointer-events:none;
+  z-index:1;
+}
+
+/* sottotitoli sovrapposti in basso sull'immagine (sopra il gradiente) */
+.subtitle-bar{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:20px 26px 22px;
+  z-index:2;
 }
 
 /* SOTTOTITOLI — frase intera con fade */
@@ -289,7 +298,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 <div id="qr-panel">
   <h3>📱 Controller</h3>
   <p>Inquadra il QR con il telefono per usarlo come telecomando</p>
-  <img id="qr-img" width="160" height="160" alt="QR controller">
+  <div id="qr-img" style="width:160px;height:160px"></div>
   <div id="qr-url"></div>
   <button class="qr-dismiss" onclick="document.getElementById('qr-panel').style.display='none'">Ho scansionato il QR ✓</button>
 </div>
@@ -848,11 +857,19 @@ function stopSpeak(){
 
 /* ===================== QR CODE controller ===================== */
 function showQR(){
-  /* Genera QR che punta a controller.html nella stessa cartella */
-  const base=window.location.href.replace('tv.html','');
-  const ctrlUrl=base+'controller.html';
-  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(ctrlUrl)}&bgcolor=12121a&color=c9a84c&margin=10`;
-  document.getElementById('qr-img').src=qrUrl;
+  /* Risolve controller.html rispetto alla pagina corrente: funziona sia con
+     URL che finiscono in .html, sia con URL "puliti" senza estensione,
+     sia con file:// */
+  const ctrlUrl = new URL('controller.html', window.location.href).href;
+  const container = document.getElementById('qr-img');
+  container.innerHTML = '';
+  new QRCode(container, {
+    text: ctrlUrl,
+    width: 160, height: 160,
+    colorDark: '#c9a84c',
+    colorLight: '#12121a',
+    correctLevel: QRCode.CorrectLevel.M
+  });
   document.getElementById('qr-url').textContent=ctrlUrl.length>50?ctrlUrl.slice(0,50)+'…':ctrlUrl;
   document.getElementById('qr-panel').style.display='flex';
 }
