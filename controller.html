@@ -123,35 +123,35 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 
 <script>
 const STORIES=[
-  {id:'forest',icon:'🌲',title:'Il Bosco dei Sussurri',tag:'Avventura',
+  {id:'oasis',icon:'🌵',title:'L\'Oasi delle Sabbie Dorate',tag:'Avventura · bambini',
    phases:[
-    {lbl:'Scelta 1 di 2',preview:'Luce si avventura nel bosco e sente una voce misteriosa chiamare il suo nome…',
-     choices:[{txt:'Seguire la voce nel bosco più fitto',key:'deep'},{txt:'Rispondere ad alta voce e aspettare',key:'wait'},{txt:'Tornare di corsa dai nonni',key:'run'}]},
-    {lbl:'Scelta 2 di 2',preview:'La storia continua… cosa farà Luce adesso?',
-     choices:[{txt:'Prima opzione',key:'x1'},{txt:'Seconda opzione',key:'x2'},{txt:'Terza opzione',key:'x3'}]}
+    {lbl:'Scelta 1 di 2',preview:'Sara scopre che la fonte del villaggio è sparita, e un pesce d\'argento le chiede aiuto per ritrovarla…',
+     choices:[{txt:'Seguire le dune verso il tramonto',key:'dune'},{txt:'Chiedere consiglio al vecchio cammelliere Yusuf',key:'camel'},{txt:'Ascoltare il canto del vento tra le rocce',key:'wind'}]},
+    {lbl:'Scelta 2 di 2',
+     variants:{
+       dune:{preview:'Sara ha incontrato Sabbiosa, la volpe dorata che sorveglia l\'antico arco di pietra…',
+         choices:[{txt:'Scavare insieme con le mani',key:'dig'},{txt:'Chiederle di raccontare la leggenda della fonte',key:'legend'},{txt:'Offrirle l\'acqua rimasta nella borraccia',key:'water'}]},
+       camel:{preview:'Il vecchio Yusuf ricorda qualcosa sulla sorgente perduta tanto tempo fa…',
+         choices:[{txt:'Chiedergli di raccontare cosa ricorda',key:'memory'},{txt:'Chiedere la vecchia mappa del pozzo',key:'map'},{txt:'Chiedergli di accompagnarla',key:'together'}]},
+       wind:{preview:'Zefira, lo spirito del vento, la invita a salire in volo sopra le dune…',
+         choices:[{txt:'Cantare insieme al vento',key:'sing'},{txt:'Chiederle della sua famiglia',key:'family'},{txt:'Chiederle di volare più in alto per guardare dal cielo',key:'sky'}]}
+     }}
   ]},
-  {id:'sea',icon:'⚓',title:'La Nave dei Mille Anni',tag:'Mistero',
+  {id:'bell',icon:'🏰',title:'La Campana d\'Oro del Villaggio',tag:'Fiaba · bambini',
    phases:[
-    {lbl:'Scelta 1 di 2',preview:'Marco trova nella nebbia una nave antica che non dovrebbe esistere…',
-     choices:[{txt:'Salire a bordo della nave',key:'board'},{txt:'Girarle intorno per ispezionarla',key:'look'},{txt:'Chiamare la guardia costiera',key:'call'}]},
-    {lbl:'Scelta 2 di 2',preview:'La scoperta si fa più profonda… cosa fa Marco?',
-     choices:[{txt:'Prima opzione',key:'y1'},{txt:'Seconda opzione',key:'y2'},{txt:'Terza opzione',key:'y3'}]}
-  ]},
-  {id:'mountain',icon:'🏔️',title:'Luna e il Cristallo della Montagna',tag:'Fantasy · bambini',
-   phases:[
-    {lbl:'Scelta 1 di 2',preview:'Luna parte per riaccendere il Cristallo della Primavera. Come inizia la sua avventura?',
-     choices:[{txt:'Seguire il sentiero dei fiori di ghiaccio',key:'flowers'},{txt:'Chiedere aiuto all\'orso del bosco',key:'bear'},{txt:'Seguire una stella luminosa nel cielo',key:'star'}]},
-    {lbl:'Scelta 2 di 2',preview:'Luna incontra un amico speciale. Come lo aiuta?',
-     choices:[{txt:'Scaldarla/lo con un abbraccio caldo',key:'hug_pet'},{txt:'Cantare una canzone della primavera',key:'sing_song'},{txt:'Costruire insieme qualcosa di magico',key:'fire_family'}]}
+    {lbl:'Scelta 1 di 2',preview:'La campana dorata del castello ha smesso di suonare, e Tobia parte a scoprire perché…',
+     choices:[{txt:'Salire sulla torre a controllare la campana',key:'tower'},{txt:'Chiedere alla fioraia cosa sa degli uccelli canori',key:'florist'},{txt:'Seguire le piume dorate cadute in piazza',key:'feathers'}]},
+    {lbl:'Scelta 2 di 2',
+     variants:{
+       tower:{preview:'Nella torre, Tobia ha trovato un uovo dorato incrinato e Mastro Nando, il vecchio guardiano…',
+         choices:[{txt:'Aiutarlo a scaldare l\'uovo tra le mani',key:'warm'},{txt:'Chiedergli di raccontare la storia della campana',key:'story'},{txt:'Cercare indizi nella stanza della torre',key:'clues'}]},
+       florist:{preview:'La fioraia gli ha dato un fiore che brilla, dicendo che condurrà all\'allodola dorata…',
+         choices:[{txt:'Seguire il profumo del fiore',key:'scent'},{txt:'Chiedere dove nidificava l\'allodola',key:'nest'},{txt:'Piantare il fiore in piazza per farla tornare',key:'plant'}]},
+       feathers:{preview:'Tra le rose del giardino, Tobia ha trovato l\'allodola dorata, spaventata e in silenzio…',
+         choices:[{txt:'Avvicinarsi piano canticchiando una ninna nanna',key:'approach'},{txt:'Offrirle qualche briciola di pane dorato',key:'crumbs'},{txt:'Restare ferma vicino a lei e aspettare con pazienza',key:'wait'}]}
+     }}
   ]}
 ];
-
-/* Allinea le scelte fase 2 alle chiavi reali della storia */
-const PHASE2_KEYS={
-  forest:{deep:['msg','who','listen'],wait:['help','where','home'],run:['map','nonno','together']},
-  sea:{board:['hatch','read','escape'],look:['port','witness','photo'],call:['ask','return','elders']},
-  mountain:{flowers:['hug','sing','fire'],bear:['torch','call','honey'],star:['pet','song','family']}
-};
 
 let cur=null,phase=0,c1key=null;
 let bc;
@@ -182,19 +182,13 @@ function selectStory(id){
 
 function showPhase(){
   const p=cur.phases[phase];
+  const data = phase===1 ? p.variants[c1key] : p;
   document.getElementById('ctrl-choices').style.display='block';
   document.getElementById('ctrl-end').style.display='none';
   document.getElementById('phase-lbl').textContent=p.lbl;
-  document.getElementById('preview-txt').textContent=p.preview;
+  document.getElementById('preview-txt').textContent=data.preview;
 
-  let choices=p.choices;
-  /* fase 2: usa chiavi reali basate sulla scelta 1 */
-  if(phase===1 && c1key && PHASE2_KEYS[cur.id]){
-    const realKeys=PHASE2_KEYS[cur.id][c1key]||['a','b','c'];
-    choices=choices.map((c,i)=>({...c,key:realKeys[i]||c.key}));
-  }
-
-  document.getElementById('choice-btns').innerHTML=choices.map((c,i)=>`
+  document.getElementById('choice-btns').innerHTML=data.choices.map((c,i)=>`
     <div class="choice-card" onclick="pickChoice('${c.key}',this)">
       <div class="c-num">${i+1}</div>
       <div class="c-txt">${c.txt}</div>

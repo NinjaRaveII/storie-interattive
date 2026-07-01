@@ -302,50 +302,50 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 <script>
 /* ===================== DATI STORIE ===================== */
 const STORIES = [
-  /* ---- 1. IL BOSCO DEI SUSSURRI ---- */
+  /* ---- 1. L'OASI DELLE SABBIE DORATE ---- */
   {
-    id:'forest', tag:'Avventura', icon:'🌲',
-    title:'Il Bosco dei Sussurri',
-    desc:'Una bambina sente voci tra gli alberi durante una passeggiata al tramonto.',
+    id:'oasis', tag:'Avventura · bambini', icon:'🌵',
+    title:'L\'Oasi delle Sabbie Dorate',
+    desc:'Una bambina scopre che la fonte del suo villaggio è sparita, e parte a cercarla tra le dune.',
     steps:[
       {
         type:'intro', label:'L\'inizio',
-        text:'Era un pomeriggio di ottobre quando Luce si avventurò nel bosco oltre la casa dei nonni. Le foglie rosse e dorate cadevano lente, e nell\'aria c\'era un profumo di terra bagnata e funghi. Ma poi, tra il frusciare delle foglie, sentì qualcosa di insolito: una voce sottile come un filo d\'argento che chiamava il suo nome.',
-        keyword:'autumn forest sunset golden leaves',
+        text:'Nel villaggio di sabbia dorata viveva Sara, che ogni mattina riempiva la brocca alla fonte dell\'oasi. Ma quel giorno l\'acqua non c\'era più: solo un piccolo pesce d\'argento la guardava con occhi tristi, immobile sulla sabbia secca. "Aiutami a ritrovare la sorgente," sussurrò il pesce, "e l\'oasi tornerà a vivere." Sara non ci pensò due volte: si mise lo zaino in spalla e uscì tra le dune dorate.',
+        keyword:'desert oasis child golden sand adventure',
         choices:[
-          {text:'Seguire la voce nel bosco più fitto', key:'deep'},
-          {text:'Rispondere ad alta voce e aspettare', key:'wait'},
-          {text:'Tornare di corsa dai nonni', key:'run'}
+          {text:'Seguire le dune verso il tramonto', key:'dune'},
+          {text:'Chiedere consiglio al vecchio cammelliere Yusuf', key:'camel'},
+          {text:'Ascoltare il canto del vento tra le rocce', key:'wind'}
         ]
       },
       {
         type:'middle', label:'Il cuore della storia',
         variants:{
-          deep:{
-            text:'Luce spinse tra i rami finché non trovò una piccola radura illuminata da una luce dorata. Al centro, seduta su un masso di muschio, c\'era una volpe bianca con gli occhi color ambra. "Finalmente arrivi," disse la volpe. "Ti aspettavo da tre inverni."',
-            keyword:'white fox magical clearing golden light forest',
+          dune:{
+            text:'Le dune la portarono fino a un arco di pietra antica, coperto di incisioni scintillanti. Ai suoi piedi, una piccola volpe color sabbia dorata la osservava con occhi d\'ambra. "Sono Sabbiosa," disse la volpe, "la guardiana di questo arco. Il vento ha sepolto l\'ingresso della sorgente, e da sola non riesco a liberarlo."',
+            keyword:'golden sand fox stone arch desert magical',
             choices:[
-              {text:'Chiederle del messaggio segreto', key:'msg'},
-              {text:'Chiederle chi l\'ha mandata', key:'who'},
-              {text:'Sedersi in silenzio ad ascoltare', key:'listen'}
+              {text:'Scavare insieme con le mani', key:'dig'},
+              {text:'Chiederle di raccontare la leggenda della fonte', key:'legend'},
+              {text:'Offrirle l\'acqua rimasta nella borraccia', key:'water'}
             ]
           },
-          wait:{
-            text:'Dal silenzio emerse un bambino vestito di foglie e ramoscelli, i capelli pieni di terra. "Sono Rowan," disse, "il guardiano di questo bosco. Mi sono perso durante l\'ultima bufera e non ricordo la strada per casa." I suoi occhi erano color di muschio antico.',
-            keyword:'forest child lost autumn leaves magic',
+          camel:{
+            text:'Il vecchio Yusuf sedeva all\'ombra della sua tenda, accanto al suo cammello Vento. Ascoltò la storia di Sara con gli occhi socchiusi. "Anch\'io ho visto quella fonte prosciugarsi, quando ero bambino come te," disse infine. "Ma so che è tornata a scorrere una volta. Bisogna solo ricordare come."',
+            keyword:'old man camel desert tent storyteller warm light',
             choices:[
-              {text:'Promettergli di aiutarlo a trovare la strada', key:'help'},
-              {text:'Chiedergli dove abita', key:'where'},
-              {text:'Portarlo dai nonni', key:'home'}
+              {text:'Chiedergli di raccontare cosa ricorda', key:'memory'},
+              {text:'Chiedere la vecchia mappa del pozzo', key:'map'},
+              {text:'Chiedergli di accompagnarla', key:'together'}
             ]
           },
-          run:{
-            text:'I nonni ascoltarono la storia di Luce con attenzione. Il nonno aprì un vecchio cassetto e tirò fuori una mappa ingiallita. "Anch\'io ho sentito quella voce, quando ero piccolo come te. Il bosco parla solo a chi sa ascoltare davvero."',
-            keyword:'old map grandfather cozy kitchen autumn',
+          wind:{
+            text:'Tra le rocce, il vento sembrava intonare una melodia. Da un turbine di sabbia dorata prese forma Zefira, un uccello fatto di luce e polvere scintillante. "Ti ho sentita arrivare da lontano," disse. "Sali sul mio dorso: da qui in alto tutto si vede meglio."',
+            keyword:'shimmering light bird desert wind spirit golden dust',
             choices:[
-              {text:'Guardare la mappa insieme', key:'map'},
-              {text:'Chiedere cosa successe al nonno', key:'nonno'},
-              {text:'Tornare nel bosco con il nonno', key:'together'}
+              {text:'Cantare insieme al vento', key:'sing'},
+              {text:'Chiederle della sua famiglia', key:'family'},
+              {text:'Chiederle di volare più in alto per guardare dal cielo', key:'sky'}
             ]
           }
         }
@@ -353,64 +353,64 @@ const STORIES = [
       {
         type:'end', label:'Il finale',
         ends:{
-          deep_msg:{text:'La volpe le consegnò una piccola pietra luminosa. "Portala sempre con te. Quando ti senti sola, brillerà." Luce tornò a casa stringendo la pietra al petto, sapendo che il bosco sarebbe sempre stato suo amico.', moral:'Chi ascolta con il cuore trova amici in ogni luogo.', keyword:'glowing stone child forest magical light'},
-          deep_who:{text:'"Sono la memoria del bosco," disse la volpe. "Ogni albero qui ha una storia da raccontare. Tu sei venuta ad ascoltarle." Quella notte Luce sognò tutte le storie degli alberi, e al mattino sapeva parlare con il vento.', moral:'Le storie degli altri ci rendono più ricchi dentro.', keyword:'child dreaming forest trees stars night'},
-          deep_listen:{text:'Nel silenzio, Luce capì tutto senza parole. La volpe sorrise e sparì tra gli alberi. Ma ogni volta che Luce tornava in quel bosco, la radura era lì ad aspettarla, calda e dorata come la prima volta.', moral:'A volte il silenzio ci insegna più di mille parole.', keyword:'peaceful forest clearing golden light autumn'},
-          wait_help:{text:'Insieme seguirono le tracce delle radici finché trovarono un grande albero cavo: la casa di Rowan. "Grazie," disse lui. "Senza di te non avrei mai trovato la strada." Da quel giorno Luce e Rowan furono amici per sempre.', moral:'Aiutare gli altri è la cosa più bella che possiamo fare.', keyword:'forest hollow tree child friendship warm light'},
-          wait_where:{text:'Rowan indicò una collina lontana dove brillava una luce verde. "Là vive mia nonna, la strega buona del bosco." Lo accompagnarono fino in cima e la nonna abbracciò Rowan tra le lacrime. "Grazie piccola," disse alla bambina.', moral:'Con coraggio e gentilezza si possono compiere grandi imprese.', keyword:'hilltop cottage green light forest child adventure'},
-          wait_home:{text:'I nonni di Luce riconobbero subito Rowan: era il nipote della vecchia Marta, la loro vicina di trent\'anni prima. Quella sera cenarono tutti insieme, e il bosco sembrò festeggiare con le sue foglie danzanti.', moral:'Le buone azioni uniscono le famiglie e scalano il tempo.', keyword:'cozy family dinner autumn evening warm kitchen'},
-          run_map:{text:'La mappa mostrava un sentiero segreto che portava a una casetta di pietra nel bosco. Ci andarono insieme e trovarono un vecchio libro di fiabe che nessuno leggeva da generazioni. Luce lo lesse ai nonni tutta la sera.', moral:'I tesori più preziosi si trovano solo se si va a cercarli.', keyword:'old cottage stone forest secret path discovery'},
-          run_nonno:{text:'Il nonno raccontò di quando aveva incontrato un cervo bianco che parlava. "Non devi avere paura delle voci del bosco, Luce. Sono le storie che cercano qualcuno che le ascolti." Da quel giorno Luce tornò sempre nel bosco.', moral:'I racconti dei nonni sono ponti tra il passato e il futuro.', keyword:'grandfather child storytelling fireplace autumn evening'},
-          run_together:{text:'Nonno e Luce entrarono nel bosco di mano. Questa volta la voce li chiamò entrambi. Trovarono una vecchia quercia con due nomi scolpiti: il nonno da bambino e… il nome di Luce. "Lo sapevo," disse lui sorridendo.', moral:'Alcune storie aspettano di essere vissute da due generazioni.', keyword:'ancient oak tree two names carved magical forest light'}
+          dune_dig:{text:'Sara e Sabbiosa scavarono insieme, i granelli dorati che scivolavano come polvere di stelle. Sotto le loro mani apparvero antiche piastrelle blu, e poi l\'acqua, calda e limpida, che risalì gorgogliando. L\'oasi si risvegliò tutta insieme, e Sabbiosa le si strofinò contro la gamba, felice.', moral:'Le mani che lavorano insieme spostano anche le montagne di sabbia.', keyword:'child fox digging spring water desert oasis blooming'},
+          dune_legend:{text:'Sabbiosa raccontò la leggenda: la sorgente torna a scorrere solo per chi sa ascoltare fino in fondo, senza fretta. Sara si sedette e ascoltò ogni parola con il cuore aperto. Quando la volpe finì di parlare, un filo d\'acqua sgorgò lentamente dalla roccia, come se la sabbia avesse solo aspettato qualcuno pronto ad ascoltare.', moral:'Chi ascolta con pazienza trova risposte che la fretta nasconde.', keyword:'child fox listening ancient legend desert stone arch'},
+          dune_water:{text:'Sara porse a Sabbiosa l\'ultima acqua della sua borraccia, senza pensarci due volte. Commossa, la volpe scavò con le zampe un varco nascosto sotto l\'arco, rivelando la sorgente segreta. "Chi dona anche l\'ultima goccia," disse Sabbiosa, "merita di trovarne un fiume intero."', moral:'La generosità vera trova sempre il modo di essere ripagata.', keyword:'child sharing water fox desert generosity golden light'},
+          camel_memory:{text:'Yusuf chiuse gli occhi e lasciò riaffiorare un ricordo lontano: da bambino aveva visto suo padre inginocchiarsi tra due palme gemelle e cantare piano. Sara lo seguì fino a quelle stesse palme, si inginocchiò, e cantò. La sabbia tremò, e la sorgente tornò a scorrere come cent\'anni prima.', moral:'I ricordi degli anziani sono mappe verso ciò che credevamo perduto.', keyword:'old man memory twin palm trees desert spring returning'},
+          camel_map:{text:'Yusuf tirò fuori da un baule una mappa ingiallita, disegnata da suo nonno. Seguendola tra le dune, Sara trovò due rocce gemelle proprio come indicato, e sotto di esse un pozzo coperto di sabbia. Con un ultimo colpo di vento, la sabbia si aprì e l\'acqua tornò a brillare.', moral:'Le conoscenze tramandate ci guidano anche quando la strada sembra scomparsa.', keyword:'old map desert twin rocks hidden well discovery'},
+          camel_together:{text:'Yusuf e il suo cammello Vento accompagnarono Sara per tutto il viaggio, portando in groppa gli otri vuoti. Quando finalmente trovarono la sorgente, la riempirono tutti insieme, ridendo per la fatica e la gioia. Tornarono al villaggio in tre, con l\'acqua che scintillava sotto il sole.', moral:'Il cammino più lungo si accorcia quando lo si percorre in compagnia.', keyword:'old man camel child desert journey together water'},
+          wind_sing:{text:'Sara cantò insieme a Zefira, e le loro voci si intrecciarono nel vento come un unico canto dorato. La melodia scivolò tra le rocce fino a un\'antica crepa sigillata, che si spezzò dolcemente lasciando scorrere l\'acqua. "La musica apre porte che la forza non troverebbe mai," disse Zefira sorridendo di luce.', moral:'Un canto sincero può aprire varchi che nessuna forza saprebbe trovare.', keyword:'child singing light bird desert crack rock water flowing'},
+          wind_family:{text:'Zefira raccontò di essere l\'ultima di una lunga stirpe di spiriti del vento, custodi dell\'oasi da generazioni. "Quando la mia famiglia se ne andò, nessuno rimase a cantare alla sorgente," disse con tristezza dolce. Sara le promise che sarebbe tornata spesso a cantare con lei, e la sorgente, sentendosi di nuovo custodita, ricominciò a scorrere.', moral:'Le cose importanti fioriscono quando qualcuno promette di prendersene cura.', keyword:'light bird child desert promise ancestral spring golden'},
+          wind_sky:{text:'Zefira volò altissima sopra le dune, e da lassù Sara vide una macchia verde scura nascosta in una valle che da terra nessuno poteva scorgere. Scesero insieme, e lì, protetta dalle rocce, trovarono la sorgente intatta, che aspettava solo di essere ritrovata dall\'alto.', moral:'A volte basta un nuovo punto di vista per ritrovare ciò che sembrava perduto.', keyword:'child flying light bird desert view hidden valley spring'}
         }
       }
     ]
   },
 
-  /* ---- 2. LA NAVE DEI MILLE ANNI ---- */
+  /* ---- 2. LA CAMPANA D'ORO DEL VILLAGGIO ---- */
   {
-    id:'sea', tag:'Mistero', icon:'⚓',
-    title:'La Nave dei Mille Anni',
-    desc:'Un giovane pescatore trova un relitto che non dovrebbe esistere.',
+    id:'bell', tag:'Fiaba · bambini', icon:'🏰',
+    title:'La Campana d\'Oro del Villaggio',
+    desc:'Un bambino scopre che la campana dorata del castello ha smesso di suonare, e cerca di farla tornare a cantare.',
     steps:[
       {
         type:'intro', label:'L\'inizio',
-        text:'Marco aveva pescato in quelle acque tutta la vita, come suo padre e suo nonno prima di lui. Ma quella mattina, immerso nella nebbia più fitta dell\'anno, la prua della sua barca urtò qualcosa di solido. Era uno scafo di legno antico, coperto di barnacoli e alghe, con ancora le vele alzate come se aspettasse un vento che non era mai arrivato.',
-        keyword:'mysterious old sailing ship fog ocean',
+        text:'Nel villaggio ai piedi del castello dorato viveva Tobia, che ogni mattina si svegliava al suono della grande campana sulla torre. Ma quel giorno il silenzio riempiva le strade: i fiori del mercato erano un po\' appassiti, e i vicini si guardavano tristi senza sapere perché. Il vecchio fornaio gli disse: "Dentro la campana vive un uccellino che canta per farla suonare. Forse è volato via." Tobia annodò le scarpe e corse verso il castello.',
+        keyword:'golden castle village child morning bell tower cheerful',
         choices:[
-          {text:'Salire a bordo della nave', key:'board'},
-          {text:'Girarle intorno per ispezionarla', key:'look'},
-          {text:'Chiamare la guardia costiera', key:'call'}
+          {text:'Salire sulla torre a controllare la campana', key:'tower'},
+          {text:'Chiedere alla fioraia cosa sa degli uccelli canori', key:'florist'},
+          {text:'Seguire le piume dorate cadute in piazza', key:'feathers'}
         ]
       },
       {
         type:'middle', label:'Il cuore della storia',
         variants:{
-          board:{
-            text:'Il ponte cigolava sotto i suoi piedi. Nella cabina del capitano trovò un diario aperto all\'ultima pagina. La scrittura era chiara, come se fosse stata tracciata il giorno prima: "La tempesta ci ha portati fin qui. Ma non siamo soli su questa nave. C\'è qualcosa che aspetta sotto le assi del ponte."',
-            keyword:'old ship cabin lantern captain log book',
+          tower:{
+            text:'Salendo i gradini a spirale, Tobia trovò la stanza della campana vuota, tranne un piccolo nido con dentro un uovo dorato incrinato. Da un angolo comparve Mastro Nando, il vecchio guardiano della torre. "Quell\'uovo aspetta solo un po\' di calore per schiudersi," disse con un sorriso stanco, "ma le mie mani ormai tremano troppo."',
+            keyword:'castle tower golden egg nest old bell keeper cozy',
             choices:[
-              {text:'Aprire il portello sotto coperta', key:'hatch'},
-              {text:'Leggere il diario dall\'inizio', key:'read'},
-              {text:'Uscire subito dalla nave', key:'escape'}
+              {text:'Aiutarlo a scaldare l\'uovo tra le mani', key:'warm'},
+              {text:'Chiedergli di raccontare la storia della campana', key:'story'},
+              {text:'Cercare indizi nella stanza della torre', key:'clues'}
             ]
           },
-          look:{
-            text:'Sul fianco dello scafo era inciso il nome "Stella Maris" e sotto, una data: 1743. Impossibile. Eppure la nave galleggiava, le vele erano intatte, e dal boccaporto aperto saliva un filo di fumo, come di un fuoco ancora acceso.',
-            keyword:'old ship hull name inscription sea mystery',
+          florist:{
+            text:'La fioraia del mercato posò il suo annaffiatoio e sospirò. "La campana canta solo quando un\'allodola dorata vive felice nel giardino del castello," disse, "ma non la vedo da giorni." Gli porse un fiore che brillava appena. "Seguine il profumo: ti condurrà da lei."',
+            keyword:'flower seller market glowing flower golden village warm',
             choices:[
-              {text:'Avvicinarsi al boccaporto fumante', key:'port'},
-              {text:'Cercare testimoni al porto', key:'witness'},
-              {text:'Fotografare e cercare archivi storici', key:'photo'}
+              {text:'Seguire il profumo del fiore', key:'scent'},
+              {text:'Chiedere dove nidificava l\'allodola', key:'nest'},
+              {text:'Piantare il fiore in piazza per farla tornare', key:'plant'}
             ]
           },
-          call:{
-            text:'La guardia costiera impiegò quaranta minuti. Ma quando arrivarono, la nebbia si era alzata e del relitto non c\'era traccia. Solo Marco aveva visto la nave. Il comandante lo guardò con un sorriso strano: "Non è la prima volta che succede qui."',
-            keyword:'coast guard patrol boat sea fog mystery',
+          feathers:{
+            text:'Le piume dorate lo condussero fino al labirinto di rose nel giardino del castello. Lì, nascosta tra i petali, tremava una piccola allodola dal piumaggio d\'oro. Sembrava spaventata, come se avesse dimenticato come si canta.',
+            keyword:'golden lark hiding rose garden maze castle shy bird',
             choices:[
-              {text:'Chiedere al comandante cosa sa', key:'ask'},
-              {text:'Tornare sul posto la notte dopo', key:'return'},
-              {text:'Cercare vecchi pescatori del porto', key:'elders'}
+              {text:'Avvicinarsi piano canticchiando una ninna nanna', key:'approach'},
+              {text:'Offrirle qualche briciola di pane dorato', key:'crumbs'},
+              {text:'Restare ferma vicino a lei e aspettare con pazienza', key:'wait'}
             ]
           }
         }
@@ -418,116 +418,15 @@ const STORIES = [
       {
         type:'end', label:'Il finale',
         ends:{
-          board_hatch:{text:'Sotto coperta trovò una bambina in abiti d\'epoca che dormiva in un\'amaca. Si svegliò sorridendo: "Aspettavo che qualcuno aprisse quella porta da trecento anni." Sparì all\'alba, lasciando solo un ciondolo d\'argento sul palmo di Marco.', moral:'Chi ha coraggio di aprire porte sconosciute trova ciò che nessuno ha mai trovato.', keyword:'old ship below deck lantern silver pendant mystery'},
-          board_read:{text:'Il diario raccontava di un capitano che aveva scelto di restare in mare per proteggere le coste. Marco capì: la nave era ancora lì perché qualcuno doveva finire di leggere la storia. L\'ultima pagina era per lui.', moral:'Ogni storia merita di essere letta fino in fondo.', keyword:'old diary ship captain letter candlelight sea'},
-          board_escape:{text:'Appena risalì sulla sua barca, la nave antica si dissolse nella nebbia come zucchero nell\'acqua. Sull\'acqua rimase solo un piccolo forziere di legno. Dentro: una mappa di luoghi che Marco non aveva ancora esplorato.', moral:'A volte la cosa più saggia è saper fermarsi al momento giusto.', keyword:'wooden chest sea map treasure discovery ocean'},
-          look_port:{text:'Dal boccaporto sbucò fuori un vecchio gatto rosso che borbottava come se stesse raccontando qualcosa. Marco lo seguì giù per una scaletta e trovò una stiva piena di libri mai letti da nessuno.', moral:'I tesori più grandi sono quelli che nutrono la mente.', keyword:'old ship cat books library lantern golden light'},
-          look_witness:{text:'Al porto, una vecchia signora lo riconobbe: "Anche mio padre vide quella nave." Passò tre ore a raccontargli storie del mare che nessuno conosceva più. Quando tornò a casa, Marco cominciò a scrivere.', moral:'Le storie degli anziani sono tesori che non dobbiamo lasciar perdere.', keyword:'old harbor woman storytelling fishing village evening'},
-          look_photo:{text:'Negli archivi del municipio trovò una fotografia del 1912 che ritraeva la stessa nave — con suo bisnonno a bordo. Il mare aveva voluto che Marco la ritrovasse, per riconnettere una catena spezzata di famiglia.', moral:'Le radici della famiglia ci raggiungono anche quando non le cerchiamo.', keyword:'old photograph archive harbor family history discovery'},
-          call_ask:{text:'Il comandante aprì un cassetto e tirò fuori un registro antico. "Ogni generazione ne vede una diversa. Significa che il mare si fida di te." Da quel giorno Marco divenne il custode di quelle acque, come i suoi avi prima di lui.', moral:'La fiducia si eredita, ma va guadagnata ogni giorno.', keyword:'harbor master old register sea lighthouse duty'},
-          call_return:{text:'Quella notte la nave era di nuovo lì, illuminata da mille candele. A bordo c\'erano tutti i capitani che erano venuti prima di Marco. "Benvenuto," dissero in coro. "Sei uno di noi."', moral:'Chi ama il mare porta dentro di sé tutte le generazioni che lo hanno amato prima.', keyword:'ship night candlelight ghostly sea reunion'},
-          call_elders:{text:'I vecchi pescatori sapevano. Si passavano la storia da padre in figlio: "La Stella Maris appare quando il mare ha bisogno di un nuovo guardiano." Marco capì. Aveva ereditato qualcosa di più grande di una barca.', moral:'Le tradizioni ci consegnano responsabilità e orgoglio.', keyword:'old fishermen harbor evening lanterns tradition sea'}
-        }
-      }
-    ]
-  },
-
-  /* ---- 3. LUNA E IL CRISTALLO DELLA MONTAGNA ---- */
-  {
-    id:'mountain', tag:'Fantasy · bambini', icon:'🏔️',
-    title:'Luna e il Cristallo della Montagna',
-    desc:'Una bambina coraggiosa parte alla ricerca di un cristallo magico per salvare la primavera.',
-    steps:[
-      {
-        type:'intro', label:'C\'era una volta…',
-        text:'C\'era una volta una bambina di nome Luna che viveva in un piccolo villaggio ai piedi di una grande montagna innevata. Un mattino Luna si svegliò e vide che tutti i fiori erano diventati di ghiaccio, e gli uccellini non cantavano più. La fata del villaggio le disse: "Il Cristallo della Primavera si è spento lassù sulla montagna. Solo un cuore coraggioso può riaccenderlo!" Luna prese il suo zaino colorato e partì.',
-        keyword:'cute cartoon snowy mountain village child adventure illustration',
-        choices:[
-          {text:'Seguire il sentiero dei fiori di ghiaccio', key:'flowers'},
-          {text:'Chiedere aiuto all\'orso del bosco', key:'bear'},
-          {text:'Seguire una stella luminosa nel cielo', key:'star'}
-        ]
-      },
-      {
-        type:'middle', label:'Nel mezzo del viaggio',
-        variants:{
-          flowers:{
-            text:'I fiori di ghiaccio la portarono fino a una cascata congelata bellissima, dove abitava una fatina blu di nome Gelo. "Io ho raffreddato il cristallo per sbaglio!" disse Gelo con le lacrime agli occhi. "Volevo fare una sorpresa, ma ho esagerato con la neve." Luna le prese la manina: "Non piangere. Lo sistemiamo insieme!"',
-            keyword:'cute cartoon ice fairy frozen waterfall mountain child illustration',
-            choices:[
-              {text:'Scaldarla con un abbraccio caldo', key:'hug'},
-              {text:'Cantare una canzone della primavera', key:'sing'},
-              {text:'Costruire insieme un fuoco di stelle', key:'fire'}
-            ]
-          },
-          bear:{
-            text:'L\'orso si chiamava Bernardo e aveva un naso enorme e buffo sempre pieno di miele. "So dove sta il cristallo!" disse, e la caricò sulla schiena. Salirono su per i sentieri innevati finché non trovarono una grotta tappezzata di ghiaccioli luccicanti. "È qui dentro," bisbigliò Bernardo.',
-            keyword:'cute cartoon bear child riding mountain snow adventure illustration',
-            choices:[
-              {text:'Entrare nella grotta con la torcia', key:'torch'},
-              {text:'Chiamare il cristallo con voce gentile', key:'call'},
-              {text:'Lasciare miele all\'ingresso come regalo', key:'honey'}
-            ]
-          },
-          star:{
-            text:'La stella scese dal cielo e si trasformò in un piccolo drago dorato grande come un gattino. Si chiamava Scintilla e soffiava bollicine dorate invece del fuoco. "Ti porto io al cristallo!" disse, e volarono insieme sopra le nuvole di neve fino a una cima altissima.',
-            keyword:'cute cartoon golden dragon child flying mountain clouds illustration',
-            choices:[
-              {text:'Accarezzare Scintilla per dargli coraggio', key:'pet'},
-              {text:'Cantargli la canzone preferita', key:'song'},
-              {text:'Chiedergli della sua famiglia', key:'family'}
-            ]
-          }
-        }
-      },
-      {
-        type:'end', label:'Il grande finale',
-        ends:{
-          flowers_hug:{
-            text:'Luna abbracciò Gelo forte forte. Il calore del suo abbraccio si propagò come onde dorate e il Cristallo della Primavera tornò a brillare. I fiori sbocciarono tutti insieme, e Gelo imparò che il calore degli amici è la magia più potente di tutte. Luna tornò a casa tra i petali e i cinguettii degli uccellini.',
-            moral:'Un abbraccio sincero può scaldare anche il cuore più freddo.',
-            keyword:'cute cartoon child hugging fairy spring flowers blooming illustration'
-          },
-          flowers_sing:{
-            text:'Luna cantò la canzone della primavera che le aveva insegnato la nonna. Le note diventarono farfalle colorate che danzavano intorno al cristallo, finché non riprese a splendere. Gelo ballò di gioia e da quel giorno imparò a fare solo nevischio gentile.',
-            moral:'La musica e la gioia hanno il potere di cambiare il mondo.',
-            keyword:'cute cartoon child singing butterflies spring crystal mountain illustration'
-          },
-          flowers_fire:{
-            text:'Insieme raccoglievano stelle cadenti e le mettevano in un cesto. Fecero un piccolo falò di luce stellare che riscaldò il cristallo lentamente. Quando si riaccese, era ancora più bello di prima, con dentro i colori di tutte le stelle.',
-            moral:'Lavorare insieme rende ogni impresa possibile.',
-            keyword:'cute cartoon children stars campfire mountain night magic illustration'
-          },
-          bear_torch:{
-            text:'Nella grotta, il cristallo era circondato da decine di scoiattolini che ci dormivano sopra. "Avevano freddo!" disse Luna ridendo. Insieme, lei e Bernardo costruirono calde casette di paglia per gli scoiattolini, e il cristallo fu libero di brillare ancora.',
-            moral:'Prendersi cura degli altri ci rende tutti più felici.',
-            keyword:'cute cartoon squirrels bear child cozy mountain cave illustration'
-          },
-          bear_call:{
-            text:'Luna chiamò dolcemente: "Cristallo, sei sveglio?" Una voce piccola e tintinnante rispose: "Stavo aspettando che qualcuno mi chiedesse come stavo." Il cristallo brillò di un arcobaleno di colori. A volte basta chiedere con gentilezza.',
-            moral:'Chiedere come sta qualcuno è il gesto più gentile che esista.',
-            keyword:'cute cartoon glowing crystal rainbow mountain cave child illustration'
-          },
-          bear_honey:{
-            text:'Appena Bernardo posò il miele, sbucò fuori un vecchio gnomo con la barba bianca. Era lui il guardiano del cristallo! Mangiò un po\' di miele, ringraziò e riaccese il cristallo con un soffio. "Avevo solo bisogno di uno spuntino," disse borbottando.',
-            moral:'La gentilezza apre porte che la forza non riuscirebbe mai ad aprire.',
-            keyword:'cute cartoon gnome bear honey crystal mountain cave illustration'
-          },
-          star_pet:{
-            text:'Scintilla si fece così coraggioso grazie alle carezze di Luna che soffiò le sue bollicine dorate direttamente sul cristallo. Tornò a splendere all\'istante! Da quel giorno Scintilla diventò il drago guardiano della montagna, e ogni primavera veniva a trovare Luna.',
-            moral:'Sentirsi amati ci dà il coraggio di fare cose meravigliose.',
-            keyword:'cute cartoon dragon child mountain spring flowers friendship illustration'
-          },
-          star_song:{
-            text:'Luna cantò e Scintilla soffiò bollicine a ritmo di musica. Le bollicine si posarono sul cristallo come pioggia dorata finché riprese a brillare. Tutta la montagna si risvegliò di colori. "La canzone giusta apre ogni cuore," disse Scintilla.',
-            moral:'La gentilezza e la musica toccano ogni cuore.',
-            keyword:'cute cartoon dragon child singing mountain flowers spring magic illustration'
-          },
-          star_family:{
-            text:'Scintilla raccontò della sua famiglia di draghi dorati che vivevano dietro le stelle. "Anche tu hai una famiglia che ti aspetta," disse a Luna. Si abbracciarono, poi Scintilla soffiò sul cristallo con tutto il calore del suo cuore. La primavera tornò ancora più bella.',
-            moral:'Ricordare chi amiamo ci dà la forza più grande.',
-            keyword:'cute cartoon dragon child hug mountain family stars spring illustration'
-          }
+          tower_warm:{text:'Tobia scaldò l\'uovo tra le mani insieme a Mastro Nando, tenendolo vicino al cuore finché non si schiuse. Ne uscì un\'allodola piccolissima, che lanciò il suo primo verso proprio mentre il sole sorgeva. La campana, come svegliata da quel canto, suonò più dolce che mai.', moral:'Un po\' di cura paziente può far nascere qualcosa di meraviglioso.', keyword:'hatching golden bird tower bell ringing sunrise cheerful'},
+          tower_story:{text:'Mastro Nando raccontò che la campana suona solo quando il villaggio è pieno di gioia vera. Tobia allora raccolse fiori da ogni vicino e li portò in cima alla torre, riempiendola di colori e profumi. Sentendo tanta allegria intorno, la campana iniziò a suonare da sola.', moral:'Le storie tramandate custodiscono spesso la chiave per risolvere i problemi di oggi.', keyword:'old man storytelling tower flowers child bell village'},
+          tower_clues:{text:'Tra i vecchi ingranaggi della torre, Tobia trovò una scia di piume dorate che scendevano fino al giardino sottostante. Seguendola, scoprì l\'allodola nascosta tra le rose, sola e impaurita. Bastò la sua presenza gentile perché l\'uccellino si fidasse e tornasse a cantare.', moral:'La curiosità, seguita con pazienza, porta sempre a una scoperta.', keyword:'feather trail castle tower garden child discovery golden'},
+          florist_scent:{text:'Il profumo del fiore condusse Tobia fino a un angolo segreto del giardino, dove l\'allodola si era rifugiata. Si avvicinò piano, senza far rumore, e le si sedette accanto finché non smise di tremare. Poco dopo, l\'uccellino spiccò il volo cantando verso la torre.', moral:'A volte basta seguire ciò che il cuore riconosce per ritrovare la strada giusta.', keyword:'child following glowing flower scent garden golden bird'},
+          florist_nest:{text:'Tobia trovò il vecchio nido dell\'allodola, ormai vuoto e spettinato dal vento. Con rametti e petali lo sistemò con cura, rendendolo di nuovo accogliente. Quando l\'allodola lo vide, tornò subito a viverci, e il giorno dopo la campana suonò come non faceva da tempo.', moral:'Creare un posto accogliente è un modo silenzioso di prendersi cura di qualcuno.', keyword:'child rebuilding nest garden golden lark castle warm'},
+          florist_plant:{text:'Tobia piantò il fiore luminoso proprio al centro della piazza, annaffiandolo ogni giorno con pazienza. Pian piano il fiore crebbe, attirando farfalle dorate e, infine, l\'allodola stessa, incuriosita da tanta bellezza. Il giorno del suo ritorno, la campana suonò per tutto il villaggio.', moral:'Coltivare qualcosa di bello, con costanza, richiama sempre la gioia.', keyword:'child planting glowing flower village square butterflies golden'},
+          feathers_approach:{text:'Tobia si avvicinò piano canticchiando una ninna nanna che sua nonna gli cantava da piccolo. L\'allodola, rassicurata da quella melodia gentile, uscì dai petali e si unì al canto. Insieme, volarono cantando fino alla torre, e la campana suonò in coro con loro.', moral:'La gentilezza, cantata piano, scioglie anche la paura più grande.', keyword:'child singing lullaby golden bird garden flying together'},
+          feathers_crumbs:{text:'Tobia posò qualche briciola di pane dorato vicino all\'allodola, senza avvicinarsi troppo. Piano piano, l\'uccellino si fidò e iniziò a beccare dalla sua mano. Da quel giorno lo seguì ovunque, tornando a cantare felice sulla torre del castello.', moral:'Anche i gesti più piccoli possono costruire una grande fiducia.', keyword:'child feeding golden bird crumbs garden trust castle'},
+          feathers_wait:{text:'Tobia restò seduto in silenzio accanto alle rose, senza fretta di muoversi. Con il tempo, l\'allodola smise di tremare e si avvicinò da sola, posandosi sulla sua spalla. Insieme tornarono alla torre, e la campana suonò più forte che mai.', moral:'La pazienza, più della fretta, conquista la fiducia di chi ha paura.', keyword:'child patience golden bird garden trust castle sunset'}
         }
       }
     ]
@@ -553,7 +452,7 @@ const REALMS = [
     id:'forest', icon:'🌲', name:'La Grande Foresta',
     desc:'Boschi antichi, animali parlanti e segreti tra le foglie',
     color:'#2d5a27', colorLight:'#4a8c42', colorDark:'#1a3518',
-    storyIds:['forest'],
+    storyIds:[],
     /* coordinate SVG del poligono della regione */
     shape:'M 120,80 L 320,60 L 380,160 L 340,260 L 180,280 L 80,200 Z',
     labelX:230, labelY:175,
@@ -562,7 +461,7 @@ const REALMS = [
     id:'mountain', icon:'🏔️', name:'Le Cime Tempestose',
     desc:'Vette innevate, cristalli magici e draghi dorati',
     color:'#4a5568', colorLight:'#718096', colorDark:'#2d3748',
-    storyIds:['mountain'],
+    storyIds:[],
     shape:'M 380,60 L 580,40 L 660,120 L 620,220 L 460,240 L 380,160 Z',
     labelX:520, labelY:145,
   },
@@ -570,7 +469,7 @@ const REALMS = [
     id:'sea', icon:'🌊', name:'L\'Oceano Profondo',
     desc:'Navi misteriose, abissi senza fondo e segreti del mare',
     color:'#1a4a7a', colorLight:'#2c6fad', colorDark:'#0d2d4f',
-    storyIds:['sea'],
+    storyIds:[],
     shape:'M 620,220 L 780,180 L 860,300 L 820,420 L 660,440 L 560,360 L 580,260 Z',
     labelX:710, labelY:320,
   },
@@ -578,7 +477,7 @@ const REALMS = [
     id:'desert', icon:'🌵', name:'Le Terre Dimenticate',
     desc:'Dune infinite, rovine antiche e tesori sepolti',
     color:'#7a5c1a', colorLight:'#b8882a', colorDark:'#4a380f',
-    storyIds:[],
+    storyIds:['oasis'],
     shape:'M 80,200 L 180,280 L 200,420 L 100,460 L 20,360 L 40,260 Z',
     labelX:110, labelY:340,
   },
@@ -586,7 +485,7 @@ const REALMS = [
     id:'kingdom', icon:'🏰', name:'Le Terre di Mezzo',
     desc:'Castelli dorati, villaggi allegri e campagne fiorite',
     color:'#6b3a8a', colorLight:'#9b5ec4', colorDark:'#3d2050',
-    storyIds:[],
+    storyIds:['bell'],
     shape:'M 200,420 L 340,260 L 460,240 L 560,360 L 520,500 L 340,540 L 200,500 Z',
     labelX:375, labelY:410,
   },
