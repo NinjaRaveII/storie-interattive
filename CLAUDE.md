@@ -2,7 +2,7 @@
 
 > **Scopo di questo documento:** fornire a Claude Code (e a chiunque lavori al progetto) il contesto completo e *aggiornato*, allineato al codice reale, con le decisioni prese, le motivazioni e una roadmap passo-passo verso un MVP funzionante.
 >
-> *Versione 2.0 — 30 giugno 2026. Questa versione corregge diversi disallineamenti della v1.0 rispetto al codice effettivo.*
+> *Versione 3.0 — 1 luglio 2026. Aggiornata dopo la sostituzione delle 3 storie dummy con 2 storie complete (audio + parte delle immagini generate), la correzione di due bug UI reali (sottotitoli invisibili, QR rotto) e l'aggiunta di una sezione "Lezioni apprese" (§13).*
 
 ---
 
@@ -27,12 +27,12 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 |---|---|---|
 | Linguaggio | HTML5 + CSS3 + JavaScript vanilla (no framework) | invariato (scelta deliberata) |
 | Font | Google Fonts — Playfair Display (titoli) + Crimson Pro (corpo) | invariato |
-| Immagini scena | **File locali** in `images/<storia>/...` | **CORREZIONE**: la v1.0 indicava Unsplash; il codice usa file locali |
-| Sintesi vocale | **Audio pre-generati (file) + Web Speech API come ripiego** | **CAMBIO DI ROTTA**: vedi §6. Il codice attuale tenta ElevenLabs live (con un bug, vedi §9) |
-| Comunicazione cross-device | **Supabase Realtime (canale broadcast)** | **NUOVO**: sostituisce BroadcastChannel per l'uso multi-dispositivo |
-| Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` (opzionale, come ripiego locale) | declassato a fallback |
-| Pairing TV↔telefono | **Codice stanza** veicolato via **QR code** | il QR esiste già nel codice ma oggi non collega davvero i dispositivi |
-| Hosting | **Static hosting con HTTPS** (GitHub Pages / Netlify / Cloudflare Pages) | **NUOVO**: necessario per l'uso online |
+| Immagini scena | **File locali** in `images/<storia>/...`, generate con Gemini (via browser) e convertite in `.jpg` | ✅ in corso: 5/5 per `oasis`, 1/5 per `bell` |
+| Sintesi vocale | **Audio pre-generati (file) + Web Speech API come ripiego** | ✅ **FATTO** per `oasis` e `bell` (26 mp3 via ElevenLabs, script `generate-audio.mjs`, vedi §6) |
+| Comunicazione cross-device | **Supabase Realtime (canale broadcast)** | **NON ANCORA FATTO**: sostituisce BroadcastChannel per l'uso multi-dispositivo |
+| Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` (opzionale, come ripiego locale) | è ancora l'**unico** trasporto attivo oggi |
+| Pairing TV↔telefono | **Codice stanza** veicolato via **QR code** | il QR ora punta correttamente a `controller.html` (bug URL risolto, §13), ma non instaura ancora un collegamento cross-device reale |
+| Hosting | **Static hosting con HTTPS** (GitHub Pages / Netlify / Cloudflare Pages) | **NON ANCORA FATTO**: necessario per l'uso online |
 
 ---
 
@@ -54,9 +54,9 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 - `openRealm(id)` / `startStory(id)` — naviga regno → storia.
 - `renderStep()` — renderizza lo step corrente (intro / middle / end).
 - `pick(key, stepIndex)` — registra la scelta e avanza.
-- `speak(text, cb)` — narrazione (oggi: tentativo ElevenLabs + ripiego Web Speech; **da convertire** ad audio pre-generati, §6).
+- `speak(text, audioSrc, cb)` — narrazione: riproduce l'mp3 pre-generato (`audioPath()`) sincronizzando i sottotitoli in proporzione alla durata; se il file manca o non carica, ripiego automatico su `speakFallback()` (Web Speech, frase per frase). Vedi §6.
 - `loadImg(path)` + `imgPath(storyId, type, variant)` — caricano **immagini locali**.
-- `showQR()` — genera il QR verso `controller.html`.
+- `showQR()` — genera il QR verso `controller.html` con una libreria QR **locale via CDN** (non più un servizio esterno), risolvendo l'URL con `new URL(...)` invece di una replace di stringa fragile (§13).
 - Listener di comunicazione → riceve `start` / `pick` / `restart`.
 
 ### `controller.html` — Telefono (controller)
@@ -68,13 +68,13 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 + Status bar in basso con feedback d'invio.
 
 **Logica principale:**
-- `STORIES[]` — **copia ridotta** (solo `id, icon, title, tag, phases`).
-- `PHASE2_KEYS` — mappa che traduce le chiavi-segnaposto della fase 2 (`x1,x2,x3`…) nelle chiavi reali della storia, in base alla scelta 1.
+- `STORIES[]` — **copia ridotta** (`id, icon, title, tag, phases`). La fase 2 (`phases[1]`) è ora **branch-aware**: ha un oggetto `variants` con preview/scelte reali per ciascuna chiave di scelta 1, non più testi segnaposto generici.
+- ~~`PHASE2_KEYS`~~ — **rimossa**: era la mappa che traduceva le chiavi-segnaposto della fase 2 nelle chiavi reali. Sostituita rendendo `variants` direttamente branch-aware (vedi §13, lezione appresa).
 - `selectStory(id)` → invia `{action:'start', id}`.
 - `pickChoice(key)` → invia `{action:'pick', key, si:phase}`.
 - `doRestart()` → invia `{action:'restart'}`.
 
-> 🔧 **Debito tecnico noto:** i dati delle storie sono duplicati tra `tv.html` e `controller.html`, e tenuti allineati a mano tramite `PHASE2_KEYS`. È fragile. Vedi §8 (fonte unica dei dati).
+> 🔧 **Debito tecnico noto (resta):** i dati delle storie sono ancora duplicati tra `tv.html` e `controller.html` (testi diversi, struttura simile). `PHASE2_KEYS` è stata eliminata, ma l'unificazione in un `stories.js` unico resta un obiettivo di Fase 1 (§10).
 
 ---
 
@@ -105,8 +105,8 @@ Oggetti JSON inviati sul canale della stanza.
 
 | Azione | Payload | Chi invia | Chi riceve |
 |---|---|---|---|
-| Avvio storia | `{action:'start', id:'forest'}` | controller | tv |
-| Scelta opzione | `{action:'pick', key:'deep', si:0}` | controller | tv |
+| Avvio storia | `{action:'start', id:'oasis'}` | controller | tv |
+| Scelta opzione | `{action:'pick', key:'dune', si:0}` | controller | tv |
 | Restart | `{action:'restart'}` | controller | tv |
 
 `si` = step index (0 = intro, 1 = middle).
@@ -121,10 +121,10 @@ Ogni storia in `tv.html` segue questo schema:
 
 ```js
 {
-  id: 'forest',          // identificatore univoco
-  tag: 'Avventura',      // etichetta genere
-  icon: '🌲',
-  title: 'Il Bosco dei Sussurri',
+  id: 'oasis',            // identificatore univoco
+  tag: 'Avventura · bambini',      // etichetta genere
+  icon: '🌵',
+  title: 'L\'Oasi delle Sabbie Dorate',
   desc: 'Descrizione breve per la card.',
   steps: [
     // STEP 0 — INTRO
@@ -132,11 +132,11 @@ Ogni storia in `tv.html` segue questo schema:
       type: 'intro',
       label: "L'inizio",
       text: '…testo narrativo…',
-      keyword: 'autumn forest sunset',   // residuo storico (era per Unsplash); oggi le immagini sono locali
+      keyword: 'desert oasis child golden sand',   // spunto in inglese per generare l'immagine (§6 di GUIDA_STORIE.md)
       choices: [
-        { text: 'Testo opzione A', key: 'deep' },
-        { text: 'Testo opzione B', key: 'wait' },
-        { text: 'Testo opzione C', key: 'run' }
+        { text: 'Testo opzione A', key: 'dune' },
+        { text: 'Testo opzione B', key: 'camel' },
+        { text: 'Testo opzione C', key: 'wind' }
       ]
     },
     // STEP 1 — MIDDLE (ramificato per choice1)
@@ -144,9 +144,9 @@ Ogni storia in `tv.html` segue questo schema:
       type: 'middle',
       label: 'Il cuore della storia',
       variants: {
-        deep: { text: '…', keyword: '…', choices: [ … ] },
-        wait: { text: '…', keyword: '…', choices: [ … ] },
-        run:  { text: '…', keyword: '…', choices: [ … ] }
+        dune:  { text: '…', keyword: '…', choices: [ … ] },
+        camel: { text: '…', keyword: '…', choices: [ … ] },
+        wind:  { text: '…', keyword: '…', choices: [ … ] }
       }
     },
     // STEP 2 — END (ramificato per choice1 + choice2)
@@ -154,7 +154,7 @@ Ogni storia in `tv.html` segue questo schema:
       type: 'end',
       label: 'Il finale',
       ends: {
-        'deep_msg': { text: '…', moral: '…', keyword: '…' },
+        'dune_dig': { text: '…', moral: '…', keyword: '…' },
         // … 9 combinazioni totali (3 × 3)
       }
     }
@@ -162,17 +162,18 @@ Ogni storia in `tv.html` segue questo schema:
 }
 ```
 
-**Nomenclatura chiavi `ends`:** `<key_choice1>_<key_choice2>` (es. `deep_msg`, `wait_help`).
+**Nomenclatura chiavi `ends`:** `<key_choice1>_<key_choice2>` (es. `dune_dig`, `camel_map`).
 
 ### Storie e ramificazioni reali
 
-| ID | Titolo | Tag | Scelta 1 (chiavi) |
-|---|---|---|---|
-| `forest` | Il Bosco dei Sussurri | Avventura | `deep` / `wait` / `run` |
-| `sea` | La Nave dei Mille Anni | Mistero | `board` / `look` / `call` |
-| `mountain` | Luna e il Cristallo della Montagna | Fantasy · bambini | `flowers` / `bear` / `star` |
+| ID | Titolo | Tag | Regno | Scelta 1 (chiavi) |
+|---|---|---|---|---|
+| `oasis` | L'Oasi delle Sabbie Dorate | Avventura · bambini | Le Terre Dimenticate (deserto) | `dune` / `camel` / `wind` |
+| `bell` | La Campana d'Oro del Villaggio | Fiaba · bambini | Le Terre di Mezzo | `tower` / `florist` / `feathers` |
 
 Ogni storia: **3 opzioni per fase → 9 finali distinti**.
+
+> Le 3 storie precedenti (`forest`, `sea`, `mountain`) erano contenuti dimostrativi ("dummy") e sono state **rimosse** insieme ai loro regni attivi (ora bloccati, §7). `oasis` e `bell` sono le prime due storie scritte seguendo `GUIDA_STORIE.md`, pensate anche per validare l'intera pipeline (testo → audio → immagini) prima di scriverne altre.
 
 ### Immagini attese (file locali)
 
@@ -184,13 +185,13 @@ images/<storia>/end.jpg
 ```
 Conteggio per storia: **1 intro + 3 middle + 1 end = 5 immagini**.
 
-> ⚠️ **Limite noto:** tutti i **9 finali** condividono **un'unica** `end.jpg`. Migliorabile in futuro con un'immagine per finale (vedi roadmap fase 3).
+> ⚠️ **Scelta deliberata (non un bug):** tutti i **9 finali** condividono **un'unica** `end.jpg` neutra/trionfale — a differenza dell'audio, dove ogni finale ha testo diverso e quindi *deve* avere un mp3 diverso. Decisione confermata: si resta con 5 immagini finché non si verifica che lo stile regge ed è coerente; solo dopo si passerà a 9 immagini di finale distinte (13 per storia, vedi roadmap Fase 3).
 
 ---
 
-## 6. Voce narrante (decisione v2.0)
+## 6. Voce narrante (✅ implementata per `oasis` e `bell`)
 
-**Strategia scelta: audio pre-generati come file statici** (come le immagini), con **Web Speech API** solo come ripiego.
+**Strategia: audio pre-generati come file statici** (come le immagini), con **Web Speech API** come ripiego automatico.
 
 Motivazioni:
 - I testi sono **fissi** → si generano gli audio **una volta** e si riusano, con qualità costante.
@@ -198,14 +199,19 @@ Motivazioni:
 - **Funziona su tutti i dispositivi** (anche mobile, dove la voce automatica del browser è inaffidabile).
 - Costo **una tantum**, non a ogni lettura.
 
-Struttura cartella `audio/` (proposta, speculare alle immagini):
+Struttura cartella `audio/` (**attiva**, 26 file già generati):
 ```
 audio/<storia>/intro.mp3
 audio/<storia>/middle_<chiaveScelta1>.mp3
 audio/<storia>/end_<chiaveScelta1>_<chiaveScelta2>.mp3   (9 finali)
 ```
 
-> Gli audio possono essere generati con un qualsiasi TTS di qualità (incluso ElevenLabs) **in fase di produzione, sul tuo computer** — non a runtime nel browser. Così la chiave segreta non finisce mai nel sito pubblico.
+**Come si generano (script pronto, `generate-audio.mjs`):**
+- Node legge i testi delle storie (copiati nello script), chiama l'API ElevenLabs e salva gli mp3 in `audio/<storia>/`.
+- La chiave API **non è mai nel codice**: lo script la legge da `.env.local` (file locale, escluso da git tramite `.gitignore`), oppure da una variabile d'ambiente `ELEVENLABS_API_KEY`.
+- Rilancio sicuro: lo script salta i file già presenti, quindi si può interrompere e riprendere.
+- **Chiave API ElevenLabs — permessi consigliati:** solo endpoint "Text to Speech" abilitato (principio del minimo privilegio); credito per chiave impostato a un numero esplicito (mai `0`, che nella UI di ElevenLabs è ambiguo) — per 2 storie (26 audio, ~7.500 caratteri totali) un limite di 10000 crediti è ampiamente sufficiente. La modalità gratuita/a pagamento dipende dall'abbonamento dell'account (pagina Subscription/Billing su elevenlabs.io), non dal limite impostato sulla singola chiave.
+- **Riproduzione lato client:** `speak(text, audioSrc, cb)` in `tv.html` riproduce l'mp3 con `<audio>`, sincronizzando i sottotitoli in proporzione alla lunghezza di ogni frase rispetto alla durata totale (non ci sono audio per singola frase). Se `audioSrc` manca o l'audio fallisce a caricare, ripiega automaticamente su Web Speech (frase per frase, come prima).
 
 ---
 
@@ -215,11 +221,11 @@ La home (`#screen-list`) è una **mappa SVG** con 6 regni cliccabili. Ogni regno
 
 | Regno | Icona | Stato |
 |---|---|---|
-| La Grande Foresta | 🌲 | attivo (`forest`) |
-| Le Cime Tempestose | 🏔️ | attivo (`mountain`) |
-| L'Oceano Profondo | 🌊 | attivo (`sea`) |
-| Le Terre Dimenticate | 🌵 | bloccato ("Presto…") |
-| Le Terre di Mezzo | 🏰 | bloccato ("Presto…") |
+| La Grande Foresta | 🌲 | bloccato ("Presto…") — storia dummy rimossa |
+| Le Cime Tempestose | 🏔️ | bloccato ("Presto…") — storia dummy rimossa |
+| L'Oceano Profondo | 🌊 | bloccato ("Presto…") — storia dummy rimossa |
+| Le Terre Dimenticate | 🌵 | **attivo** (`oasis`) |
+| Le Terre di Mezzo | 🏰 | **attivo** (`bell`) |
 | Il Cielo Infinito | ✨ | bloccato ("Presto…") |
 
 I regni senza storie hanno classe `.locked` (non cliccabili). Aggiungere storie a un regno = aggiungere id in `storyIds`.
@@ -245,13 +251,20 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 
 ---
 
-## 9. Problemi noti da correggere (priorità alta)
+## 9. Problemi noti
 
-1. **✅ SICUREZZA — chiave ElevenLabs (RISOLTO).** La API key è stata **rimossa dal codice** e **ripulita anche dalla cronologia di GitHub**. Con la strategia audio pre-generati (§6), nel sito non serve più alcuna chiave. *Promemoria di buona pratica:* se il repository è mai stato pubblico prima della pulizia, la vecchia chiave va comunque considerata "potenzialmente vista da altri" — quindi, se non già fatto, **rigenerarla su elevenlabs.io** (riscrivere la cronologia non annulla eventuali copie fatte da terzi mentre era online).
-2. **🟠 BUG voce.** Il controllo `hasKey` confronta la chiave con se stessa, quindi è sempre `false`: ElevenLabs non si attiva **mai** e si usa sempre la voce del browser. (Verrà superato dalla strategia audio file.)
-3. **🟠 Comunicazione cross-device assente.** `BroadcastChannel` non collega dispositivi diversi: l'uso previsto oggi **non funziona**. Da sostituire con Supabase Realtime (§4).
-4. **🟡 Dati duplicati.** Storie in due file + `PHASE2_KEYS`. Da unificare in `stories.js` (fonte unica), eliminando `PHASE2_KEYS` (il controller deriva le scelte di fase 2 direttamente dai dati, in base alla scelta 1).
-5. **🟡 QR scollegato dal concept.** Oggi il QR rimanda al controller ma non instaura alcun collegamento reale. Con Supabase + codice stanza, il QR diventa il meccanismo di pairing.
+### Risolti
+1. **✅ SICUREZZA — chiave ElevenLabs esposta.** La API key è stata **rimossa dal codice** e **ripulita anche dalla cronologia di GitHub**. *Promemoria di buona pratica ancora valido:* se il repository è mai stato pubblico prima della pulizia, la vecchia chiave va considerata "potenzialmente vista da altri" — se non già fatto, **rigenerarla su elevenlabs.io**.
+2. **✅ BUG voce.** Risolto implementando la strategia audio pre-generati (§6): `speak()` ora riproduce gli mp3 reali con ripiego Web Speech, non c'è più alcun tentativo di chiamata ElevenLabs a runtime nel browser.
+3. **✅ Sottotitoli invisibili.** `.subtitle-bar` non aveva alcuna regola di posizionamento CSS: `#img-loading` (con `height:100%` in flusso normale) lo spingeva fuori dal riquadro immagine, che ha `overflow:hidden`. Il testo veniva scritto correttamente nel DOM ma non era mai visibile a schermo. Vedi lezione appresa in §13.
+4. **✅ QR rotto/fragile.** `showQR()` costruiva l'URL con `location.href.replace('tv.html','')`, che si rompeva se l'URL non conteneva letteralmente `tv.html` (es. hosting con URL "puliti"). Sostituito con risoluzione URL standard (`new URL(...)`) e con una libreria QR **locale via CDN** al posto del servizio esterno `api.qrserver.com`.
+5. **✅ Dati duplicati (parziale).** `PHASE2_KEYS` è stata **eliminata**: il controller ora ha scelte di fase 2 branch-aware direttamente nei dati (`variants`), niente più testi segnaposto generici. Resta comunque la duplicazione dei dati tra i due file (vedi punto 7).
+
+### Ancora aperti
+6. **🟠 Comunicazione cross-device assente.** `BroadcastChannel` non collega dispositivi diversi: l'uso previsto oggi **non funziona**. Da sostituire con Supabase Realtime (§4). Nessun progresso su questo punto in questa sessione.
+7. **🟡 Dati duplicati tra `tv.html` e `controller.html`.** Da unificare in `stories.js` (fonte unica) — obiettivo Fase 1, non ancora iniziato.
+8. **🟡 QR scollegato dal concept di pairing.** Il QR ora punta all'URL corretto (punto 4), ma non instaura ancora un collegamento cross-device reale: serve Supabase + codice stanza (§4.1).
+9. **🟡 Immagini incomplete.** `oasis` ha tutte e 5 le immagini; `bell` ne ha solo 1/5 (`intro.jpg`). Da completare nella stessa conversazione Gemini per coerenza del personaggio Tobia (vedi §13).
 
 ---
 
@@ -259,11 +272,14 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 
 ### ✅ Già fatto
 - Struttura a due file (tv + controller).
-- 3 storie complete (intro → middle ramificato → 9 finali).
-- Mappa del mondo SVG con regni (3 attivi + 3 bloccati).
-- Sottotitoli sincronizzati con la narrazione.
+- 2 storie complete (intro → middle ramificato → 9 finali): `oasis`, `bell`. Le 3 storie dummy precedenti sono state rimosse.
+- Mappa del mondo SVG con regni (2 attivi — deserto e Terre di Mezzo — + 4 bloccati).
+- Sottotitoli sincronizzati con la narrazione, **overlaid correttamente sull'immagine** (bug di posizionamento CSS risolto, §9).
 - Morale finale, progress bar, animazione stelle, status bar controller.
-- Pannello QR (da ricollegare al pairing).
+- Pannello QR funzionante (URL corretto, libreria locale — ancora da collegare al pairing cross-device reale).
+- Audio narrante pre-generato (ElevenLabs) per entrambe le storie, con ripiego Web Speech automatico.
+- Immagini generate con Gemini per `oasis` (5/5) e parzialmente per `bell` (1/5).
+- Controller: fase 2 con testi reali per ramo, `PHASE2_KEYS` eliminata.
 
 ---
 
@@ -278,9 +294,9 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 1. [ ] **Account Supabase** → creare progetto → annotare *Project URL* e *publishable key*.
 2. [ ] **Sostituire il trasporto:** rimpiazzare `BroadcastChannel` con un canale Supabase Realtime, mantenendo invariati i messaggi `start`/`pick`/`restart`. (Opzionale: tenere BroadcastChannel come ripiego se TV e telefono sono sullo stesso dispositivo.)
 3. [ ] **Codice stanza + QR:** la TV genera un codice; il canale diventa `storie-<codice>`; il QR include il codice; il telefono entra nella stanza giusta.
-4. [ ] **Fonte unica dei dati:** creare `stories.js` con tutte le storie; `tv.html` e `controller.html` lo importano. Eliminare la copia ridotta e `PHASE2_KEYS`.
-5. [ ] **Voce:** pre-generare gli audio (1 intro + 3 middle + 9 end per storia) e salvarli in `audio/`; far suonare i file; Web Speech come ripiego.
-6. [ ] **Immagini:** preparare le 5 immagini locali per ciascuna delle 3 storie.
+4. [ ] **Fonte unica dei dati:** creare `stories.js` con tutte le storie; `tv.html` e `controller.html` lo importano. Eliminare la copia ridotta (`PHASE2_KEYS` già eliminata).
+5. [x] **Voce:** pre-generati gli audio (1 intro + 3 middle + 9 end per storia) per `oasis` e `bell`, salvati in `audio/`; i file suonano correttamente; Web Speech come ripiego funzionante.
+6. [~] **Immagini:** 5/5 per `oasis`, 1/5 per `bell` (mancano `middle_tower`, `middle_florist`, `middle_feathers`, `end` — da generare nella stessa conversazione Gemini di `intro.jpg` per coerenza del personaggio Tobia).
 7. [ ] **Pubblicazione:** caricare il sito su hosting statico con HTTPS (GitHub Pages / Netlify / Cloudflare Pages).
 8. [ ] **Test reale:** provare con un telefono e un PC *diversi*, su reti diverse.
 
@@ -294,12 +310,13 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - [ ] Piccoli controlli: evitare doppi tap, gestire ordine dei messaggi.
 
 ### 🟪 FASE 3 — Evoluzioni
-- [ ] Nuove storie e sblocco dei regni `desert` / `kingdom` / `sky`.
+- [ ] Nuove storie e sblocco dei regni `forest` / `mountain` / `sky` (i primi due avevano storie dummy ora rimosse, da riscrivere da zero seguendo `GUIDA_STORIE.md`).
 - [ ] Modalità "solo TV" (scelte con timer, senza telefono).
 - [ ] Musica di sottofondo / effetti sonori.
 - [ ] PWA installabile (manifest + service worker).
 - [ ] Multilingua (struttura già predisponibile).
-- [ ] Immagini generate via AI (offline, in produzione) per coerenza visiva.
+- [ ] 9 immagini di finale distinte per storia (oggi condividono `end.jpg`), una volta validato che lo stile a 5 immagini regge bene.
+- [ ] **Badge di completamento storie** *(idea da dettagliare meglio — segnalata 1 luglio 2026)*: un sistema di badge assegnati man mano che si completano storie diverse (più storie completate → più badge). Ipotesi da esplorare: i badge potrebbero anche "sbloccare" nuovi regni sulla mappa, invece che (o oltre a) semplicemente aggiungere `storyIds`. Da definire: dove si salva il progresso (probabilmente `localStorage`, coerente col punto Fase 2 sulla persistenza), come si presentano i badge in UI, se sono per bambino/dispositivo o condivisi.
 
 ---
 
@@ -354,4 +371,18 @@ Questa modalità **rompe due assunti** del progetto base, in modo consapevole:
 
 ---
 
-*Documento generato il 30 giugno 2026 — versione 2.2 (aggiunta §11 Visione futura "Storia Libera" con input push-to-talk).*
+## 13. Lezioni apprese
+
+> Note pratiche emerse lavorando sul progetto, utili per non ripetere gli stessi errori.
+
+1. **Verificare sempre visivamente, non solo via DOM/JS.** Un testo può risultare "corretto" interrogando `textContent` ma essere comunque invisibile a schermo per un problema di layout CSS. Il bug dei sottotitoli (§9) è passato inosservato per diverse sessioni di test proprio perché veniva verificato solo leggendo il valore JS, mai con uno screenshot o un'ispezione delle bounding box.
+2. **Evitare dipendenze da servizi esterni per funzionalità centrali quando esiste un'alternativa locale matura.** Il QR usava un'API pubblica di terzi (`api.qrserver.com`) solo per disegnare l'immagine: sostituita con una libreria QR locale via CDN, eliminando un punto di fragilità (rete, ad-blocker, privacy) per un meccanismo — il pairing TV↔telefono — che è centrale al concept.
+3. **La coerenza del personaggio nelle immagini AI regge molto meglio nella stessa conversazione.** Generare le 5 immagini di una storia nella stessa chat, richiamando esplicitamente "lo stesso identico personaggio" a ogni prompt successivo, dà risultati nettamente più coerenti che generare ogni immagine da zero.
+4. **"Child-friendly" nel prompt non basta per un pubblico di 3-6 anni.** Serve elencare esplicitamente cosa non deve comparire (ombre inquietanti, zanne/artigli minacciosi, armi, pericolo reale), non solo lo stile desiderato — vedi il preambolo aggiornato in `BRIEF_IMMAGINI.md`.
+5. **Le chiavi API restano sempre fuori dalla conversazione.** Gestite tramite file locale non tracciato (`.env.local`, in `.gitignore`), mai incollate in chat né nei file del sito — anche quando serve che l'utente le inserisca lui stesso.
+6. **Rendere i dati "branch-aware" invece di mantenere mappe di traduzione separate.** `PHASE2_KEYS` traduceva chiavi segnaposto in chiavi reali; eliminata rendendo la fase 2 del controller direttamente branch-aware (un oggetto `variants` per chiave di scelta 1). Una fonte di disallineamento in meno.
+7. **Controllare la documentazione di progetto prima di assumere lo scope "giusto".** Prima di generare 9 immagini di finale (una per combinazione), la domanda corretta era "quante ne prevede `GUIDA_STORIE.md`?" — la risposta (5, non 13) era già scritta e motivata nel documento.
+
+---
+
+*Documento generato il 30 giugno 2026, ultimo aggiornamento 1 luglio 2026 — versione 3.0.*
