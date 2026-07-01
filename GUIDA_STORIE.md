@@ -55,6 +55,7 @@ Le chiavi dei finali si chiamano `<choice1>_<choice2>` (es. `deep_msg`).
 - **Frasi "leggibili dalla voce":** preferire frasi non troppo lunghe, con punteggiatura chiara (`. ! ?`). Il narratore divide il testo proprio sui punti, quindi una buona punteggiatura = buona lettura.
 - **Coerenza interna:** stesso nome del protagonista in tutta la storia; il middle deve seguire logicamente la scelta 1; ogni finale deve "ripagare" **entrambe** le scelte fatte (choice1 + choice2).
 - **Morale:** positiva e concreta (gentilezza, coraggio, curiosità, amicizia, famiglia…), **mai predicatoria o moralista**.
+- **Varietà di protagonisti** *(nota per le prossime storie, segnalata 1 luglio 2026)*: `oasis` e `bell` hanno entrambe un bambino/a come protagonista. Per le prossime storie, variare includendo anche **protagonisti animali** (es. un orsetto), per dare più varietà al mondo delle storie.
 
 ---
 
@@ -224,6 +225,7 @@ Se si adottano gli audio pre-generati (§6 di `CLAUDE.md`):
 - **Voce:** italiana, calda, ritmo **lento** e cadenzato, adatto ai bambini.
 - **Generazione solo in produzione** (sul computer), **mai** con chiavi dentro il sito pubblico.
 - Rigenerare l'audio di un segmento ogni volta che se ne cambia il testo.
+- **Voce narrante variabile** *(nota per il futuro, segnalata 1 luglio 2026)*: oggi `oasis` e `bell` usano la stessa voce ElevenLabs ("Serena"). Da valutare per i prossimi lotti di audio: usare voci diverse per regno (es. una voce per il deserto, una per le Terre di Mezzo), se non troppo complesso da gestire nello script `generate-audio.mjs`.
 
 ---
 

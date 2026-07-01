@@ -259,12 +259,14 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 3. **✅ Sottotitoli invisibili.** `.subtitle-bar` non aveva alcuna regola di posizionamento CSS: `#img-loading` (con `height:100%` in flusso normale) lo spingeva fuori dal riquadro immagine, che ha `overflow:hidden`. Il testo veniva scritto correttamente nel DOM ma non era mai visibile a schermo. Vedi lezione appresa in §13.
 4. **✅ QR rotto/fragile.** `showQR()` costruiva l'URL con `location.href.replace('tv.html','')`, che si rompeva se l'URL non conteneva letteralmente `tv.html` (es. hosting con URL "puliti"). Sostituito con risoluzione URL standard (`new URL(...)`) e con una libreria QR **locale via CDN** al posto del servizio esterno `api.qrserver.com`.
 5. **✅ Dati duplicati (parziale).** `PHASE2_KEYS` è stata **eliminata**: il controller ora ha scelte di fase 2 branch-aware direttamente nei dati (`variants`), niente più testi segnaposto generici. Resta comunque la duplicazione dei dati tra i due file (vedi punto 7).
+6. **✅ Voce robotica dopo "Home".** `stopSpeak()` azzerava `currentAudio.src`, il che innescava l'evento `onerror` dell'`<audio>` ancora in ascolto: la promise di `speakPregenerated()` si risolveva a `false` e `speak()` cadeva sul ripiego Web Speech **anche quando l'interruzione era voluta**. Corretto rimuovendo i listener (`onended/onerror/onloadedmetadata`) prima di fermare l'audio.
+7. **✅ Immagine che copriva il contenuto sotto (desktop).** Con finestre più basse, l'altezza fissa dell'immagine (`clamp(200px,42vh,420px)`) lasciava troppo poco spazio a etichetta/scelte/morale, che venivano tagliate da `overflow:hidden`. Ridotta l'altezza immagine (`clamp(180px,34vh,360px)`) e aggiunto scroll verticale (`overflow-y:auto` su `#app`) come rete di sicurezza per finestre molto piccole.
 
 ### Ancora aperti
-6. **🟠 Comunicazione cross-device assente.** `BroadcastChannel` non collega dispositivi diversi: l'uso previsto oggi **non funziona**. Da sostituire con Supabase Realtime (§4). Nessun progresso su questo punto in questa sessione.
-7. **🟡 Dati duplicati tra `tv.html` e `controller.html`.** Da unificare in `stories.js` (fonte unica) — obiettivo Fase 1, non ancora iniziato.
-8. **🟡 QR scollegato dal concept di pairing.** Il QR ora punta all'URL corretto (punto 4), ma non instaura ancora un collegamento cross-device reale: serve Supabase + codice stanza (§4.1).
-9. **🟡 Immagini incomplete.** `oasis` ha tutte e 5 le immagini; `bell` ne ha solo 1/5 (`intro.jpg`). Da completare nella stessa conversazione Gemini per coerenza del personaggio Tobia (vedi §13).
+8. **🟠 Comunicazione cross-device assente.** `BroadcastChannel` non collega dispositivi diversi: l'uso previsto oggi **non funziona**. Da sostituire con Supabase Realtime (§4). Nessun progresso su questo punto in questa sessione.
+9. **🟡 Dati duplicati tra `tv.html` e `controller.html`.** Da unificare in `stories.js` (fonte unica) — obiettivo Fase 1, non ancora iniziato.
+10. **🟡 QR scollegato dal concept di pairing.** Il QR ora punta all'URL corretto (punto 4), ma non instaura ancora un collegamento cross-device reale: serve Supabase + codice stanza (§4.1).
+11. **🟡 Immagini incomplete.** `oasis` ha tutte e 5 le immagini; `bell` ne ha solo 1/5 (`intro.jpg`). Da completare nella stessa conversazione Gemini per coerenza del personaggio Tobia (vedi §13).
 
 ---
 
@@ -280,6 +282,7 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - Audio narrante pre-generato (ElevenLabs) per entrambe le storie, con ripiego Web Speech automatico.
 - Immagini generate con Gemini per `oasis` (5/5) e parzialmente per `bell` (1/5).
 - Controller: fase 2 con testi reali per ramo, `PHASE2_KEYS` eliminata.
+- Corretto bug voce robotica dopo il tasto Home (§9) e layout immagine/contenuto su finestre desktop basse (§9), con scroll di sicurezza aggiunto.
 
 ---
 
@@ -316,6 +319,8 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - [ ] PWA installabile (manifest + service worker).
 - [ ] Multilingua (struttura già predisponibile).
 - [ ] 9 immagini di finale distinte per storia (oggi condividono `end.jpg`), una volta validato che lo stile a 5 immagini regge bene.
+- [ ] **Varietà di protagonisti** *(segnalata 1 luglio 2026)*: includere anche protagonisti animali (es. un orsetto) nelle prossime storie, non solo bambini — vedi nota in `GUIDA_STORIE.md` §2.
+- [ ] **Voce narrante variabile** *(segnalata 1 luglio 2026)*: valutare voci diverse per regno nei prossimi lotti di audio (oggi tutte le storie usano la stessa voce ElevenLabs) — vedi nota in `GUIDA_STORIE.md` §7.
 - [ ] **Badge di completamento storie** *(idea da dettagliare meglio — segnalata 1 luglio 2026)*: un sistema di badge assegnati man mano che si completano storie diverse (più storie completate → più badge). Ipotesi da esplorare: i badge potrebbero anche "sbloccare" nuovi regni sulla mappa, invece che (o oltre a) semplicemente aggiungere `storyIds`. Da definire: dove si salva il progresso (probabilmente `localStorage`, coerente col punto Fase 2 sulla persistenza), come si presentano i badge in UI, se sono per bambino/dispositivo o condivisi.
 
 ---

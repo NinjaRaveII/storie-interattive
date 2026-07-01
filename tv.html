@@ -18,7 +18,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .stars{position:fixed;inset:0;pointer-events:none;z-index:0}
 .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
-#app{position:relative;z-index:1;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 40px 24px;overflow:hidden}
+#app{position:relative;z-index:1;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 40px 24px;overflow-y:auto;overflow-x:hidden}
 
 /* ===== HOME: MAPPA DEL MONDO ===== */
 #screen-list{
@@ -100,7 +100,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   position:relative;width:100%;
   border-radius:20px;overflow:hidden;
   background:var(--surface);
-  height:clamp(200px,42vh,420px);
+  height:clamp(180px,34vh,360px);
   flex-shrink:0;
 }
 .scene-img-block img{width:100%;height:100%;object-fit:cover;display:block}
@@ -848,7 +848,13 @@ function wsSentence(text, cb){
 }
 
 function stopSpeak(){
-  if(currentAudio){currentAudio.pause();currentAudio.src='';currentAudio=null;}
+  if(currentAudio){
+    /* rimuove i listener PRIMA di fermare l'audio: altrimenti l'onerror
+       innescato da src='' farebbe cadere sul ripiego Web Speech anche
+       quando l'interruzione è voluta (es. tasto Home) */
+    currentAudio.onended=null; currentAudio.onerror=null; currentAudio.onloadedmetadata=null;
+    currentAudio.pause(); currentAudio.src=''; currentAudio=null;
+  }
   window.speechSynthesis&&window.speechSynthesis.cancel();
   document.getElementById('speak-ind').classList.remove('on');
   const sub=document.getElementById('subtitle-text');
