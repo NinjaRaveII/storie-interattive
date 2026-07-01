@@ -2,14 +2,25 @@
 
 > Prompt pronti da incollare in un generatore di immagini a tua scelta (ChatGPT immagini, Bing Image Creator, Midjourney, ecc.), seguendo le regole di `GUIDA_STORIE.md` §6.
 > **Formato:** panoramico largo ~1600×500 (o 1920×600), soggetto centrato con margini di sicurezza ai bordi, niente testo nell'immagine, `.jpg` ottimizzato.
-> **Coerenza personaggio:** genera le 5 immagini di ogni storia nella stessa sessione, partendo se possibile da un ritratto di riferimento del protagonista (vedi metodo in `GUIDA_STORIE.md` §6). Prima di salvare, apri le 5 immagini affiancate e verifica che il protagonista sia identico ovunque (specie/aspetto, colori, vestiti).
+
+## I due capisaldi da rispettare sempre
+
+1. **Coerenza tra le immagini.** Il protagonista deve essere identico (stessa specie/aspetto, stessi colori, stessi vestiti) in tutte e 5 le immagini della stessa storia. Genera le 5 immagini nella stessa sessione/conversazione, partendo se possibile da un ritratto di riferimento del protagonista e chiedendo esplicitamente di riusare "lo stesso identico personaggio" nelle immagini successive (image-to-image o riferimento, se lo strumento lo supporta — vedi metodo completo in `GUIDA_STORIE.md` §6). Prima di considerare finita una storia, apri le 5 immagini affiancate e verifica che il protagonista sia riconoscibile ovunque.
+
+2. **Adeguatezza per bambini piccoli (3–6 anni).** Il pubblico reale di riferimento è più giovane della fascia generale del progetto (~4–9 anni): le immagini devono risultare accoglienti e mai spaventose per un bambino di 3 anni.
+   - **Sì:** forme morbide e arrotondate, colori caldi, sguardi grandi ed espressivi, atmosfera magica ma rassicurante, creature amichevoli (anche quelle "selvatiche" devono apparire gentili, mai minacciose).
+   - **No:** ombre inquietanti sui volti, zanne/artigli minacciosi, armi, espressioni di paura reale o pericolo, atmosfere cupe/minacciose, composizioni che facciano sembrare il protagonista in pericolo.
+   - Il tema "dark-fantasy" del progetto riguarda **solo la palette** (toni caldi, sfondo notturno, oro tenue) e l'atmosfera di meraviglia — mai il contenuto: nessun elemento pauroso, violento o angosciante.
 
 ## Preambolo di stile (da anteporre a ogni prompt)
 
 ```
-STYLE: dreamy dark-fantasy storybook illustration, warm muted palette,
-soft golden light, gentle and child-friendly, painterly, cozy and magical,
-soft depth of field, no text, wide cinematic 16:5 composition.
+STYLE: dreamy storybook illustration for very young children (ages 3-6),
+warm muted palette, soft golden light, gentle and reassuring, painterly,
+cozy and magical, soft depth of field, no text, wide cinematic 16:5
+composition. Rounded friendly shapes, big expressive warm eyes, soft
+non-threatening character design even for wild animals, nothing scary,
+no weapons, no threatening shadows, warm inviting atmosphere.
 ```
 
 ---
@@ -142,6 +153,12 @@ celebration.
 ```
 
 ---
+
+## Checklist di verifica finale (per ogni storia, prima di salvare)
+
+- [ ] Le 5 immagini affiancate mostrano lo **stesso identico protagonista** (specie/aspetto, colori, vestiti).
+- [ ] Nessuna immagine contiene elementi spaventosi, minacciosi o inadatti a un bambino di 3-6 anni (vedi capisaldo 2 sopra).
+- [ ] Formato panoramico ~3:1, nessun testo nell'immagine, soggetto centrato con margini di sicurezza.
 
 ## Dove salvare i file
 
