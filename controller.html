@@ -121,51 +121,10 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <span id="s-story" style="color:var(--gold);font-size:12px"></span>
 </div>
 
+<script src="stories.js"></script>
 <script>
-const STORIES=[
-  {id:'oasis',icon:'🌵',title:'L\'Oasi delle Sabbie Dorate',tag:'Avventura · bambini',
-   phases:[
-    {lbl:'Scelta 1 di 2',preview:'Sara scopre che la fonte del villaggio è sparita, e un pesce d\'argento le chiede aiuto per ritrovarla…',
-     choices:[{txt:'Seguire le dune verso il tramonto',key:'dune'},{txt:'Chiedere consiglio al vecchio cammelliere Yusuf',key:'camel'},{txt:'Ascoltare il canto del vento tra le rocce',key:'wind'}]},
-    {lbl:'Scelta 2 di 2',
-     variants:{
-       dune:{preview:'Sara ha incontrato Sabbiosa, la volpe dorata che sorveglia l\'antico arco di pietra…',
-         choices:[{txt:'Scavare insieme con le mani',key:'dig'},{txt:'Chiederle di raccontare la leggenda della fonte',key:'legend'},{txt:'Offrirle l\'acqua rimasta nella borraccia',key:'water'}]},
-       camel:{preview:'Il vecchio Yusuf ricorda qualcosa sulla sorgente perduta tanto tempo fa…',
-         choices:[{txt:'Chiedergli di raccontare cosa ricorda',key:'memory'},{txt:'Chiedere la vecchia mappa del pozzo',key:'map'},{txt:'Chiedergli di accompagnarla',key:'together'}]},
-       wind:{preview:'Zefira, lo spirito del vento, la invita a salire in volo sopra le dune…',
-         choices:[{txt:'Cantare insieme al vento',key:'sing'},{txt:'Chiederle della sua famiglia',key:'family'},{txt:'Chiederle di volare più in alto per guardare dal cielo',key:'sky'}]}
-     }}
-  ]},
-  {id:'bell',icon:'🏰',title:'La Campana d\'Oro del Villaggio',tag:'Fiaba · bambini',
-   phases:[
-    {lbl:'Scelta 1 di 2',preview:'La campana dorata del castello ha smesso di suonare, e Tobia parte a scoprire perché…',
-     choices:[{txt:'Salire sulla torre a controllare la campana',key:'tower'},{txt:'Chiedere alla fioraia cosa sa degli uccelli canori',key:'florist'},{txt:'Seguire le piume dorate cadute in piazza',key:'feathers'}]},
-    {lbl:'Scelta 2 di 2',
-     variants:{
-       tower:{preview:'Nella torre, Tobia ha trovato un uovo dorato incrinato e Mastro Nando, il vecchio guardiano…',
-         choices:[{txt:'Aiutarlo a scaldare l\'uovo tra le mani',key:'warm'},{txt:'Chiedergli di raccontare la storia della campana',key:'story'},{txt:'Cercare indizi nella stanza della torre',key:'clues'}]},
-       florist:{preview:'La fioraia gli ha dato un fiore che brilla, dicendo che condurrà all\'allodola dorata…',
-         choices:[{txt:'Seguire il profumo del fiore',key:'scent'},{txt:'Chiedere dove nidificava l\'allodola',key:'nest'},{txt:'Piantare il fiore in piazza per farla tornare',key:'plant'}]},
-       feathers:{preview:'Tra le rose del giardino, Tobia ha trovato l\'allodola dorata, spaventata e in silenzio…',
-         choices:[{txt:'Avvicinarsi piano canticchiando una ninna nanna',key:'approach'},{txt:'Offrirle qualche briciola di pane dorato',key:'crumbs'},{txt:'Restare ferma vicino a lei e aspettare con pazienza',key:'wait'}]}
-     }}
-  ]},
-  {id:'firefly',icon:'🐻',title:'La Notte delle Lucciole',tag:'Buonanotte · bambini',
-   phases:[
-    {lbl:'Scelta 1 di 2',preview:'Le lucciole della Grande Foresta non si accendono più, e l\'orsetto Bruno parte nella notte per scoprire perché…',
-     choices:[{txt:'Chiedere aiuto a Selene, la vecchia civetta del faggio',key:'owl'},{txt:'Seguire il ruscello che brilla appena sotto la luna',key:'stream'},{txt:'Arrampicarsi sulla Grande Quercia per guardare dall\'alto',key:'oak'}]},
-    {lbl:'Scelta 2 di 2',
-     variants:{
-       owl:{preview:'Selene la civetta sa dove sono le lucciole: il vento ha portato via la loro canzone della sera…',
-         choices:[{txt:'Chiederle di insegnargli la canzone della sera',key:'song'},{txt:'Farsi guidare da Selene attraverso il bosco',key:'guide'},{txt:'Partire in cerca del vento per riavere la canzone',key:'wind'}]},
-       stream:{preview:'Lungo il ruscello, Bruno ha trovato Scintilla, una lucciola piccolina con la lucina spenta…',
-         choices:[{txt:'Prenderla dolcemente sulla zampa e portarla con sé',key:'carry'},{txt:'Offrirle un po\' di miele per farle coraggio',key:'honey'},{txt:'Sedersi accanto a lei e ascoltare la sua storia',key:'listen'}]},
-       oak:{preview:'Dalla cima della Grande Quercia, Bruno ha visto le lucciole rifugiate in una valle nascosta…',
-         choices:[{txt:'Ricordare bene la strada e correre fino alla valle',key:'path'},{txt:'Chiamarle dolcemente dal ramo più alto',key:'call'},{txt:'Chiedere aiuto alla prima stella della sera',key:'star'}]}
-     }}
-  ]}
-];
+/* Dati storie: caricati da stories.js (fonte unica). La vista ridotta
+   (anteprima + scelte per fase) viene derivata in phaseData(). */
 
 let cur=null,phase=0,c1key=null;
 let bc;
@@ -194,18 +153,24 @@ function selectStory(id){
   showPhase();
 }
 
+/* Deriva anteprima e scelte della fase corrente dai dati completi di stories.js:
+   fase 0 -> anteprima ctrl.intro + scelte steps[0]; fase 1 -> anteprima e scelte del ramo scelto */
+function phaseData(story, ph, c1){
+  if(ph===0) return { lbl:'Scelta 1 di 2', preview:story.ctrl.intro, choices:story.steps[0].choices };
+  return { lbl:'Scelta 2 di 2', preview:story.ctrl.middle[c1], choices:story.steps[1].variants[c1].choices };
+}
+
 function showPhase(){
-  const p=cur.phases[phase];
-  const data = phase===1 ? p.variants[c1key] : p;
+  const data = phaseData(cur, phase, c1key);
   document.getElementById('ctrl-choices').style.display='block';
   document.getElementById('ctrl-end').style.display='none';
-  document.getElementById('phase-lbl').textContent=p.lbl;
+  document.getElementById('phase-lbl').textContent=data.lbl;
   document.getElementById('preview-txt').textContent=data.preview;
 
   document.getElementById('choice-btns').innerHTML=data.choices.map((c,i)=>`
     <div class="choice-card" onclick="pickChoice('${c.key}',this)">
       <div class="c-num">${i+1}</div>
-      <div class="c-txt">${c.txt}</div>
+      <div class="c-txt">${c.text}</div>
     </div>`).join('');
   setStatus('In attesa della scelta…');
 }
@@ -215,7 +180,7 @@ function pickChoice(key,el){
   if(phase===0) c1key=key;
   send({action:'pick',key,si:phase});
   phase++;
-  if(phase>=cur.phases.length){
+  if(phase>=2){ /* 2 fasi di scelta: intro e middle */
     setTimeout(()=>{
       document.getElementById('ctrl-choices').style.display='none';
       document.getElementById('ctrl-end').style.display='block';
