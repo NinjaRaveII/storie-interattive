@@ -6,6 +6,7 @@
 <title>Storie Interattive ✦ TV</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -303,6 +304,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <h3>📱 Controller</h3>
   <p>Inquadra il QR con il telefono per usarlo come telecomando</p>
   <div id="qr-img" style="width:160px;height:160px"></div>
+  <div id="qr-room" style="display:none;font-family:'Playfair Display',serif;font-size:20px;letter-spacing:4px;color:var(--gold2)"></div>
   <div id="qr-url"></div>
   <button class="qr-dismiss" onclick="document.getElementById('qr-panel').style.display='none'">Ho scansionato il QR ✓</button>
 </div>
@@ -313,6 +315,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 </div>
 
 <script src="stories.js"></script>
+<script src="transport.js"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica dei dati, vedi CLAUDE.md §3) */
 
@@ -746,8 +749,9 @@ function stopSpeak(){
 function showQR(){
   /* Risolve controller.html rispetto alla pagina corrente: funziona sia con
      URL che finiscono in .html, sia con URL "puliti" senza estensione,
-     sia con file:// */
-  const ctrlUrl = new URL('controller.html', window.location.href).href;
+     sia con file://. Se c'è una stanza attiva, il QR la include (?room=): il
+     telefono che lo inquadra entra automaticamente nella stanza giusta. */
+  const ctrlUrl = new URL('controller.html' + (roomCode ? '?room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
@@ -757,24 +761,37 @@ function showQR(){
     colorLight: '#12121a',
     correctLevel: QRCode.CorrectLevel.M
   });
+  document.getElementById('qr-room').textContent = roomCode ? 'Codice stanza: '+roomCode : '';
+  document.getElementById('qr-room').style.display = roomCode ? 'block' : 'none';
   document.getElementById('qr-url').textContent=ctrlUrl.length>50?ctrlUrl.slice(0,50)+'…':ctrlUrl;
   document.getElementById('qr-panel').style.display='flex';
 }
 
-/* ===================== CONTROLLER via BroadcastChannel ===================== */
-let bc;
-try{
-  bc=new BroadcastChannel('storie-interattive');
-  bc.onmessage=(e)=>{
-    const d=e.data;
-    if(d.action==='start') startStory(d.id);
-    if(d.action==='pick') pick(d.key,d.si);
-    if(d.action==='restart') restart();
-    document.getElementById('ctrl-text').textContent='Controller attivo ✓';
-    document.getElementById('ctrl-dot').style.background='#4caf50';
-    document.getElementById('qr-panel').style.display='none';
-  };
-}catch(err){}
+/* ===================== CONTROLLER (transport.js: Supabase Realtime + ripiego BroadcastChannel) ===================== */
+/* Il codice stanza vive per la durata della scheda (sessionStorage): il QR resta
+   valido anche dopo un refresh della TV. Senza config Supabase, roomCode è null
+   e resta attivo solo il ripiego locale. */
+const roomCode = (function(){
+  if(!supabaseReady()) return null;
+  let c = sessionStorage.getItem('storie-room');
+  if(!c){ c = makeRoomCode(); sessionStorage.setItem('storie-room', c); }
+  return c;
+})();
+
+const transport = createTransport(roomCode, (d)=>{
+  if(d.action==='start') startStory(d.id);
+  if(d.action==='pick') pick(d.key,d.si);
+  if(d.action==='restart') restart();
+  document.getElementById('ctrl-text').textContent='Controller attivo ✓';
+  document.getElementById('ctrl-dot').style.background='#4caf50';
+  document.getElementById('qr-panel').style.display='none';
+}, (state)=>{
+  if(state==='online'){
+    document.getElementById('ctrl-text').textContent='📱 Stanza '+roomCode;
+  } else if(state==='error'){
+    document.getElementById('ctrl-text').textContent='📱 Stanza non raggiungibile';
+  }
+});
 
 function show(id){
   ['screen-list','screen-realm','screen-story','screen-end'].forEach(s=>{

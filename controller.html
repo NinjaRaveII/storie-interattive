@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Controller — Storie Interattive</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0a0a0f;--card:#1a1a26;--gold:#c9a84c;--gold2:#e8c96b;--text:#f0ead6;--muted:#8a8070;--accent:#4a90a4}
@@ -84,10 +85,10 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 <!-- istruzioni primo uso -->
 <div id="how-to">
   <p class="section-lbl" style="margin-bottom:10px">Come funziona</p>
-  <p><span class="step-num">1</span>Apri <strong>tv.html</strong> sul browser della TV (o del computer grande)</p>
-  <p><span class="step-num">2</span>Apri <strong>controller.html</strong> sul telefono nello stesso browser</p>
+  <p><span class="step-num">1</span>Apri la storia sul browser della <strong>TV</strong> (o del computer grande)</p>
+  <p><span class="step-num">2</span>Inquadra il <strong>QR sulla TV</strong> con il telefono: entri nella stanza giusta</p>
   <p><span class="step-num">3</span>Scegli la storia dal telefono — la TV si aggiorna in tempo reale ✓</p>
-  <p style="margin-top:10px;font-size:12px;color:var(--muted)">⚠️ Devono essere aperti sullo stesso computer/browser per comunicare.</p>
+  <p style="margin-top:10px;font-size:12px;color:var(--muted)">💡 Senza internet funziona anche aprendo le due pagine nello stesso browser.</p>
 </div>
 
 <!-- LISTA STORIE -->
@@ -122,16 +123,25 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 </div>
 
 <script src="stories.js"></script>
+<script src="transport.js"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica). La vista ridotta
    (anteprima + scelte per fase) viene derivata in phaseData(). */
 
 let cur=null,phase=0,c1key=null;
-let bc;
-try{bc=new BroadcastChannel('storie-interattive');}catch(e){}
+
+/* Stanza: arriva dal QR della TV (?room=CODICE). Senza stanza resta attivo
+   solo il ripiego locale (stesso browser/dispositivo). */
+const roomCode = new URLSearchParams(location.search).get('room');
+
+const transport = createTransport(roomCode, ()=>{}, (state)=>{
+  if(state==='online') setStatus('Stanza '+roomCode+' collegata ✓','#4caf50');
+  else if(state==='error') setStatus('Stanza non raggiungibile','#e57373');
+  else setStatus(roomCode ? 'Stanza non attiva sulla TV' : 'Pronto (stesso dispositivo)');
+});
 
 function send(data){
-  try{if(bc)bc.postMessage(data);}catch(e){}
+  transport.send(data);
   setStatus('Inviato ✓','#4caf50');
   setTimeout(()=>setStatus('In ascolto…'),1800);
 }
