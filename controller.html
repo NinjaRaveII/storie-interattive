@@ -139,7 +139,12 @@ let cur=null,phase=0,c1key=null;
 const roomCode = new URLSearchParams(location.search).get('room');
 
 const transport = createTransport(roomCode, ()=>{}, (state)=>{
-  if(state==='online') setStatus('Stanza '+roomCode+' collegata ✓','#4caf50');
+  if(state==='online'){
+    setStatus('Stanza '+roomCode+' collegata ✓','#4caf50');
+    /* saluto alla TV: appena collegati, il QR sparisce dallo schermo
+       senza aspettare la prima scelta */
+    transport.send({action:'hello'});
+  }
   else if(state==='error') setStatus('Stanza non raggiungibile','#e57373');
   else setStatus(roomCode ? 'Stanza non attiva sulla TV' : 'Pronto (stesso dispositivo)');
 });
@@ -244,6 +249,10 @@ function setStatus(msg,color='var(--accent)'){
 }
 
 init();
+
+/* saluto anche via canale locale (stesso dispositivo, senza stanza):
+   se la TV è aperta nello stesso browser, toglie subito il QR */
+transport.send({action:'hello'});
 </script>
 </body>
 </html>
