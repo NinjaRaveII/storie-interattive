@@ -29,7 +29,7 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 |---|---|---|
 | Linguaggio | HTML5 + CSS3 + JavaScript vanilla (no framework) | invariato (scelta deliberata) |
 | Font | Google Fonts — Playfair Display (titoli) + Crimson Pro (corpo) | invariato |
-| Immagini scena | **File locali** in `images/<storia>/...`, generate con Gemini (via browser) e convertite in `.jpg` | ✅ in corso: 5/5 per `oasis`, 1/5 per `bell`, 0/5 per `firefly` |
+| Immagini scena | **File locali** in `images/<storia>/...`, generate con Gemini (via browser) e convertite in `.jpg` | ✅ **FATTO**: 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`) |
 | Sintesi vocale | **Audio pre-generati (file) + Web Speech API come ripiego** | ✅ **FATTO** per `oasis`, `bell` e `firefly` (39 mp3 via ElevenLabs, script `generate-audio.mjs`, vedi §6) |
 | Comunicazione cross-device | **Supabase Realtime (canale broadcast)** | **NON ANCORA FATTO**: sostituisce BroadcastChannel per l'uso multi-dispositivo |
 | Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` (opzionale, come ripiego locale) | è ancora l'**unico** trasporto attivo oggi |
@@ -264,12 +264,12 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 5. **✅ Dati duplicati (parziale).** `PHASE2_KEYS` è stata **eliminata**: il controller ora ha scelte di fase 2 branch-aware direttamente nei dati (`variants`), niente più testi segnaposto generici. Resta comunque la duplicazione dei dati tra i due file (vedi punto 7).
 6. **✅ Voce robotica dopo "Home".** `stopSpeak()` azzerava `currentAudio.src`, il che innescava l'evento `onerror` dell'`<audio>` ancora in ascolto: la promise di `speakPregenerated()` si risolveva a `false` e `speak()` cadeva sul ripiego Web Speech **anche quando l'interruzione era voluta**. Corretto rimuovendo i listener (`onended/onerror/onloadedmetadata`) prima di fermare l'audio.
 7. **✅ Immagine che copriva il contenuto sotto (desktop).** Con finestre più basse, l'altezza fissa dell'immagine (`clamp(200px,42vh,420px)`) lasciava troppo poco spazio a etichetta/scelte/morale, che venivano tagliate da `overflow:hidden`. Ridotta l'altezza immagine (`clamp(180px,34vh,360px)`) e aggiunto scroll verticale (`overflow-y:auto` su `#app`) come rete di sicurezza per finestre molto piccole.
+8. **✅ Immagini incomplete — risolto (3 luglio 2026).** Tutte e 3 le storie hanno 5/5 immagini in `images/` (1856×576, jpg), generate con Gemini via browser: `bell` completata nella stessa conversazione dell'`intro.jpg` (Tobia coerente), `firefly` in una conversazione nuova (Bruno coerente). Coerenza dei personaggi verificata visivamente su tutte le scene.
 
 ### Ancora aperti
-8. **🟠 Comunicazione cross-device assente.** `BroadcastChannel` non collega dispositivi diversi: l'uso previsto oggi **non funziona**. Da sostituire con Supabase Realtime (§4). Nessun progresso su questo punto in questa sessione.
-9. **🟡 Dati duplicati tra `tv.html` e `controller.html`.** Da unificare in `stories.js` (fonte unica) — obiettivo Fase 1, non ancora iniziato.
-10. **🟡 QR scollegato dal concept di pairing.** Il QR ora punta all'URL corretto (punto 4), ma non instaura ancora un collegamento cross-device reale: serve Supabase + codice stanza (§4.1).
-11. **🟡 Immagini incomplete.** `oasis` ha tutte e 5 le immagini; `bell` ne ha solo 1/5 (`intro.jpg` — le altre 4 vanno generate nella stessa conversazione Gemini per coerenza del personaggio Tobia, vedi §13); `firefly` 0/5 (brief pronti in `BRIEF_IMMAGINI.md`, personaggio: orsetto Bruno).
+9. **🟠 Comunicazione cross-device assente.** `BroadcastChannel` non collega dispositivi diversi: l'uso previsto oggi **non funziona**. Da sostituire con Supabase Realtime (§4).
+10. **🟡 Dati duplicati tra `tv.html` e `controller.html`.** Da unificare in `stories.js` (fonte unica) — obiettivo Fase 1, non ancora iniziato.
+11. **🟡 QR scollegato dal concept di pairing.** Il QR ora punta all'URL corretto (punto 4), ma non instaura ancora un collegamento cross-device reale: serve Supabase + codice stanza (§4.1).
 12. **🟡 Sfumatura che copre l'immagine** *(segnalato 3 luglio 2026)*: la sfumatura scura in basso al riquadro immagine (dietro i sottotitoli) copre spesso una porzione importante dell'illustrazione. Rivedere altezza/opacità della sfumatura perché l'immagine resti interamente apprezzabile.
 13. **🟡 Morale visibile troppo poco** *(segnalato 3 luglio 2026)*: la morale finale resta a schermo troppo poco tempo — per un bambino può non bastare per leggerla. Allungare la permanenza (o tenerla visibile finché non si preme "continua").
 
@@ -285,7 +285,7 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - Morale finale, progress bar, animazione stelle, status bar controller.
 - Pannello QR funzionante (URL corretto, libreria locale — ancora da collegare al pairing cross-device reale).
 - Audio narrante pre-generato (ElevenLabs) per tutte e 3 le storie, con ripiego Web Speech automatico.
-- Immagini generate con Gemini per `oasis` (5/5) e parzialmente per `bell` (1/5); `firefly` ancora senza immagini.
+- Immagini generate con Gemini per tutte e 3 le storie (5/5 ciascuna, 15 totali), con personaggi coerenti verificati (Sara, Tobia, Bruno).
 - Prima storia con protagonista animale (`firefly`, orsetto Bruno) e primo tag di genere "Buonanotte" (3 luglio 2026).
 - Controller: fase 2 con testi reali per ramo, `PHASE2_KEYS` eliminata.
 - Corretto bug voce robotica dopo il tasto Home (§9) e layout immagine/contenuto su finestre desktop basse (§9), con scroll di sicurezza aggiunto.
@@ -305,7 +305,7 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 3. [ ] **Codice stanza + QR:** la TV genera un codice; il canale diventa `storie-<codice>`; il QR include il codice; il telefono entra nella stanza giusta.
 4. [ ] **Fonte unica dei dati:** creare `stories.js` con tutte le storie; `tv.html` e `controller.html` lo importano. Eliminare la copia ridotta (`PHASE2_KEYS` già eliminata).
 5. [x] **Voce:** pre-generati gli audio (1 intro + 3 middle + 9 end per storia) per `oasis`, `bell` e `firefly`, salvati in `audio/`; i file suonano correttamente; Web Speech come ripiego funzionante.
-6. [~] **Immagini:** 5/5 per `oasis`; 1/5 per `bell` (mancano `middle_tower`, `middle_florist`, `middle_feathers`, `end` — da generare nella stessa conversazione Gemini di `intro.jpg` per coerenza del personaggio Tobia); 0/5 per `firefly` (brief pronti in `BRIEF_IMMAGINI.md`).
+6. [x] **Immagini:** 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`), personaggi coerenti verificati.
 7. [ ] **Pubblicazione:** caricare il sito su hosting statico con HTTPS (GitHub Pages / Netlify / Cloudflare Pages).
 8. [ ] **Test reale:** provare con un telefono e un PC *diversi*, su reti diverse.
 
