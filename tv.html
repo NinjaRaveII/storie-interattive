@@ -229,6 +229,24 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 </style>
 </head>
 <body>
+<script>
+/* Mostra a schermo gli errori JS: sui browser delle smart TV non c'è la
+   console, senza questo un errore = schermata muta impossibile da diagnosticare.
+   Volutamente in ES5 e in un blocco separato: deve funzionare anche se lo
+   script principale non viene nemmeno interpretato. */
+window.onerror = function(msg, src, line){
+  var el = document.getElementById('js-error');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'js-error';
+    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#5c1a1a;color:#ffd7d7;font:13px monospace;padding:10px 14px;z-index:9999;white-space:pre-wrap';
+    document.body.appendChild(el);
+  }
+  var f = (src || '').split('/').pop();
+  el.textContent = '⚠ ' + msg + '  [' + f + ':' + line + ']';
+  return false;
+};
+</script>
 <div class="stars" id="stars"></div>
 
 <!-- PULSANTE HOME SEMPRE VISIBILE durante la storia -->
@@ -584,7 +602,9 @@ function showEnd(){
 
 function restart(){
   stopSpeak();
-  const lastId = story?.id;
+  /* niente optional chaining (story?.id): i browser delle smart TV più vecchi
+     non lo interpretano e l'errore di sintassi ucciderebbe l'intero script */
+  const lastId = story ? story.id : null;
   story=null;choice1=null;choice2=null;stepIdx=0;
   const realm = REALMS.find(r=>r.storyIds.includes(lastId||''));
   if(realm) openRealm(realm.id);
@@ -771,27 +791,37 @@ function showQR(){
 /* Il codice stanza vive per la durata della scheda (sessionStorage): il QR resta
    valido anche dopo un refresh della TV. Senza config Supabase, roomCode è null
    e resta attivo solo il ripiego locale. */
-const roomCode = (function(){
-  if(!supabaseReady()) return null;
-  let c = sessionStorage.getItem('storie-room');
-  if(!c){ c = makeRoomCode(); sessionStorage.setItem('storie-room', c); }
-  return c;
-})();
-
-const transport = createTransport(roomCode, (d)=>{
+function handleCtrlMessage(d){
   if(d.action==='start') startStory(d.id);
   if(d.action==='pick') pick(d.key,d.si);
   if(d.action==='restart') restart();
   document.getElementById('ctrl-text').textContent='Controller attivo ✓';
   document.getElementById('ctrl-dot').style.background='#4caf50';
   document.getElementById('qr-panel').style.display='none';
-}, (state)=>{
-  if(state==='online'){
-    document.getElementById('ctrl-text').textContent='📱 Stanza '+roomCode;
-  } else if(state==='error'){
-    document.getElementById('ctrl-text').textContent='📱 Stanza non raggiungibile';
+}
+
+/* Inizializzazione a prova di errore: se la libreria Supabase o sessionStorage
+   falliscono sul browser della TV, si degrada al solo ripiego locale invece di
+   bloccare lo script (che a fine file disegna mappa e QR). */
+let roomCode = null, transport = null;
+try{
+  if(supabaseReady()){
+    roomCode = sessionStorage.getItem('storie-room');
+    if(!roomCode){ roomCode = makeRoomCode(); sessionStorage.setItem('storie-room', roomCode); }
   }
-});
+  transport = createTransport(roomCode, handleCtrlMessage, function(state){
+    if(state==='online'){
+      document.getElementById('ctrl-text').textContent='📱 Stanza '+roomCode;
+    } else if(state==='error'){
+      document.getElementById('ctrl-text').textContent='📱 Stanza non raggiungibile';
+    }
+  });
+}catch(err){
+  roomCode = null;
+  try{ transport = createTransport(null, handleCtrlMessage, null); }
+  catch(err2){ transport = { room:null, send:function(){} }; }
+  document.getElementById('ctrl-text').textContent='📱 Solo stesso dispositivo';
+}
 
 function show(id){
   ['screen-list','screen-realm','screen-story','screen-end'].forEach(s=>{
