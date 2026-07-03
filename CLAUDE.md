@@ -31,14 +31,27 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 | Font | Google Fonts — Playfair Display (titoli) + Crimson Pro (corpo) | invariato |
 | Immagini scena | **File locali** in `images/<storia>/...`, generate con Gemini (via browser) e convertite in `.jpg` | ✅ **FATTO**: 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`) |
 | Sintesi vocale | **Audio pre-generati (file) + Web Speech API come ripiego** | ✅ **FATTO** per `oasis`, `bell` e `firefly` (39 mp3 via ElevenLabs, script `generate-audio.mjs`, vedi §6) |
-| Comunicazione cross-device | **Supabase Realtime (canale broadcast)** | **NON ANCORA FATTO**: sostituisce BroadcastChannel per l'uso multi-dispositivo |
-| Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` (opzionale, come ripiego locale) | è ancora l'**unico** trasporto attivo oggi |
-| Pairing TV↔telefono | **Codice stanza** veicolato via **QR code** | il QR ora punta correttamente a `controller.html` (bug URL risolto, §13), ma non instaura ancora un collegamento cross-device reale |
+| Comunicazione cross-device | **Supabase Realtime (canale broadcast)** | ✅ **implementato** in `transport.js` (3 luglio 2026); manca solo la config del progetto Supabase (URL + publishable key) e il test reale |
+| Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` | ✅ ripiego automatico dentro `transport.js`, sempre attivo |
+| Pairing TV↔telefono | **Codice stanza** veicolato via **QR code** | ✅ **implementato**: la TV genera il codice (`sessionStorage`), lo mostra nel pannello QR e lo include nell'URL (`?room=`); il controller lo legge e entra nella stanza |
 | Hosting | **Static hosting con HTTPS** (GitHub Pages / Netlify / Cloudflare Pages) | **NON ANCORA FATTO**: necessario per l'uso online |
 
 ---
 
 ## 3. File del progetto (stato reale del codice)
+
+### `stories.js` — Fonte unica dei dati (✅ dal 3 luglio 2026)
+
+Contiene `STORIES[]` completo (steps, testi, keyword, 9 finali) **più** le anteprime del controller in un campo `ctrl` per storia (`ctrl.intro`, `ctrl.middle.<chiave>`). Consumatori:
+- `tv.html` → usa la struttura completa;
+- `controller.html` → deriva anteprime e scelte per fase in `phaseData()`;
+- `generate-audio.mjs` (Node, via `createRequire`) → deriva i testi degli mp3.
+
+**Aggiungere/modificare una storia = toccare solo questo file** (più l'assegnazione al regno in `REALMS` di `tv.html`).
+
+### `transport.js` — Comunicazione TV ↔ controller (✅ dal 3 luglio 2026)
+
+`createTransport(roomCode, onMessage, onStatus)` unifica i due trasporti: canale Supabase Realtime `storie-<codice>` (cross-device) + `BroadcastChannel` (ripiego stesso-dispositivo, sempre attivo). In testa al file la config `SUPABASE_URL` / `SUPABASE_KEY` (publishable, pubblica per design): finché è vuota, funziona solo il ripiego locale e `roomCode` resta `null`.
 
 ### `tv.html` — Schermo grande (TV / laptop)
 
@@ -266,12 +279,13 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 7. **✅ Immagine che copriva il contenuto sotto (desktop).** Con finestre più basse, l'altezza fissa dell'immagine (`clamp(200px,42vh,420px)`) lasciava troppo poco spazio a etichetta/scelte/morale, che venivano tagliate da `overflow:hidden`. Ridotta l'altezza immagine (`clamp(180px,34vh,360px)`) e aggiunto scroll verticale (`overflow-y:auto` su `#app`) come rete di sicurezza per finestre molto piccole.
 8. **✅ Immagini incomplete — risolto (3 luglio 2026).** Tutte e 3 le storie hanno 5/5 immagini in `images/` (1856×576, jpg), generate con Gemini via browser: `bell` completata nella stessa conversazione dell'`intro.jpg` (Tobia coerente), `firefly` in una conversazione nuova (Bruno coerente). Coerenza dei personaggi verificata visivamente su tutte le scene.
 
+9. **✅ Dati duplicati — risolto (3 luglio 2026).** Unificati in `stories.js` (fonte unica, §3): `tv.html`, `controller.html` e `generate-audio.mjs` derivano tutto da lì. Verificato con deep-compare contro i dati precedenti.
+10. **✅ QR + pairing — implementato (3 luglio 2026).** Codice stanza generato dalla TV, incluso nel QR (`?room=`), letto dal controller (§4.1).
+11. **✅ Sfumatura che copriva l'immagine — risolto (3 luglio 2026).** Banda ridotta (55%→30% di altezza) e alleggerita (opacità .92→.72): illustrazione interamente visibile, sottotitoli ancora leggibili (hanno una text-shadow propria).
+12. **✅ Morale visibile troppo poco — risolto (3 luglio 2026).** Permanenza proporzionale alla lunghezza (minimo 12s) + pulsante "Continua ➜" per proseguire subito; timer ripulito in `stopSpeak()`.
+
 ### Ancora aperti
-9. **🟠 Comunicazione cross-device assente.** `BroadcastChannel` non collega dispositivi diversi: l'uso previsto oggi **non funziona**. Da sostituire con Supabase Realtime (§4).
-10. **🟡 Dati duplicati tra `tv.html` e `controller.html`.** Da unificare in `stories.js` (fonte unica) — obiettivo Fase 1, non ancora iniziato.
-11. **🟡 QR scollegato dal concept di pairing.** Il QR ora punta all'URL corretto (punto 4), ma non instaura ancora un collegamento cross-device reale: serve Supabase + codice stanza (§4.1).
-12. **🟡 Sfumatura che copre l'immagine** *(segnalato 3 luglio 2026)*: la sfumatura scura in basso al riquadro immagine (dietro i sottotitoli) copre spesso una porzione importante dell'illustrazione. Rivedere altezza/opacità della sfumatura perché l'immagine resti interamente apprezzabile.
-13. **🟡 Morale visibile troppo poco** *(segnalato 3 luglio 2026)*: la morale finale resta a schermo troppo poco tempo — per un bambino può non bastare per leggerla. Allungare la permanenza (o tenerla visibile finché non si preme "continua").
+13. **🟠 Cross-device: manca config e test reale.** Il trasporto è implementato (`transport.js`), ma serve creare il progetto Supabase, incollare URL + publishable key nella config, e fare il test con telefono e PC su reti diverse (Fase 1, punti 1 e 8).
 
 ---
 
@@ -300,10 +314,10 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 ### 🟦 FASE 1 — MVP funzionante cross-device
 *Obiettivo: telefono e TV su dispositivi diversi, online, per famiglia e amici.*
 
-1. [ ] **Account Supabase** → creare progetto → annotare *Project URL* e *publishable key*.
-2. [ ] **Sostituire il trasporto:** rimpiazzare `BroadcastChannel` con un canale Supabase Realtime, mantenendo invariati i messaggi `start`/`pick`/`restart`. (Opzionale: tenere BroadcastChannel come ripiego se TV e telefono sono sullo stesso dispositivo.)
-3. [ ] **Codice stanza + QR:** la TV genera un codice; il canale diventa `storie-<codice>`; il QR include il codice; il telefono entra nella stanza giusta.
-4. [ ] **Fonte unica dei dati:** creare `stories.js` con tutte le storie; `tv.html` e `controller.html` lo importano. Eliminare la copia ridotta (`PHASE2_KEYS` già eliminata).
+1. [ ] **Account Supabase** → creare progetto → incollare *Project URL* e *publishable key* nella config in testa a `transport.js`.
+2. [x] **Sostituire il trasporto:** `transport.js` con canale Supabase Realtime, messaggi `start`/`pick`/`restart` invariati, BroadcastChannel come ripiego automatico stesso-dispositivo.
+3. [x] **Codice stanza + QR:** la TV genera il codice, il canale è `storie-<codice>`, il QR include `?room=`, il telefono entra nella stanza giusta.
+4. [x] **Fonte unica dei dati:** `stories.js` con tutte le storie; `tv.html`, `controller.html` e `generate-audio.mjs` derivano da lì.
 5. [x] **Voce:** pre-generati gli audio (1 intro + 3 middle + 9 end per storia) per `oasis`, `bell` e `firefly`, salvati in `audio/`; i file suonano correttamente; Web Speech come ripiego funzionante.
 6. [x] **Immagini:** 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`), personaggi coerenti verificati.
 7. [ ] **Pubblicazione:** caricare il sito su hosting statico con HTTPS (GitHub Pages / Netlify / Cloudflare Pages).
@@ -317,7 +331,9 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - [ ] Gestione disconnessioni/riconnessioni e messaggi di stato connessione.
 - [ ] Immagini dedicate per ciascuno dei 9 finali.
 - [ ] Piccoli controlli: evitare doppi tap, gestire ordine dei messaggi.
-- [ ] UI: immagine interamente visibile (rivedere la sfumatura in basso) e morale a schermo più a lungo (§9, punti 12–13).
+- [x] UI: immagine interamente visibile (sfumatura ridotta) e morale a schermo più a lungo con tasto "Continua" (§9, punti 11–12 — fatto 3 luglio 2026).
+- [ ] **Review grafica della mappa** *(richiesta 3 luglio 2026)*: oggi è molto stilizzata (poligoni piatti); da rivedere su reference visive che fornirà Alberto.
+- [ ] **Revisione design complessiva** con il plugin `frontend-design` *(richiesta 3 luglio 2026)*: passata generale su tipografia, colori, componenti di entrambe le pagine.
 
 ### 🟪 FASE 3 — Evoluzioni
 > Le funzionalità di prodotto **già decise** (con il loro ordine di sviluppo) sono elencate nel documento di strategia, §5–6: salvataggio progressi → icone sulle scelte → contatore finali scoperti → medaglie argento/oro → regni con nuvole (sblocco graduale) → mappa viva.
