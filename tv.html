@@ -439,6 +439,71 @@ const STORIES = [
         }
       }
     ]
+  },
+
+  /* ---- 3. LA NOTTE DELLE LUCCIOLE ---- */
+  {
+    id:'firefly', tag:'Buonanotte · bambini', icon:'🐻',
+    title:'La Notte delle Lucciole',
+    desc:'Un orsetto parte nella notte per scoprire perché le lucciole della Grande Foresta hanno smesso di brillare.',
+    steps:[
+      {
+        type:'intro', label:'L\'inizio',
+        text:'Nel cuore della Grande Foresta viveva Bruno, un orsetto color miele con una sciarpa di muschio verde. Ogni sera, prima di dormire, guardava le lucciole accendersi tra i rami come mille piccole stelle. Ma quella notte la foresta rimase buia: nemmeno una lucina tra le foglie. "Senza le lucciole, i piccoli del bosco non trovano la strada di casa," sussurrò la mamma. Bruno prese il suo vasetto di miele del coraggio e si avviò nel bosco addormentato.',
+        keyword:'honey bear cub dark forest night fireflies missing moonlight',
+        choices:[
+          {text:'Chiedere aiuto a Selene, la vecchia civetta del faggio', key:'owl'},
+          {text:'Seguire il ruscello che brilla appena sotto la luna', key:'stream'},
+          {text:'Arrampicarsi sulla Grande Quercia per guardare dall\'alto', key:'oak'}
+        ]
+      },
+      {
+        type:'middle', label:'Il cuore della storia',
+        variants:{
+          owl:{
+            text:'Selene la civetta aprì un occhio dorato e ascoltò Bruno senza fretta. "Le lucciole non si sono spente," disse piano. "Si sono nascoste nella Radura del Muschio, perché il vento ha portato via la loro canzone della sera. Senza quella melodia, non ricordano più come si brilla."',
+            keyword:'wise owl beech tree night forest bear cub talking moonlight',
+            choices:[
+              {text:'Chiederle di insegnargli la canzone della sera', key:'song'},
+              {text:'Farsi guidare da Selene attraverso il bosco', key:'guide'},
+              {text:'Partire in cerca del vento per riavere la canzone', key:'wind'}
+            ]
+          },
+          stream:{
+            text:'Il ruscello scintillava appena, come se ricordasse la luce delle lucciole. Seguendolo, Bruno trovò una lucciola piccolina seduta su un sasso, con la lucina spenta. "Mi chiamo Scintilla," disse con un filo di voce. "Mi sono persa mentre cercavo la Radura del Muschio, e senza le mie sorelle la mia luce non si accende."',
+            keyword:'moonlit stream forest tiny firefly on stone bear cub gentle',
+            choices:[
+              {text:'Prenderla dolcemente sulla zampa e portarla con sé', key:'carry'},
+              {text:'Offrirle un po\' di miele per farle coraggio', key:'honey'},
+              {text:'Sedersi accanto a lei e ascoltare la sua storia', key:'listen'}
+            ]
+          },
+          oak:{
+            text:'Bruno si arrampicò piano piano, zampa dopo zampa, fino al ramo più alto della Grande Quercia. Da lassù la foresta sembrava un mare scuro e morbido, ma lontano, in una valle nascosta, tremolava un piccolo lago di luce dorata. Le lucciole erano tutte lì, strette insieme come per riscaldarsi.',
+            keyword:'bear cub climbing giant oak tree night forest distant golden glow valley',
+            choices:[
+              {text:'Ricordare bene la strada e correre fino alla valle', key:'path'},
+              {text:'Chiamarle dolcemente dal ramo più alto', key:'call'},
+              {text:'Chiedere aiuto alla prima stella della sera', key:'star'}
+            ]
+          }
+        }
+      },
+      {
+        type:'end', label:'Il finale',
+        ends:{
+          owl_song:{text:'Selene insegnò a Bruno la canzone della sera, nota per nota, finché non la seppe a memoria. Nella Radura del Muschio, Bruno la cantò con la sua voce morbida da orsetto, e una dopo l\'altra le lucciole ricominciarono a brillare. La foresta si riempì di lucine, come se le stelle fossero scese a dormire tra i rami.', moral:'Le canzoni gentili sanno riaccendere anche le luci più timide.', keyword:'bear cub singing moss clearing fireflies lighting up forest night'},
+          owl_guide:{text:'Selene volò piano da un ramo all\'altro, e Bruno la seguì passo dopo passo nel buio, senza mai avere paura. Insieme arrivarono alla Radura del Muschio, dove le lucciole li aspettavano tremolanti. Vedendo che perfino un orsetto aveva attraversato la notte per loro, ripresero coraggio e tornarono a illuminare tutta la foresta.', moral:'Il buio fa meno paura quando qualcuno cammina con te.', keyword:'owl guiding bear cub dark forest path fireflies clearing'},
+          owl_wind:{text:'Bruno trovò il vento addormentato tra le fronde e gli chiese, con la voce più gentile che aveva, di restituire la canzone della sera. Il vento, che non voleva essere dispettoso ma solo giocare, sospirò dolcemente e la canzone tornò a scorrere tra gli alberi. Le lucciole la riconobbero subito e si riaccesero tutte insieme, danzando tra i rami.', moral:'Chiedere con gentilezza apre più porte di mille pretese.', keyword:'bear cub talking to wind forest leaves swirling fireflies dancing'},
+          stream_carry:{text:'Bruno prese Scintilla sulla zampa, morbida come un cuscino, e camminò seguendo il ruscello fino alla Radura del Muschio. Quando le sue sorelle la videro arrivare sana e salva, si accesero tutte insieme per la gioia. E la lucina di Scintilla, circondata da tanto affetto, tornò a brillare più forte di tutte.', moral:'Riportare a casa chi si è perso accende una gioia che illumina tutti.', keyword:'bear cub carrying tiny firefly on paw stream night reunion glow'},
+          stream_honey:{text:'Bruno aprì il suo vasetto e offrì a Scintilla una goccia di miele dorato. "Sa di sole," sorrise la lucciola, e a quel pensiero caldo la sua lucina fece un piccolo lampo. Con la pancia piena e il cuore leggero, Scintilla guidò Bruno fino alla radura, e la sua luce ritrovata risvegliò quella di tutte le sue sorelle.', moral:'Un piccolo gesto dolce può riaccendere una grande luce.', keyword:'bear cub sharing honey drop firefly glowing forest night warm'},
+          stream_listen:{text:'Bruno si sedette sul sasso accanto a Scintilla e ascoltò la sua storia fino in fondo, senza interrompere. Parlando, la lucciola si accorse di ricordare benissimo la strada, e la sua lucina si accese piano piano, come un pensiero che torna. Arrivarono insieme alla radura, dove mille lucine si accesero per salutarli.', moral:'A volte, per ritrovare la propria luce, basta qualcuno che ascolti davvero.', keyword:'bear cub listening tiny firefly stone stream gentle night'},
+          oak_path:{text:'Bruno guardò bene la strada dall\'alto: oltre il ruscello, dietro i tre sassi grandi, sotto l\'arco di rami. Poi scese e corse nella notte, ripetendo il percorso a memoria, fino alla valle nascosta. Le lucciole, sorprese che qualcuno le avesse trovate, lo seguirono festanti fino al cuore della foresta, riaccendendola tutta.', moral:'Guardare le cose da lontano aiuta a trovare la strada da vicino.', keyword:'bear cub running forest night path hidden valley fireflies following'},
+          oak_call:{text:'Dal ramo più alto, Bruno chiamò le lucciole con la sua voce più dolce, come si chiama un amico che dorme. La sua voce rotolò giù per la valle come una carezza, e le lucine si alzarono in volo una dopo l\'altra, seguendola. In pochi istanti la Grande Quercia si riempì di luci, e la foresta tornò a splendere.', moral:'Una voce gentile arriva più lontano di un grido.', keyword:'bear cub calling from oak treetop fireflies rising valley night glow'},
+          oak_star:{text:'Bruno chiese aiuto alla prima stella della sera, che brillava proprio sopra la Quercia. La stella mandò un raggio sottile fino alla valle nascosta, come un sentiero d\'argento nel buio. Le lucciole lo seguirono fino a casa, e per ringraziare la stella danzarono per lei tutta la notte, foresta e cielo che brillavano insieme.', moral:'Anche chi brilla lassù, lontano, è felice di aiutare chi brilla quaggiù.', keyword:'evening star silver beam forest valley fireflies dancing night sky'}
+        }
+      }
+    ]
   }
 ];
 
@@ -461,7 +526,7 @@ const REALMS = [
     id:'forest', icon:'🌲', name:'La Grande Foresta',
     desc:'Boschi antichi, animali parlanti e segreti tra le foglie',
     color:'#2d5a27', colorLight:'#4a8c42', colorDark:'#1a3518',
-    storyIds:[],
+    storyIds:['firefly'],
     /* coordinate SVG del poligono della regione */
     shape:'M 120,80 L 320,60 L 380,160 L 340,260 L 180,280 L 80,200 Z',
     labelX:230, labelY:175,

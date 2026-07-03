@@ -55,7 +55,7 @@ Le chiavi dei finali si chiamano `<choice1>_<choice2>` (es. `deep_msg`).
 - **Frasi "leggibili dalla voce":** preferire frasi non troppo lunghe, con punteggiatura chiara (`. ! ?`). Il narratore divide il testo proprio sui punti, quindi una buona punteggiatura = buona lettura.
 - **Coerenza interna:** stesso nome del protagonista in tutta la storia; il middle deve seguire logicamente la scelta 1; ogni finale deve "ripagare" **entrambe** le scelte fatte (choice1 + choice2).
 - **Morale:** positiva e concreta (gentilezza, coraggio, curiosità, amicizia, famiglia…), **mai predicatoria o moralista**.
-- **Varietà di protagonisti** *(nota per le prossime storie, segnalata 1 luglio 2026)*: `oasis` e `bell` hanno entrambe un bambino/a come protagonista. Per le prossime storie, variare includendo anche **protagonisti animali** (es. un orsetto), per dare più varietà al mondo delle storie.
+- **Varietà di protagonisti** *(segnalata 1 luglio 2026)*: `oasis` e `bell` hanno un bambino/a come protagonista; `firefly` (3 luglio 2026) ha il primo **protagonista animale** (l'orsetto Bruno). Continuare a variare protagonisti e generi (avventura, fiaba, buonanotte, umorismo…) nelle prossime storie.
 
 ---
 
@@ -135,20 +135,15 @@ Schema completo da copiare in `STORIES[]` di `tv.html` (vedi §5 di `CLAUDE.md`)
 > **Stato attuale (architettura a 2 file).** Finché non è fatta la *Fase 1* di `CLAUDE.md` (file unico `stories.js`), i dati vanno aggiornati in **più punti**. Procedere così:
 
 1. [ ] **`tv.html` → `STORIES[]`**: incolla il blocco completo (template §4) con tutti i testi, i 9 finali e le morali.
-2. [ ] **`controller.html` → `STORIES[]`** (versione ridotta): aggiungi `id, icon, title, tag` e le due `phases` con `preview` (anteprima) e `choices`.
-   - Fase 1: usa **le stesse chiavi reali** di `tv.html` (`k1a/k1b/k1c`).
-   - Fase 2: nel controller le chiavi sono segnaposto e vengono tradotte da `PHASE2_KEYS`.
-3. [ ] **`controller.html` → `PHASE2_KEYS`**: aggiungi la mappa della nuova storia:
-   ```js
-   NUOVO_ID:{ k1a:['k2a','k2b','k2c'], k1b:['k2d','k2e','k2f'], k1c:['k2g','k2h','k2i'] }
-   ```
-   L'**ordine** dell'array deve corrispondere all'ordine in cui le opzioni di fase 2 compaiono nel controller.
-4. [ ] **`tv.html` → `REALMS[]`**: se la storia appartiene a un regno, aggiungi il suo `id` in `storyIds` del regno giusto (così appare sulla mappa).
-5. [ ] **Immagini**: crea i 5 file in `images/NUOVO_ID/` (vedi §6).
-6. [ ] **Audio** (se si usano audio statici, §6 di `CLAUDE.md`): crea i file in `audio/NUOVO_ID/`.
-7. [ ] **Verifica** con la checklist qualità (§8).
+2. [ ] **`controller.html` → `STORIES[]`** (versione ridotta): aggiungi `id, icon, title, tag` e le due `phases`.
+   - Fase 1: oggetto con `preview` (anteprima) e `choices` — **stesse chiavi e stessi testi reali** di `tv.html`.
+   - Fase 2: oggetto **branch-aware** con `variants`: una voce per ogni chiave di scelta 1, ciascuna con la sua `preview` e le sue `choices` reali (chiavi e testi identici a `tv.html`). *(La vecchia mappa `PHASE2_KEYS` è stata eliminata: non va più aggiornata.)*
+3. [ ] **`tv.html` → `REALMS[]`**: se la storia appartiene a un regno, aggiungi il suo `id` in `storyIds` del regno giusto (così appare sulla mappa e il regno si sblocca da solo).
+4. [ ] **Audio**: aggiungi i testi (identici a `tv.html`) in `generate-audio.mjs` ed esegui `node generate-audio.mjs` → crea i 13 file in `audio/NUOVO_ID/`.
+5. [ ] **Immagini**: aggiungi i brief in `BRIEF_IMMAGINI.md` e genera i 5 file in `images/NUOVO_ID/` (vedi §6).
+6. [ ] **Verifica** con la checklist qualità (§8).
 
-> ⚠️ **Attenzione (limite noto del controller).** Oggi nel controller i testi delle opzioni di **fase 2** non cambiano per ramo (mostrano etichette generiche). Per rendere il telefono davvero leggibile, **scrivi nel controller i testi reali delle opzioni** invece di "Prima/Seconda/Terza opzione". La soluzione pulita e definitiva è unificare i dati in `stories.js` (Fase 1): dopo, i passi 2 e 3 spariscono e basta modificare **un solo file**.
+> 💡 La soluzione pulita e definitiva resta unificare i dati in `stories.js` (Fase 1 di `CLAUDE.md`): dopo, il passo 2 sparisce e basta modificare **un solo file**.
 
 ---
 
@@ -239,7 +234,7 @@ Se si adottano gli audio pre-generati (§6 di `CLAUDE.md`):
 - [ ] Nessuna scelta "punitiva": ogni percorso porta a un bel finale.
 - [ ] Frasi adatte alla lettura ad alta voce (lunghezza, punteggiatura).
 - [ ] Chiavi `choice` corrette e uniche; `ends` nominati `<choice1>_<choice2>`.
-- [ ] `tv.html`, `controller.html` e `PHASE2_KEYS` **allineati** (finché non c'è `stories.js`).
+- [ ] `tv.html` e `controller.html` **allineati** (stesse chiavi, stessi testi delle opzioni — finché non c'è `stories.js`).
 - [ ] 5 immagini presenti, larghe ~3:1, stesso stile.
 - [ ] **Coerenza personaggio verificata**: aperte le 5 immagini affiancate, il protagonista è la **stessa identica** creatura (specie, colori, vestiti) in tutte. Nessuna rigenerata? → ricontrolla.
 
@@ -249,7 +244,7 @@ Se si adottano gli audio pre-generati (§6 di `CLAUDE.md`):
 
 > "Hai a disposizione `CLAUDE.md` e `GUIDA_STORIE.md`. Crea una **nuova storia** per il regno **[NOME REGNO]** a tema **[TEMA]**, protagonista **[NOME/ETÀ]**.
 > Rispetta: struttura a 3 fasi (3×3 → 9 finali), tono dark-fantasy gentile per bambini, nessuna scelta punitiva, ogni finale con morale positiva.
-> Produci: (1) il blocco completo per `STORIES[]` di `tv.html`; (2) la versione ridotta per `controller.html` **con i testi reali** delle opzioni di fase 2; (3) la riga di `PHASE2_KEYS`; (4) l'eventuale aggiunta in `REALMS[].storyIds`; (5) i **brief delle 5 immagini** (con preambolo di stile e descrizione del personaggio coerente).
+> Produci: (1) il blocco completo per `STORIES[]` di `tv.html`; (2) la versione ridotta branch-aware per `controller.html` **con i testi reali** delle opzioni di fase 2; (3) l'eventuale aggiunta in `REALMS[].storyIds`; (4) i testi per `generate-audio.mjs`; (5) i **brief delle 5 immagini** (con preambolo di stile e descrizione del personaggio coerente).
 > Alla fine, esegui la checklist qualità del §8 e segnala cosa manca."
 
 ---

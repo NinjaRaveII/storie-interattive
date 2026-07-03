@@ -1,4 +1,4 @@
-# Brief immagini — L'Oasi delle Sabbie Dorate & La Campana d'Oro del Villaggio
+# Brief immagini — L'Oasi delle Sabbie Dorate, La Campana d'Oro del Villaggio & La Notte delle Lucciole
 
 > Prompt pronti da incollare in un generatore di immagini a tua scelta (ChatGPT immagini, Bing Image Creator, Midjourney, ecc.), seguendo le regole di `GUIDA_STORIE.md` §6.
 > **Formato:** panoramico largo ~1600×500 (o 1920×600), soggetto centrato con margini di sicurezza ai bordi, niente testo nell'immagine, `.jpg` ottimizzato.
@@ -154,6 +154,71 @@ celebration.
 
 ---
 
+## Storia 3 — La Notte delle Lucciole (`images/firefly/`)
+
+### Scheda personaggio — Bruno (protagonista, presente in tutte e 5 le immagini)
+
+```
+Bruno: a small honey-colored bear cub, soft rounded ears, cream-colored
+muzzle and belly, big warm brown eyes, wearing a knitted moss-green scarf,
+carrying a tiny amber honey jar on a shoulder strap, gentle and curious
+sleepy-sweet expression.
+```
+
+### Schede personaggi secondari (una sola scena ciascuno)
+
+```
+Selene (vecchia civetta): an elderly wise owl with silvery-brown feathers,
+large round golden eyes, soft feather tufts like kind eyebrows, perched
+calmly on a beech branch, warm grandmotherly expression.
+
+Scintilla (lucciola piccolina): a tiny firefly with a softly glowing warm
+amber light at the tip of her body, delicate translucent wings, big friendly
+dark eyes, small and shy but adorable.
+```
+
+### 1. `intro.jpg`
+```
+[STYLE] [Bruno]. Bruno the bear cub stands at the edge of his den in the
+great forest at night, looking out at the unusually dark trees where no
+fireflies are glowing, only soft moonlight filtering through the leaves,
+a sense of gentle wonder and quiet mystery, cozy nighttime atmosphere.
+```
+
+### 2. `middle_owl.jpg`
+```
+[STYLE] [Bruno] [Selene]. Bruno the bear cub looks up at Selene the wise old
+owl perched on a beech tree branch, soft moonlight on silvery leaves, warm
+golden owl eyes glowing kindly in the night forest, gentle conversation
+between friends.
+```
+
+### 3. `middle_stream.jpg`
+```
+[STYLE] [Bruno] [Scintilla]. Bruno the bear cub kneels beside a gently
+sparkling moonlit stream in the night forest, discovering Scintilla the tiny
+firefly sitting on a smooth stone with her little light dimmed, soft silver
+reflections on the water, tender and caring atmosphere.
+```
+
+### 4. `middle_oak.jpg`
+```
+[STYLE] [Bruno]. Bruno the bear cub sits on the highest branch of a giant
+ancient oak tree above the dark forest canopy at night, gazing at a distant
+hidden valley glowing with a small lake of golden firefly light, starry sky
+above, sense of wonder and discovery.
+```
+
+### 5. `end.jpg` (condivisa dai 9 finali — scena neutra e trionfale)
+```
+[STYLE] [Bruno]. Bruno the bear cub stands joyfully in a mossy forest
+clearing at night as thousands of fireflies light up all around him like
+golden floating stars among the trees, warm amber glow filling the whole
+forest, a sense of magical celebration and cozy warmth.
+```
+
+---
+
 ## Checklist di verifica finale (per ogni storia, prima di salvare)
 
 - [ ] Le 5 immagini affiancate mostrano lo **stesso identico protagonista** (specie/aspetto, colori, vestiti).
@@ -174,4 +239,10 @@ images/bell/middle_tower.jpg
 images/bell/middle_florist.jpg
 images/bell/middle_feathers.jpg
 images/bell/end.jpg
+
+images/firefly/intro.jpg
+images/firefly/middle_owl.jpg
+images/firefly/middle_stream.jpg
+images/firefly/middle_oak.jpg
+images/firefly/end.jpg
 ```

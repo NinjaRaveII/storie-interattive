@@ -150,6 +150,20 @@ const STORIES=[
        feathers:{preview:'Tra le rose del giardino, Tobia ha trovato l\'allodola dorata, spaventata e in silenzio…',
          choices:[{txt:'Avvicinarsi piano canticchiando una ninna nanna',key:'approach'},{txt:'Offrirle qualche briciola di pane dorato',key:'crumbs'},{txt:'Restare ferma vicino a lei e aspettare con pazienza',key:'wait'}]}
      }}
+  ]},
+  {id:'firefly',icon:'🐻',title:'La Notte delle Lucciole',tag:'Buonanotte · bambini',
+   phases:[
+    {lbl:'Scelta 1 di 2',preview:'Le lucciole della Grande Foresta non si accendono più, e l\'orsetto Bruno parte nella notte per scoprire perché…',
+     choices:[{txt:'Chiedere aiuto a Selene, la vecchia civetta del faggio',key:'owl'},{txt:'Seguire il ruscello che brilla appena sotto la luna',key:'stream'},{txt:'Arrampicarsi sulla Grande Quercia per guardare dall\'alto',key:'oak'}]},
+    {lbl:'Scelta 2 di 2',
+     variants:{
+       owl:{preview:'Selene la civetta sa dove sono le lucciole: il vento ha portato via la loro canzone della sera…',
+         choices:[{txt:'Chiederle di insegnargli la canzone della sera',key:'song'},{txt:'Farsi guidare da Selene attraverso il bosco',key:'guide'},{txt:'Partire in cerca del vento per riavere la canzone',key:'wind'}]},
+       stream:{preview:'Lungo il ruscello, Bruno ha trovato Scintilla, una lucciola piccolina con la lucina spenta…',
+         choices:[{txt:'Prenderla dolcemente sulla zampa e portarla con sé',key:'carry'},{txt:'Offrirle un po\' di miele per farle coraggio',key:'honey'},{txt:'Sedersi accanto a lei e ascoltare la sua storia',key:'listen'}]},
+       oak:{preview:'Dalla cima della Grande Quercia, Bruno ha visto le lucciole rifugiate in una valle nascosta…',
+         choices:[{txt:'Ricordare bene la strada e correre fino alla valle',key:'path'},{txt:'Chiamarle dolcemente dal ramo più alto',key:'call'},{txt:'Chiedere aiuto alla prima stella della sera',key:'star'}]}
+     }}
   ]}
 ];
 

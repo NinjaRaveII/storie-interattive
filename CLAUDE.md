@@ -2,7 +2,9 @@
 
 > **Scopo di questo documento:** fornire a Claude Code (e a chiunque lavori al progetto) il contesto completo e *aggiornato*, allineato al codice reale, con le decisioni prese, le motivazioni e una roadmap passo-passo verso un MVP funzionante.
 >
-> *Versione 3.0 — 1 luglio 2026. Aggiornata dopo la sostituzione delle 3 storie dummy con 2 storie complete (audio + parte delle immagini generate), la correzione di due bug UI reali (sottotitoli invisibili, QR rotto) e l'aggiunta di una sezione "Lezioni apprese" (§13).*
+> *Versione 3.1 — 3 luglio 2026. Aggiunta la terza storia `firefly` (La Notte delle Lucciole, primo protagonista animale, regno La Grande Foresta sbloccato) con i 13 audio generati; raccordo con il documento di strategia commerciale.*
+>
+> 📈 **Strategia commerciale e priorità di prodotto:** vedi `storie-interattive-strategia-commercializzazione.md` (modelli di monetizzazione, roadmap verso i primi utenti, funzionalità decise e loro ordine di sviluppo). Le decisioni di prodotto prese lì sono riflesse nella roadmap di questo documento (§10).
 
 ---
 
@@ -27,8 +29,8 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 |---|---|---|
 | Linguaggio | HTML5 + CSS3 + JavaScript vanilla (no framework) | invariato (scelta deliberata) |
 | Font | Google Fonts — Playfair Display (titoli) + Crimson Pro (corpo) | invariato |
-| Immagini scena | **File locali** in `images/<storia>/...`, generate con Gemini (via browser) e convertite in `.jpg` | ✅ in corso: 5/5 per `oasis`, 1/5 per `bell` |
-| Sintesi vocale | **Audio pre-generati (file) + Web Speech API come ripiego** | ✅ **FATTO** per `oasis` e `bell` (26 mp3 via ElevenLabs, script `generate-audio.mjs`, vedi §6) |
+| Immagini scena | **File locali** in `images/<storia>/...`, generate con Gemini (via browser) e convertite in `.jpg` | ✅ in corso: 5/5 per `oasis`, 1/5 per `bell`, 0/5 per `firefly` |
+| Sintesi vocale | **Audio pre-generati (file) + Web Speech API come ripiego** | ✅ **FATTO** per `oasis`, `bell` e `firefly` (39 mp3 via ElevenLabs, script `generate-audio.mjs`, vedi §6) |
 | Comunicazione cross-device | **Supabase Realtime (canale broadcast)** | **NON ANCORA FATTO**: sostituisce BroadcastChannel per l'uso multi-dispositivo |
 | Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` (opzionale, come ripiego locale) | è ancora l'**unico** trasporto attivo oggi |
 | Pairing TV↔telefono | **Codice stanza** veicolato via **QR code** | il QR ora punta correttamente a `controller.html` (bug URL risolto, §13), ma non instaura ancora un collegamento cross-device reale |
@@ -170,10 +172,11 @@ Ogni storia in `tv.html` segue questo schema:
 |---|---|---|---|---|
 | `oasis` | L'Oasi delle Sabbie Dorate | Avventura · bambini | Le Terre Dimenticate (deserto) | `dune` / `camel` / `wind` |
 | `bell` | La Campana d'Oro del Villaggio | Fiaba · bambini | Le Terre di Mezzo | `tower` / `florist` / `feathers` |
+| `firefly` | La Notte delle Lucciole | Buonanotte · bambini | La Grande Foresta | `owl` / `stream` / `oak` |
 
 Ogni storia: **3 opzioni per fase → 9 finali distinti**.
 
-> Le 3 storie precedenti (`forest`, `sea`, `mountain`) erano contenuti dimostrativi ("dummy") e sono state **rimosse** insieme ai loro regni attivi (ora bloccati, §7). `oasis` e `bell` sono le prime due storie scritte seguendo `GUIDA_STORIE.md`, pensate anche per validare l'intera pipeline (testo → audio → immagini) prima di scriverne altre.
+> Le 3 storie precedenti (`forest`, `sea`, `mountain`) erano contenuti dimostrativi ("dummy") e sono state **rimosse** insieme ai loro regni attivi. `oasis` e `bell` sono le prime due storie scritte seguendo `GUIDA_STORIE.md`, pensate anche per validare l'intera pipeline (testo → audio → immagini). `firefly` (3 luglio 2026) è la prima con **protagonista animale** (l'orsetto Bruno) e la prima con tag di genere "Buonanotte", in linea con la varietà di generi indicata dal documento di strategia.
 
 ### Immagini attese (file locali)
 
@@ -189,7 +192,7 @@ Conteggio per storia: **1 intro + 3 middle + 1 end = 5 immagini**.
 
 ---
 
-## 6. Voce narrante (✅ implementata per `oasis` e `bell`)
+## 6. Voce narrante (✅ implementata per tutte e 3 le storie)
 
 **Strategia: audio pre-generati come file statici** (come le immagini), con **Web Speech API** come ripiego automatico.
 
@@ -199,7 +202,7 @@ Motivazioni:
 - **Funziona su tutti i dispositivi** (anche mobile, dove la voce automatica del browser è inaffidabile).
 - Costo **una tantum**, non a ogni lettura.
 
-Struttura cartella `audio/` (**attiva**, 26 file già generati):
+Struttura cartella `audio/` (**attiva**, 39 file già generati):
 ```
 audio/<storia>/intro.mp3
 audio/<storia>/middle_<chiaveScelta1>.mp3
@@ -221,7 +224,7 @@ La home (`#screen-list`) è una **mappa SVG** con 6 regni cliccabili. Ogni regno
 
 | Regno | Icona | Stato |
 |---|---|---|
-| La Grande Foresta | 🌲 | bloccato ("Presto…") — storia dummy rimossa |
+| La Grande Foresta | 🌲 | **attivo** (`firefly`) |
 | Le Cime Tempestose | 🏔️ | bloccato ("Presto…") — storia dummy rimossa |
 | L'Oceano Profondo | 🌊 | bloccato ("Presto…") — storia dummy rimossa |
 | Le Terre Dimenticate | 🌵 | **attivo** (`oasis`) |
@@ -266,7 +269,9 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 8. **🟠 Comunicazione cross-device assente.** `BroadcastChannel` non collega dispositivi diversi: l'uso previsto oggi **non funziona**. Da sostituire con Supabase Realtime (§4). Nessun progresso su questo punto in questa sessione.
 9. **🟡 Dati duplicati tra `tv.html` e `controller.html`.** Da unificare in `stories.js` (fonte unica) — obiettivo Fase 1, non ancora iniziato.
 10. **🟡 QR scollegato dal concept di pairing.** Il QR ora punta all'URL corretto (punto 4), ma non instaura ancora un collegamento cross-device reale: serve Supabase + codice stanza (§4.1).
-11. **🟡 Immagini incomplete.** `oasis` ha tutte e 5 le immagini; `bell` ne ha solo 1/5 (`intro.jpg`). Da completare nella stessa conversazione Gemini per coerenza del personaggio Tobia (vedi §13).
+11. **🟡 Immagini incomplete.** `oasis` ha tutte e 5 le immagini; `bell` ne ha solo 1/5 (`intro.jpg` — le altre 4 vanno generate nella stessa conversazione Gemini per coerenza del personaggio Tobia, vedi §13); `firefly` 0/5 (brief pronti in `BRIEF_IMMAGINI.md`, personaggio: orsetto Bruno).
+12. **🟡 Sfumatura che copre l'immagine** *(segnalato 3 luglio 2026)*: la sfumatura scura in basso al riquadro immagine (dietro i sottotitoli) copre spesso una porzione importante dell'illustrazione. Rivedere altezza/opacità della sfumatura perché l'immagine resti interamente apprezzabile.
+13. **🟡 Morale visibile troppo poco** *(segnalato 3 luglio 2026)*: la morale finale resta a schermo troppo poco tempo — per un bambino può non bastare per leggerla. Allungare la permanenza (o tenerla visibile finché non si preme "continua").
 
 ---
 
@@ -274,13 +279,14 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 
 ### ✅ Già fatto
 - Struttura a due file (tv + controller).
-- 2 storie complete (intro → middle ramificato → 9 finali): `oasis`, `bell`. Le 3 storie dummy precedenti sono state rimosse.
-- Mappa del mondo SVG con regni (2 attivi — deserto e Terre di Mezzo — + 4 bloccati).
+- 3 storie complete (intro → middle ramificato → 9 finali): `oasis`, `bell`, `firefly`. Le 3 storie dummy precedenti sono state rimosse.
+- Mappa del mondo SVG con regni (3 attivi — deserto, Terre di Mezzo, Grande Foresta — + 3 bloccati).
 - Sottotitoli sincronizzati con la narrazione, **overlaid correttamente sull'immagine** (bug di posizionamento CSS risolto, §9).
 - Morale finale, progress bar, animazione stelle, status bar controller.
 - Pannello QR funzionante (URL corretto, libreria locale — ancora da collegare al pairing cross-device reale).
-- Audio narrante pre-generato (ElevenLabs) per entrambe le storie, con ripiego Web Speech automatico.
-- Immagini generate con Gemini per `oasis` (5/5) e parzialmente per `bell` (1/5).
+- Audio narrante pre-generato (ElevenLabs) per tutte e 3 le storie, con ripiego Web Speech automatico.
+- Immagini generate con Gemini per `oasis` (5/5) e parzialmente per `bell` (1/5); `firefly` ancora senza immagini.
+- Prima storia con protagonista animale (`firefly`, orsetto Bruno) e primo tag di genere "Buonanotte" (3 luglio 2026).
 - Controller: fase 2 con testi reali per ramo, `PHASE2_KEYS` eliminata.
 - Corretto bug voce robotica dopo il tasto Home (§9) e layout immagine/contenuto su finestre desktop basse (§9), con scroll di sicurezza aggiunto.
 
@@ -298,30 +304,36 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 2. [ ] **Sostituire il trasporto:** rimpiazzare `BroadcastChannel` con un canale Supabase Realtime, mantenendo invariati i messaggi `start`/`pick`/`restart`. (Opzionale: tenere BroadcastChannel come ripiego se TV e telefono sono sullo stesso dispositivo.)
 3. [ ] **Codice stanza + QR:** la TV genera un codice; il canale diventa `storie-<codice>`; il QR include il codice; il telefono entra nella stanza giusta.
 4. [ ] **Fonte unica dei dati:** creare `stories.js` con tutte le storie; `tv.html` e `controller.html` lo importano. Eliminare la copia ridotta (`PHASE2_KEYS` già eliminata).
-5. [x] **Voce:** pre-generati gli audio (1 intro + 3 middle + 9 end per storia) per `oasis` e `bell`, salvati in `audio/`; i file suonano correttamente; Web Speech come ripiego funzionante.
-6. [~] **Immagini:** 5/5 per `oasis`, 1/5 per `bell` (mancano `middle_tower`, `middle_florist`, `middle_feathers`, `end` — da generare nella stessa conversazione Gemini di `intro.jpg` per coerenza del personaggio Tobia).
+5. [x] **Voce:** pre-generati gli audio (1 intro + 3 middle + 9 end per storia) per `oasis`, `bell` e `firefly`, salvati in `audio/`; i file suonano correttamente; Web Speech come ripiego funzionante.
+6. [~] **Immagini:** 5/5 per `oasis`; 1/5 per `bell` (mancano `middle_tower`, `middle_florist`, `middle_feathers`, `end` — da generare nella stessa conversazione Gemini di `intro.jpg` per coerenza del personaggio Tobia); 0/5 per `firefly` (brief pronti in `BRIEF_IMMAGINI.md`).
 7. [ ] **Pubblicazione:** caricare il sito su hosting statico con HTTPS (GitHub Pages / Netlify / Cloudflare Pages).
 8. [ ] **Test reale:** provare con un telefono e un PC *diversi*, su reti diverse.
 
 **Definizione di "MVP riuscito":** da un telefono qualsiasi inquadro il QR sulla TV, scelgo una storia e le opzioni, e la TV mostra scena + immagine + narrazione audio fino al finale con morale.
 
 ### 🟩 FASE 2 — Robustezza e qualità
+- [ ] **Salvataggio persistente dei progressi** (`localStorage`): ultima storia, storie completate, finali scoperti. ⭐ *Promosso a "fondamenta prioritaria" dal documento di strategia (§6): medaglie, contatore finali, regni sbloccabili e mappa viva dipendono tutti da questo — da costruire per primo tra le funzionalità di prodotto.*
 - [ ] Risincronizzazione: la TV invia lo stato corrente quando un telefono si collega a metà.
 - [ ] Gestione disconnessioni/riconnessioni e messaggi di stato connessione.
-- [ ] `localStorage`: ricordare l'ultima storia / eventuali progressi.
 - [ ] Immagini dedicate per ciascuno dei 9 finali.
 - [ ] Piccoli controlli: evitare doppi tap, gestire ordine dei messaggi.
+- [ ] UI: immagine interamente visibile (rivedere la sfumatura in basso) e morale a schermo più a lungo (§9, punti 12–13).
 
 ### 🟪 FASE 3 — Evoluzioni
-- [ ] Nuove storie e sblocco dei regni `forest` / `mountain` / `sky` (i primi due avevano storie dummy ora rimosse, da riscrivere da zero seguendo `GUIDA_STORIE.md`).
+> Le funzionalità di prodotto **già decise** (con il loro ordine di sviluppo) sono elencate nel documento di strategia, §5–6: salvataggio progressi → icone sulle scelte → contatore finali scoperti → medaglie argento/oro → regni con nuvole (sblocco graduale) → mappa viva.
+
+- [ ] Nuove storie e sblocco dei regni `mountain` / `sea` / `sky` — obiettivo catalogo dal documento di strategia: 2 storie per regno (12 totali) + un regno "vetrina" a 3, verso il traguardo 3×6 = 18.
+- [ ] **Medaglie a due livelli** *(decisa — vedi doc strategia §5)*: argento al completamento delle 3 storie di un regno, oro alla scoperta di tutti i finali del regno. Sostituisce la vecchia idea generica di "badge di completamento". Progresso salvato in `localStorage` (Fase 2).
+- [ ] **Contatore finali scoperti** *(decisa — doc strategia §5)*: es. "3 finali su 9 scoperti" nella schermata di selezione storia.
+- [ ] **Icone sulle scelte** *(decisa — doc strategia §5)*: grandi simboli colorati accanto/al posto del testo, per chi non legge ancora.
+- [ ] **Regni con sblocco graduale** e **mappa viva** *(decise — doc strategia §5)*.
 - [ ] Modalità "solo TV" (scelte con timer, senza telefono).
 - [ ] Musica di sottofondo / effetti sonori.
-- [ ] PWA installabile (manifest + service worker).
+- [ ] PWA installabile (manifest + service worker) — percorso distribuzione: web puro → PWA + casting → store (doc strategia §4).
 - [ ] Multilingua (struttura già predisponibile).
 - [ ] 9 immagini di finale distinte per storia (oggi condividono `end.jpg`), una volta validato che lo stile a 5 immagini regge bene.
-- [ ] **Varietà di protagonisti** *(segnalata 1 luglio 2026)*: includere anche protagonisti animali (es. un orsetto) nelle prossime storie, non solo bambini — vedi nota in `GUIDA_STORIE.md` §2.
+- [x] **Varietà di protagonisti** *(segnalata 1 luglio 2026)*: ✅ prima storia con protagonista animale fatta (`firefly`, orsetto Bruno, 3 luglio 2026). Continuare a variare nelle prossime storie — vedi nota in `GUIDA_STORIE.md` §2.
 - [ ] **Voce narrante variabile** *(segnalata 1 luglio 2026)*: valutare voci diverse per regno nei prossimi lotti di audio (oggi tutte le storie usano la stessa voce ElevenLabs) — vedi nota in `GUIDA_STORIE.md` §7.
-- [ ] **Badge di completamento storie** *(idea da dettagliare meglio — segnalata 1 luglio 2026)*: un sistema di badge assegnati man mano che si completano storie diverse (più storie completate → più badge). Ipotesi da esplorare: i badge potrebbero anche "sbloccare" nuovi regni sulla mappa, invece che (o oltre a) semplicemente aggiungere `storyIds`. Da definire: dove si salva il progresso (probabilmente `localStorage`, coerente col punto Fase 2 sulla persistenza), come si presentano i badge in UI, se sono per bambino/dispositivo o condivisi.
 
 ---
 
@@ -367,6 +379,7 @@ Questa modalità **rompe due assunti** del progetto base, in modo consapevole:
 
 ## 12. Note operative per Claude Code
 
+- **Strategia commerciale e priorità di prodotto:** vedi `storie-interattive-strategia-commercializzazione.md` — contiene le funzionalità decise, il loro ordine di sviluppo e la roadmap verso i primi utenti. In caso di dubbio su *cosa* costruire prima, la risposta è lì; su *come*, è qui.
 - **Non usare framework:** vanilla HTML/CSS/JS. Librerie esterne solo via CDN, con parsimonia (es. client Supabase).
 - **I due file restano separati:** la divisione tv/controller è il cuore del concept.
 - **Fonte unica dei dati (obiettivo):** dopo la Fase 1, modificare una storia significa toccare *solo* `stories.js`.
@@ -390,4 +403,4 @@ Questa modalità **rompe due assunti** del progetto base, in modo consapevole:
 
 ---
 
-*Documento generato il 30 giugno 2026, ultimo aggiornamento 1 luglio 2026 — versione 3.0.*
+*Documento generato il 30 giugno 2026, ultimo aggiornamento 3 luglio 2026 — versione 3.1.*

@@ -69,6 +69,25 @@ const STORIES = {
       feathers_crumbs: 'Tobia posò qualche briciola di pane dorato vicino all\'allodola, senza avvicinarsi troppo. Piano piano, l\'uccellino si fidò e iniziò a beccare dalla sua mano. Da quel giorno lo seguì ovunque, tornando a cantare felice sulla torre del castello.',
       feathers_wait: 'Tobia restò seduto in silenzio accanto alle rose, senza fretta di muoversi. Con il tempo, l\'allodola smise di tremare e si avvicinò da sola, posandosi sulla sua spalla. Insieme tornarono alla torre, e la campana suonò più forte che mai.'
     }
+  },
+  firefly: {
+    intro: 'Nel cuore della Grande Foresta viveva Bruno, un orsetto color miele con una sciarpa di muschio verde. Ogni sera, prima di dormire, guardava le lucciole accendersi tra i rami come mille piccole stelle. Ma quella notte la foresta rimase buia: nemmeno una lucina tra le foglie. "Senza le lucciole, i piccoli del bosco non trovano la strada di casa," sussurrò la mamma. Bruno prese il suo vasetto di miele del coraggio e si avviò nel bosco addormentato.',
+    middle: {
+      owl: 'Selene la civetta aprì un occhio dorato e ascoltò Bruno senza fretta. "Le lucciole non si sono spente," disse piano. "Si sono nascoste nella Radura del Muschio, perché il vento ha portato via la loro canzone della sera. Senza quella melodia, non ricordano più come si brilla."',
+      stream: 'Il ruscello scintillava appena, come se ricordasse la luce delle lucciole. Seguendolo, Bruno trovò una lucciola piccolina seduta su un sasso, con la lucina spenta. "Mi chiamo Scintilla," disse con un filo di voce. "Mi sono persa mentre cercavo la Radura del Muschio, e senza le mie sorelle la mia luce non si accende."',
+      oak: 'Bruno si arrampicò piano piano, zampa dopo zampa, fino al ramo più alto della Grande Quercia. Da lassù la foresta sembrava un mare scuro e morbido, ma lontano, in una valle nascosta, tremolava un piccolo lago di luce dorata. Le lucciole erano tutte lì, strette insieme come per riscaldarsi.'
+    },
+    end: {
+      owl_song: 'Selene insegnò a Bruno la canzone della sera, nota per nota, finché non la seppe a memoria. Nella Radura del Muschio, Bruno la cantò con la sua voce morbida da orsetto, e una dopo l\'altra le lucciole ricominciarono a brillare. La foresta si riempì di lucine, come se le stelle fossero scese a dormire tra i rami.',
+      owl_guide: 'Selene volò piano da un ramo all\'altro, e Bruno la seguì passo dopo passo nel buio, senza mai avere paura. Insieme arrivarono alla Radura del Muschio, dove le lucciole li aspettavano tremolanti. Vedendo che perfino un orsetto aveva attraversato la notte per loro, ripresero coraggio e tornarono a illuminare tutta la foresta.',
+      owl_wind: 'Bruno trovò il vento addormentato tra le fronde e gli chiese, con la voce più gentile che aveva, di restituire la canzone della sera. Il vento, che non voleva essere dispettoso ma solo giocare, sospirò dolcemente e la canzone tornò a scorrere tra gli alberi. Le lucciole la riconobbero subito e si riaccesero tutte insieme, danzando tra i rami.',
+      stream_carry: 'Bruno prese Scintilla sulla zampa, morbida come un cuscino, e camminò seguendo il ruscello fino alla Radura del Muschio. Quando le sue sorelle la videro arrivare sana e salva, si accesero tutte insieme per la gioia. E la lucina di Scintilla, circondata da tanto affetto, tornò a brillare più forte di tutte.',
+      stream_honey: 'Bruno aprì il suo vasetto e offrì a Scintilla una goccia di miele dorato. "Sa di sole," sorrise la lucciola, e a quel pensiero caldo la sua lucina fece un piccolo lampo. Con la pancia piena e il cuore leggero, Scintilla guidò Bruno fino alla radura, e la sua luce ritrovata risvegliò quella di tutte le sue sorelle.',
+      stream_listen: 'Bruno si sedette sul sasso accanto a Scintilla e ascoltò la sua storia fino in fondo, senza interrompere. Parlando, la lucciola si accorse di ricordare benissimo la strada, e la sua lucina si accese piano piano, come un pensiero che torna. Arrivarono insieme alla radura, dove mille lucine si accesero per salutarli.',
+      oak_path: 'Bruno guardò bene la strada dall\'alto: oltre il ruscello, dietro i tre sassi grandi, sotto l\'arco di rami. Poi scese e corse nella notte, ripetendo il percorso a memoria, fino alla valle nascosta. Le lucciole, sorprese che qualcuno le avesse trovate, lo seguirono festanti fino al cuore della foresta, riaccendendola tutta.',
+      oak_call: 'Dal ramo più alto, Bruno chiamò le lucciole con la sua voce più dolce, come si chiama un amico che dorme. La sua voce rotolò giù per la valle come una carezza, e le lucine si alzarono in volo una dopo l\'altra, seguendola. In pochi istanti la Grande Quercia si riempì di luci, e la foresta tornò a splendere.',
+      oak_star: 'Bruno chiese aiuto alla prima stella della sera, che brillava proprio sopra la Quercia. La stella mandò un raggio sottile fino alla valle nascosta, come un sentiero d\'argento nel buio. Le lucciole lo seguirono fino a casa, e per ringraziare la stella danzarono per lei tutta la notte, foresta e cielo che brillavano insieme.'
+    }
   }
 };
 
