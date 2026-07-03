@@ -647,7 +647,7 @@ function buildMap(){
         const x = realm.labelX / 900 * r.width + r.left;
         const y = realm.labelY / 560 * r.height + r.top;
         document.getElementById('tt-name').textContent = realm.name;
-        document.getElementById('tt-count').textContent = `${realm.storyIds.length} storia disponibile`;
+        document.getElementById('tt-count').textContent = `${realm.storyIds.length} ${realm.storyIds.length>1?'storie disponibili':'storia disponibile'}`;
         tooltip.style.left = (x - tooltip.offsetWidth/2) + 'px';
         tooltip.style.top = (y - 90) + 'px';
         tooltip.classList.add('show');
