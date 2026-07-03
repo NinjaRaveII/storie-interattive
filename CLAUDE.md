@@ -34,7 +34,7 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 | Comunicazione cross-device | **Supabase Realtime (canale broadcast)** | ✅ **implementato** in `transport.js` (3 luglio 2026); manca solo la config del progetto Supabase (URL + publishable key) e il test reale |
 | Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` | ✅ ripiego automatico dentro `transport.js`, sempre attivo |
 | Pairing TV↔telefono | **Codice stanza** veicolato via **QR code** | ✅ **implementato**: la TV genera il codice (`sessionStorage`), lo mostra nel pannello QR e lo include nell'URL (`?room=`); il controller lo legge e entra nella stanza |
-| Hosting | **Static hosting con HTTPS** (GitHub Pages / Netlify / Cloudflare Pages) | **NON ANCORA FATTO**: necessario per l'uso online |
+| Hosting | **GitHub Pages** | ✅ **ONLINE**: `https://ninjaraveii.github.io/storie-interattive/` — deploy automatico a ogni push su `main` |
 
 ---
 
@@ -320,7 +320,7 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 4. [x] **Fonte unica dei dati:** `stories.js` con tutte le storie; `tv.html`, `controller.html` e `generate-audio.mjs` derivano da lì.
 5. [x] **Voce:** pre-generati gli audio (1 intro + 3 middle + 9 end per storia) per `oasis`, `bell` e `firefly`, salvati in `audio/`; i file suonano correttamente; Web Speech come ripiego funzionante.
 6. [x] **Immagini:** 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`), personaggi coerenti verificati.
-7. [ ] **Pubblicazione:** caricare il sito su hosting statico con HTTPS (GitHub Pages / Netlify / Cloudflare Pages).
+7. [x] **Pubblicazione:** ✅ online su GitHub Pages — `https://ninjaraveii.github.io/storie-interattive/` (deploy automatico a ogni push su `main`). Verificato che serva la versione corrente (transport, stories, immagini, audio).
 8. [ ] **Test reale:** provare con un telefono e un PC *diversi*, su reti diverse.
 
 **Definizione di "MVP riuscito":** da un telefono qualsiasi inquadro il QR sulla TV, scelgo una storia e le opzioni, e la TV mostra scena + immagine + narrazione audio fino al finale con morale.
