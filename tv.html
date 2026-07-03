@@ -109,10 +109,11 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   color:var(--muted);font-size:14px;font-style:italic;
 }
 
-/* gradiente scuro in basso per leggibilità sottotitoli */
+/* gradiente scuro in basso per leggibilità sottotitoli
+   (banda ridotta e più leggera: l'illustrazione deve restare visibile, §9 punto 12) */
 .scene-img-block::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:55%;
-  background:linear-gradient(transparent, rgba(5,5,10,.92));
+  content:'';position:absolute;bottom:0;left:0;right:0;height:30%;
+  background:linear-gradient(transparent, rgba(5,5,10,.72));
   pointer-events:none;
   z-index:1;
 }
@@ -174,6 +175,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .moral-card{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:18px 22px;margin-bottom:24px;display:none}
 .moral-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 .moral-text{font-size:clamp(15px,1.6vw,20px);color:var(--text);font-style:italic;line-height:1.6}
+.moral-continue{background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold);font-family:'Crimson Pro',serif;font-size:15px;padding:8px 22px;border-radius:24px;cursor:pointer;margin-top:14px;transition:all .2s}
+.moral-continue:hover{background:rgba(201,168,76,.1);border-color:var(--gold)}
 
 /* END */
 #screen-end{display:none;text-align:center;animation:fadeIn .8s ease;max-width:700px}
@@ -277,6 +280,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
     <div class="moral-card" id="moral-card" style="display:none">
       <div class="moral-label">✦ La morale di questa storia</div>
       <div class="moral-text" id="moral-text"></div>
+      <button class="moral-continue" onclick="showEnd()">Continua ➜</button>
     </div>
 
     <!-- scelte — sempre sotto, sempre visibili -->
@@ -508,7 +512,7 @@ const STORIES = [
 ];
 
 /* ===================== STATO ===================== */
-let story=null, stepIdx=0, choice1=null, choice2=null;
+let story=null, stepIdx=0, choice1=null, choice2=null, moralTimer=null;
 
 /* ===================== STELLE ===================== */
 function makeStars(){
@@ -733,8 +737,14 @@ function renderStep(){
     speak(e.text, audioPath(story.id,'end',key), ()=>{
       document.getElementById('prog').style.width='100%';
       document.getElementById('moral-text').textContent=e.moral||'';
-      if(e.moral) document.getElementById('moral-card').style.display='block';
-      setTimeout(showEnd, 6000);
+      if(e.moral){
+        document.getElementById('moral-card').style.display='block';
+        /* la morale resta a schermo un tempo proporzionato alla lettura di un
+           bambino (§9 punto 13); il tasto "Continua" permette di proseguire prima */
+        moralTimer=setTimeout(showEnd, Math.max(12000, 4000 + e.moral.length*90));
+      } else {
+        moralTimer=setTimeout(showEnd, 4000);
+      }
     });
   }
 }
@@ -913,6 +923,7 @@ function wsSentence(text, cb){
 }
 
 function stopSpeak(){
+  if(moralTimer){ clearTimeout(moralTimer); moralTimer=null; }
   if(currentAudio){
     /* rimuove i listener PRIMA di fermare l'audio: altrimenti l'onerror
        innescato da src='' farebbe cadere sul ripiego Web Speech anche
