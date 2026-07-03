@@ -6,7 +6,6 @@
 <title>Storie Interattive ✦ TV</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -350,58 +349,9 @@ function makeStars(){
   }
 }
 
-/* ===================== REGNI DEL MONDO ===================== */
-const REALMS = [
-  {
-    id:'forest', icon:'🌲', name:'La Grande Foresta',
-    desc:'Boschi antichi, animali parlanti e segreti tra le foglie',
-    color:'#2d5a27', colorLight:'#4a8c42', colorDark:'#1a3518',
-    storyIds:['firefly'],
-    /* coordinate SVG del poligono della regione */
-    shape:'M 120,80 L 320,60 L 380,160 L 340,260 L 180,280 L 80,200 Z',
-    labelX:230, labelY:175,
-  },
-  {
-    id:'mountain', icon:'🏔️', name:'Le Cime Tempestose',
-    desc:'Vette innevate, cristalli magici e draghi dorati',
-    color:'#4a5568', colorLight:'#718096', colorDark:'#2d3748',
-    storyIds:[],
-    shape:'M 380,60 L 580,40 L 660,120 L 620,220 L 460,240 L 380,160 Z',
-    labelX:520, labelY:145,
-  },
-  {
-    id:'sea', icon:'🌊', name:'L\'Oceano Profondo',
-    desc:'Navi misteriose, abissi senza fondo e segreti del mare',
-    color:'#1a4a7a', colorLight:'#2c6fad', colorDark:'#0d2d4f',
-    storyIds:[],
-    shape:'M 620,220 L 780,180 L 860,300 L 820,420 L 660,440 L 560,360 L 580,260 Z',
-    labelX:710, labelY:320,
-  },
-  {
-    id:'desert', icon:'🌵', name:'Le Terre Dimenticate',
-    desc:'Dune infinite, rovine antiche e tesori sepolti',
-    color:'#7a5c1a', colorLight:'#b8882a', colorDark:'#4a380f',
-    storyIds:['oasis'],
-    shape:'M 80,200 L 180,280 L 200,420 L 100,460 L 20,360 L 40,260 Z',
-    labelX:110, labelY:340,
-  },
-  {
-    id:'kingdom', icon:'🏰', name:'Le Terre di Mezzo',
-    desc:'Castelli dorati, villaggi allegri e campagne fiorite',
-    color:'#6b3a8a', colorLight:'#9b5ec4', colorDark:'#3d2050',
-    storyIds:['bell'],
-    shape:'M 200,420 L 340,260 L 460,240 L 560,360 L 520,500 L 340,540 L 200,500 Z',
-    labelX:375, labelY:410,
-  },
-  {
-    id:'sky', icon:'✨', name:'Il Cielo Infinito',
-    desc:'Stelle danzanti, nuvole abitate e magie senza confini',
-    color:'#1a3a6b', colorLight:'#2a5aab', colorDark:'#0d1f3d',
-    storyIds:[],
-    shape:'M 580,40 L 780,20 L 860,120 L 780,180 L 660,120 Z',
-    labelX:720, labelY:100,
-  },
-];
+/* ===================== REGNI DEL MONDO =====================
+   REALMS è definito in stories.js (fonte unica): serve anche al
+   controller per la navigazione regno → storia. */
 
 /* ===================== MAPPA SVG ===================== */
 function buildMap(){

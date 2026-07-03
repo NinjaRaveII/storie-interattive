@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Controller — Storie Interattive</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0a0a0f;--card:#1a1a26;--gold:#c9a84c;--gold2:#e8c96b;--text:#f0ead6;--muted:#8a8070;--accent:#4a90a4}
@@ -60,6 +59,10 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .btn-restart{background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Crimson Pro',serif;font-size:17px;padding:14px 0;border-radius:30px;cursor:pointer;width:100%;transition:all .2s}
 .btn-restart:active{background:rgba(201,168,76,.1)}
 
+/* tasto indietro (lista storie → regni) */
+#btn-back-realms{background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--muted);font-family:'Crimson Pro',serif;font-size:15px;padding:10px 0;border-radius:30px;cursor:pointer;width:100%;margin-top:4px;transition:all .2s}
+#btn-back-realms:active{border-color:var(--gold);color:var(--gold)}
+
 /* --- STATUS BAR --- */
 .status-bar{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%);
@@ -91,10 +94,11 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <p style="margin-top:10px;font-size:12px;color:var(--muted)">💡 Senza internet funziona anche aprendo le due pagine nello stesso browser.</p>
 </div>
 
-<!-- LISTA STORIE -->
+<!-- LISTA REGNI / STORIE -->
 <div id="ctrl-list">
-  <p class="section-lbl">Scegli una storia</p>
+  <p class="section-lbl" id="list-title">Scegli un regno</p>
   <div id="story-btns"></div>
+  <button id="btn-back-realms" onclick="renderRealms()" style="display:none">← Torna ai regni</button>
 </div>
 
 <!-- SCELTE -->
@@ -146,12 +150,34 @@ function send(data){
   setTimeout(()=>setStatus('In ascolto…'),1800);
 }
 
-function init(){
-  document.getElementById('story-btns').innerHTML=STORIES.map(s=>`
-    <div class="story-btn" onclick="selectStory('${s.id}')">
+/* Navigazione a due livelli, come sulla TV: prima il regno, poi la storia */
+function renderRealms(){
+  document.getElementById('list-title').textContent='Scegli un regno';
+  document.getElementById('btn-back-realms').style.display='none';
+  const active=REALMS.filter(r=>r.storyIds.length);
+  document.getElementById('story-btns').innerHTML=active.map(r=>`
+    <div class="story-btn" onclick="openRealmCtrl('${r.id}')">
+      <div class="s-icon">${r.icon}</div>
+      <div class="s-info"><h3>${r.name}</h3><p>${r.storyIds.length===1?'1 storia':r.storyIds.length+' storie'}</p></div>
+    </div>`).join('');
+}
+
+function openRealmCtrl(id){
+  const realm=REALMS.find(r=>r.id===id);
+  document.getElementById('list-title').textContent=realm.icon+' '+realm.name;
+  document.getElementById('btn-back-realms').style.display='block';
+  document.getElementById('story-btns').innerHTML=realm.storyIds.map(sid=>{
+    const s=STORIES.find(x=>x.id===sid);
+    if(!s) return '';
+    return `<div class="story-btn" onclick="selectStory('${s.id}')">
       <div class="s-icon">${s.icon}</div>
       <div class="s-info"><h3>${s.title}</h3><p>${s.tag}</p></div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+function init(){
+  renderRealms();
 }
 
 function selectStory(id){
@@ -207,6 +233,7 @@ function doRestart(){
   document.getElementById('ctrl-list').style.display='block';
   document.getElementById('how-to').style.display='block';
   document.getElementById('s-story').textContent='';
+  renderRealms();
   send({action:'restart'});
   setStatus('Pronto');
 }
