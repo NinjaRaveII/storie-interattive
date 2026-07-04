@@ -2,7 +2,7 @@
 
 > **Scopo di questo documento:** fornire a Claude Code (e a chiunque lavori al progetto) il contesto completo e *aggiornato*, allineato al codice reale, con le decisioni prese, le motivazioni e una roadmap passo-passo verso un MVP funzionante.
 >
-> *Versione 3.1 — 3 luglio 2026. Aggiunta la terza storia `firefly` (La Notte delle Lucciole, primo protagonista animale, regno La Grande Foresta sbloccato) con i 13 audio generati; raccordo con il documento di strategia commerciale.*
+> *Versione 3.2 — 4 luglio 2026. **MVP cross-device raggiunto e testato su TV reale.** Immagini complete per tutte e 3 le storie; `stories.js` come fonte unica (dati + regni); trasporto cross-device via **WebSocket puro** (la libreria `supabase-js` non gira sui browser delle smart TV); codice stanza + QR + sparizione automatica del QR; sito pubblicato su GitHub Pages; molti adattamenti di compatibilità per i browser delle smart TV (§13). La v3.1 aveva aggiunto la terza storia `firefly` con i 13 audio e il raccordo col documento di strategia.*
 >
 > 📈 **Strategia commerciale e priorità di prodotto:** vedi `storie-interattive-strategia-commercializzazione.md` (modelli di monetizzazione, roadmap verso i primi utenti, funzionalità decise e loro ordine di sviluppo). Le decisioni di prodotto prese lì sono riflesse nella roadmap di questo documento (§10).
 
@@ -31,7 +31,7 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 | Font | Google Fonts — Playfair Display (titoli) + Crimson Pro (corpo) | invariato |
 | Immagini scena | **File locali** in `images/<storia>/...`, generate con Gemini (via browser) e convertite in `.jpg` | ✅ **FATTO**: 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`) |
 | Sintesi vocale | **Audio pre-generati (file) + Web Speech API come ripiego** | ✅ **FATTO** per `oasis`, `bell` e `firefly` (39 mp3 via ElevenLabs, script `generate-audio.mjs`, vedi §6) |
-| Comunicazione cross-device | **Supabase Realtime (canale broadcast)** | ✅ **implementato** in `transport.js` (3 luglio 2026); manca solo la config del progetto Supabase (URL + publishable key) e il test reale |
+| Comunicazione cross-device | **Supabase Realtime via WebSocket puro** | ✅ **funzionante e testato su TV reale** (4 luglio 2026): progetto Supabase configurato in `transport.js`, canale stanza attivo dal telefono alla TV. Manca solo la controprova su reti diverse (telefono in 4G) |
 | Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` | ✅ ripiego automatico dentro `transport.js`, sempre attivo |
 | Pairing TV↔telefono | **Codice stanza** veicolato via **QR code** | ✅ **implementato**: la TV genera il codice (`sessionStorage`), lo mostra nel pannello QR e lo include nell'URL (`?room=`); il controller lo legge e entra nella stanza |
 | Hosting | **GitHub Pages** | ✅ **ONLINE**: `https://ninjaraveii.github.io/storie-interattive/` — deploy automatico a ogni push su `main` |
@@ -51,7 +51,9 @@ Contiene `STORIES[]` completo (steps, testi, keyword, 9 finali) **più** le ante
 
 ### `transport.js` — Comunicazione TV ↔ controller (✅ dal 3 luglio 2026)
 
-`createTransport(roomCode, onMessage, onStatus)` unifica i due trasporti: canale Supabase Realtime `storie-<codice>` (cross-device) + `BroadcastChannel` (ripiego stesso-dispositivo, sempre attivo). In testa al file la config `SUPABASE_URL` / `SUPABASE_KEY` (publishable, pubblica per design): finché è vuota, funziona solo il ripiego locale e `roomCode` resta `null`.
+`createTransport(roomCode, onMessage, onStatus)` unifica i due trasporti: canale Supabase Realtime `storie-<codice>` (cross-device) + `BroadcastChannel` (ripiego stesso-dispositivo, sempre attivo). In testa al file la config `SUPABASE_URL` / `SUPABASE_KEY` (publishable, pubblica per design): se vuota, funziona solo il ripiego locale e `roomCode` resta `null`.
+
+> ⚠️ **Niente libreria `supabase-js`.** Il client ufficiale non gira sui browser delle smart TV. `transport.js` implementa a mano il **protocollo Phoenix** (quello di Supabase Realtime) su **WebSocket nativo**, in **ES5**: `phx_join` del canale `realtime:storie-<codice>`, heartbeat ogni 25s, eventi `broadcast`, riconnessione automatica alla chiusura. Ogni messaggio porta un `_mid` per la deduplica (lo stesso `send` può arrivare sia via WebSocket sia via BroadcastChannel quando telefono e TV sono sullo stesso dispositivo).
 
 ### `tv.html` — Schermo grande (TV / laptop)
 
@@ -104,7 +106,7 @@ Contiene `STORIES[]` completo (steps, testi, keyword, 9 finali) **più** le ante
 Un servizio online fa da "centralino": il telefono pubblica un messaggio su un canale, la TV — iscritta allo stesso canale — lo riceve all'istante. **Il protocollo dei messaggi resta identico** (§4.2): cambia solo il trasporto.
 
 - Piano gratuito ampiamente sufficiente per uso familiare (centinaia di connessioni, milioni di messaggi/mese).
-- Si usa da **JavaScript vanilla** (client via CDN), coerente col "no framework".
+- Si usa da **JavaScript vanilla via WebSocket nativo** (niente libreria: non gira sulle smart TV — vedi §3, `transport.js`), coerente col "no framework".
 - La chiave usata lato browser è la **publishable key** (pubblica per progetto): **può stare nel file statico** senza rischi di sicurezza (a differenza di chiavi segrete come quella di ElevenLabs).
 
 ### 4.1 Pairing con "codice stanza"
@@ -286,9 +288,11 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 10. **✅ QR + pairing — implementato (3 luglio 2026).** Codice stanza generato dalla TV, incluso nel QR (`?room=`), letto dal controller (§4.1).
 11. **✅ Sfumatura che copriva l'immagine — risolto (3 luglio 2026).** Banda ridotta (55%→30% di altezza) e alleggerita (opacità .92→.72): illustrazione interamente visibile, sottotitoli ancora leggibili (hanno una text-shadow propria).
 12. **✅ Morale visibile troppo poco — risolto (3 luglio 2026).** Permanenza proporzionale alla lunghezza (minimo 12s) + pulsante "Continua ➜" per proseguire subito; timer ripulito in `stopSpeak()`.
+13. **✅ Cross-device — funzionante e testato su TV reale (4 luglio 2026).** Progetto Supabase configurato; il telefono inquadra il QR, entra nella stanza e pilota la TV (regno, storia, scelte). Il trasporto è passato da `supabase-js` a un client WebSocket puro perché la libreria non gira sui browser delle smart TV (§13).
+14. **✅ Compatibilità browser smart TV (4 luglio 2026).** Prima del test su TV Samsung la pagina era muta: risolti a cascata errore di sintassi (optional chaining), libreria Supabase non eseguibile, cache che mescolava versioni dei file, e immagini invisibili (CSS `clamp()` non supportato → riquadro ad altezza zero). Dettagli e regole in §13.
 
 ### Ancora aperti
-13. **🟠 Cross-device: manca config e test reale.** Il trasporto è implementato (`transport.js`), ma serve creare il progetto Supabase, incollare URL + publishable key nella config, e fare il test con telefono e PC su reti diverse (Fase 1, punti 1 e 8).
+15. **🟡 Test su reti diverse.** Il cross-device funziona con telefono e TV sulla stessa rete/casa; resta da provare col telefono su rete dati (4G) per confermare che non dipenda dalla LAN (Fase 1, punto 8).
 
 ---
 
@@ -300,11 +304,13 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - Mappa del mondo SVG con regni (3 attivi — deserto, Terre di Mezzo, Grande Foresta — + 3 bloccati).
 - Sottotitoli sincronizzati con la narrazione, **overlaid correttamente sull'immagine** (bug di posizionamento CSS risolto, §9).
 - Morale finale, progress bar, animazione stelle, status bar controller.
-- Pannello QR funzionante (URL corretto, libreria locale — ancora da collegare al pairing cross-device reale).
+- **Cross-device funzionante** (Supabase Realtime via WebSocket puro): dal telefono si sceglie regno → storia → opzioni e la TV segue in tempo reale. Testato su TV Samsung reale (4 luglio 2026).
+- Pairing con codice stanza + QR; il QR sparisce dallo schermo TV appena il controller si collega (messaggio `hello`).
 - Audio narrante pre-generato (ElevenLabs) per tutte e 3 le storie, con ripiego Web Speech automatico.
-- Immagini generate con Gemini per tutte e 3 le storie (5/5 ciascuna, 15 totali), con personaggi coerenti verificati (Sara, Tobia, Bruno).
+- Immagini generate con Gemini per tutte e 3 le storie (5/5 ciascuna, 15 totali), con personaggi coerenti verificati (Sara, Tobia, Bruno); riquadro scena ingrandito a ~46vh (4 luglio 2026).
 - Prima storia con protagonista animale (`firefly`, orsetto Bruno) e primo tag di genere "Buonanotte" (3 luglio 2026).
-- Controller: fase 2 con testi reali per ramo, `PHASE2_KEYS` eliminata.
+- Controller: navigazione a due livelli regno → storia (come sulla TV); fase 2 con testi reali per ramo, `PHASE2_KEYS` eliminata.
+- Sito pubblicato su GitHub Pages con deploy automatico a ogni push su `main`.
 - Corretto bug voce robotica dopo il tasto Home (§9) e layout immagine/contenuto su finestre desktop basse (§9), con scroll di sicurezza aggiunto.
 
 ---
@@ -317,16 +323,16 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 ### 🟦 FASE 1 — MVP funzionante cross-device
 *Obiettivo: telefono e TV su dispositivi diversi, online, per famiglia e amici.*
 
-1. [ ] **Account Supabase** → creare progetto → incollare *Project URL* e *publishable key* nella config in testa a `transport.js`.
-2. [x] **Sostituire il trasporto:** `transport.js` con canale Supabase Realtime, messaggi `start`/`pick`/`restart` invariati, BroadcastChannel come ripiego automatico stesso-dispositivo.
-3. [x] **Codice stanza + QR:** la TV genera il codice, il canale è `storie-<codice>`, il QR include `?room=`, il telefono entra nella stanza giusta.
-4. [x] **Fonte unica dei dati:** `stories.js` con tutte le storie; `tv.html`, `controller.html` e `generate-audio.mjs` derivano da lì.
+1. [x] **Account Supabase** → progetto creato → *Project URL* e *publishable key* nella config in testa a `transport.js`.
+2. [x] **Trasporto:** `transport.js` con canale Supabase Realtime **via WebSocket puro** (niente `supabase-js`: non gira sulle smart TV), messaggi invariati, BroadcastChannel come ripiego automatico stesso-dispositivo, deduplica per `_mid`.
+3. [x] **Codice stanza + QR:** la TV genera il codice, il canale è `storie-<codice>`, il QR include `?room=`, il telefono entra nella stanza giusta; il QR sparisce da solo al collegamento.
+4. [x] **Fonte unica dei dati:** `stories.js` con tutte le storie **e i regni** (`REALMS`); `tv.html`, `controller.html` e `generate-audio.mjs` derivano da lì.
 5. [x] **Voce:** pre-generati gli audio (1 intro + 3 middle + 9 end per storia) per `oasis`, `bell` e `firefly`, salvati in `audio/`; i file suonano correttamente; Web Speech come ripiego funzionante.
-6. [x] **Immagini:** 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`), personaggi coerenti verificati.
-7. [x] **Pubblicazione:** ✅ online su GitHub Pages — `https://ninjaraveii.github.io/storie-interattive/` (deploy automatico a ogni push su `main`). Verificato che serva la versione corrente (transport, stories, immagini, audio).
-8. [ ] **Test reale:** provare con un telefono e un PC *diversi*, su reti diverse.
+6. [x] **Immagini:** 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`), personaggi coerenti verificati; riquadro scena ingrandito.
+7. [x] **Pubblicazione:** ✅ online su GitHub Pages — `https://ninjaraveii.github.io/storie-interattive/` (deploy automatico a ogni push su `main`).
+8. [~] **Test reale:** ✅ funziona su TV Samsung reale col telefono (stessa casa). Resta da provare col telefono su **rete dati (4G)** per confermare l'indipendenza dalla LAN.
 
-**Definizione di "MVP riuscito":** da un telefono qualsiasi inquadro il QR sulla TV, scelgo una storia e le opzioni, e la TV mostra scena + immagine + narrazione audio fino al finale con morale.
+**Definizione di "MVP riuscito":** ✅ **raggiunta** — da un telefono inquadro il QR sulla TV, scelgo regno → storia → opzioni, e la TV mostra scena + immagine + narrazione audio fino al finale con morale.
 
 ### 🟩 FASE 2 — Robustezza e qualità
 - [ ] **Salvataggio persistente dei progressi** (`localStorage`): ultima storia, storie completate, finali scoperti. ⭐ *Promosso a "fondamenta prioritaria" dal documento di strategia (§6): medaglie, contatore finali, regni sbloccabili e mappa viva dipendono tutti da questo — da costruire per primo tra le funzionalità di prodotto.*
@@ -399,7 +405,8 @@ Questa modalità **rompe due assunti** del progetto base, in modo consapevole:
 ## 12. Note operative per Claude Code
 
 - **Strategia commerciale e priorità di prodotto:** vedi `storie-interattive-strategia-commercializzazione.md` — contiene le funzionalità decise, il loro ordine di sviluppo e la roadmap verso i primi utenti. In caso di dubbio su *cosa* costruire prima, la risposta è lì; su *come*, è qui.
-- **Non usare framework:** vanilla HTML/CSS/JS. Librerie esterne solo via CDN, con parsimonia (es. client Supabase).
+- **Non usare framework:** vanilla HTML/CSS/JS. Librerie esterne solo via CDN, con parsimonia (oggi solo `qrcodejs`). Per Supabase Realtime **niente libreria**: WebSocket puro in `transport.js` (§3), perché il client ufficiale non gira sulle smart TV.
+- **Compatibilità smart TV (vincolo di prima classe):** sintassi ≤ ES6/2017 (niente optional chaining/nullish), fallback CSS prima delle proprietà moderne (`clamp`, `inset`), cache-busting `?v=N` quando cambiano `stories.js`/`transport.js`. Vedi §13, lezioni 8–9.
 - **I due file restano separati:** la divisione tv/controller è il cuore del concept.
 - **Fonte unica dei dati (obiettivo):** dopo la Fase 1, modificare una storia significa toccare *solo* `stories.js`.
 - **Mai chiavi segrete nel codice client:** la publishable key Supabase è ammessa (è pubblica per design); chiavi di TTS o simili vanno usate **solo offline** in fase di produzione.
@@ -419,8 +426,10 @@ Questa modalità **rompe due assunti** del progetto base, in modo consapevole:
 5. **Le chiavi API restano sempre fuori dalla conversazione.** Gestite tramite file locale non tracciato (`.env.local`, in `.gitignore`), mai incollate in chat né nei file del sito — anche quando serve che l'utente le inserisca lui stesso.
 6. **Rendere i dati "branch-aware" invece di mantenere mappe di traduzione separate.** `PHASE2_KEYS` traduceva chiavi segnaposto in chiavi reali; eliminata rendendo la fase 2 del controller direttamente branch-aware (un oggetto `variants` per chiave di scelta 1). Una fonte di disallineamento in meno.
 7. **Controllare la documentazione di progetto prima di assumere lo scope "giusto".** Prima di generare 9 immagini di finale (una per combinazione), la domanda corretta era "quante ne prevede `GUIDA_STORIE.md`?" — la risposta (5, non 13) era già scritta e motivata nel documento.
-8. **I browser delle smart TV richiedono attenzioni speciali.** Tre lezioni dal primo test su TV Samsung (3 luglio 2026): (a) *sintassi*: un solo costrutto moderno (`story?.id`, optional chaining) ha ucciso l'intero script — restare su sintassi ≤ ES6/2017 nei file del sito; (b) *librerie*: `supabase-js` non gira affatto sulla TV — sostituita con un client WebSocket puro del protocollo Phoenix in `transport.js` (ES5); (c) *cache*: la TV tiene i `.js` in cache anche ricaricando la pagina, mescolando versioni vecchie e nuove dei file (`REALMS is not defined`) — da qui il cache-busting `?v=N` sugli script include e nell'URL del QR (aumentare `N` a ogni modifica di `stories.js`/`transport.js`). Strumento chiave per diagnosticare tutto questo: l'**overlay errori a schermo** in testa a `tv.html`, dato che sulla TV non esiste console.
+8. **I browser delle smart TV richiedono attenzioni speciali (lezione centrale del 4 luglio 2026).** Il primo test sulla TV Samsung reale ha rivelato una catena di problemi che il PC non mostrava mai, risolti uno dopo l'altro: (a) *sintassi*: un solo costrutto moderno (`story?.id`, optional chaining) ha ucciso l'intero script — restare su sintassi ≤ ES6/2017 nei file del sito; (b) *librerie*: `supabase-js` non gira affatto sulla TV — sostituita con un client WebSocket puro del protocollo Phoenix in `transport.js` (ES5); (c) *cache*: la TV tiene i `.js` in cache anche ricaricando la pagina, mescolando versioni vecchie e nuove dei file (`REALMS is not defined`) — da qui il cache-busting `?v=N` sugli script include e nell'URL del QR (aumentare `N` a ogni modifica di `stories.js`/`transport.js`); (d) *CSS moderno*: `clamp()` (2020) e `inset` (2021) venivano ignorati → il riquadro immagine restava ad **altezza zero** (audio ok, immagine invisibile) e le stelle sparivano — servono fallback statici *prima* della proprietà moderna (`height:34vh;height:clamp(...)`, `top/right/bottom/left` prima di `inset`). Strumento che ha reso possibile diagnosticare tutto questo **da remoto**: l'**overlay errori a schermo** (`window.onerror` in ES5, in testa a `tv.html`), dato che sulla TV non esiste console — senza, ogni errore è una schermata muta.
+9. **Testare sul dispositivo target reale il prima possibile.** Tutti i problemi del punto 8 erano invisibili nei test su browser desktop moderno (dove tutto funzionava): sono emersi solo aprendo il sito sulla TV Samsung vera. Per un progetto il cui concept *è* "gira sulla TV di casa", il browser della smart TV è l'ambiente di riferimento, non un caso limite — va messo nel giro di test presto, non alla fine.
+10. **Ogni scelta del controller che deve riflettersi sulla TV è un messaggio esplicito.** All'inizio il controller mandava solo `start`/`pick`/`restart`: aprire un regno sul telefono non cambiava nulla sulla TV. Ogni azione di navigazione condivisa (aprire un regno, tornare alla mappa) va aggiunta al protocollo (`realm`, `home`) — non basta cambiarla localmente sul telefono.
 
 ---
 
-*Documento generato il 30 giugno 2026, ultimo aggiornamento 3 luglio 2026 — versione 3.1.*
+*Documento generato il 30 giugno 2026, ultimo aggiornamento 4 luglio 2026 — versione 3.2.*
