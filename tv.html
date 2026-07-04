@@ -331,8 +331,11 @@ window.onerror = function(msg, src, line){
   <span id="ctrl-text">📱 Controller</span>
 </div>
 
-<script src="stories.js"></script>
-<script src="transport.js"></script>
+<!-- ?v=N: cache-busting per i browser delle smart TV, che tengono i .js in
+     cache anche ricaricando la pagina. Aumentare N (qui, nel controller e
+     in showQR) ogni volta che stories.js o transport.js cambiano. -->
+<script src="stories.js?v=4"></script>
+<script src="transport.js?v=4"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica dei dati, vedi CLAUDE.md §3) */
 
@@ -721,7 +724,9 @@ function showQR(){
      URL che finiscono in .html, sia con URL "puliti" senza estensione,
      sia con file://. Se c'è una stanza attiva, il QR la include (?room=): il
      telefono che lo inquadra entra automaticamente nella stanza giusta. */
-  const ctrlUrl = new URL('controller.html' + (roomCode ? '?room='+roomCode : ''), window.location.href).href;
+  /* ?v= anche nell'URL del QR: così pure il telefono riscarica il controller
+     aggiornato invece della versione in cache */
+  const ctrlUrl = new URL('controller.html?v=4' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
