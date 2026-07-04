@@ -224,7 +224,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 #qr-panel h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold2)}
 #qr-panel p{font-size:14px;color:var(--muted);line-height:1.5;max-width:280px}
 #qr-img{border-radius:10px;border:2px solid rgba(201,168,76,.3)}
-#qr-url{font-size:11px;color:var(--muted);font-family:monospace;margin-top:-8px}
+.qr-fs-hint{font-size:13px;color:var(--gold2);background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.28);border-radius:10px;padding:10px 14px;line-height:1.5;max-width:280px}
 .qr-dismiss{background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--muted);font-family:'Crimson Pro',serif;font-size:14px;padding:8px 20px;border-radius:20px;cursor:pointer;margin-top:4px}
 .qr-dismiss:hover{border-color:var(--gold);color:var(--gold)}
 .ctrl-badge{position:fixed;bottom:20px;right:20px;background:rgba(18,18,26,.92);border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;z-index:100}
@@ -373,10 +373,10 @@ window.onerror = function(msg, src, line){
 <!-- QR CODE PANEL -->
 <div id="qr-panel">
   <h3>📱 Controller</h3>
+  <div class="qr-fs-hint">📺 Col telecomando premi «⛶ Schermo intero» in alto a destra, poi continua col telefono qui sotto.</div>
   <p>Inquadra il QR con il telefono per usarlo come telecomando</p>
   <div id="qr-img" style="width:160px;height:160px"></div>
   <div id="qr-room" style="display:none;font-family:'Playfair Display',serif;font-size:20px;letter-spacing:4px;color:var(--gold2)"></div>
-  <div id="qr-url"></div>
   <button class="qr-dismiss" onclick="document.getElementById('qr-panel').style.display='none'">Ho scansionato il QR ✓</button>
 </div>
 
@@ -800,7 +800,6 @@ function showQR(){
   });
   document.getElementById('qr-room').textContent = roomCode ? 'Codice stanza: '+roomCode : '';
   document.getElementById('qr-room').style.display = roomCode ? 'block' : 'none';
-  document.getElementById('qr-url').textContent=ctrlUrl.length>50?ctrlUrl.slice(0,50)+'…':ctrlUrl;
   document.getElementById('qr-panel').style.display='flex';
 }
 
