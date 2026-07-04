@@ -91,16 +91,20 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .map-region.locked:hover{filter:none}
 
 /* STORY */
-#screen-story{display:none;width:100%;max-width:1300px;animation:fadeIn .7s ease}
+#screen-story{display:none;width:100%;max-width:1500px;animation:fadeIn .7s ease}
 .progress-bar{width:100%;height:3px;background:rgba(255,255,255,.05);border-radius:2px;margin-bottom:14px;flex-shrink:0}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .9s ease}
 
-/* immagine full-width con sottotitoli sovrapposti */
+/* immagine full-width con sottotitoli sovrapposti.
+   L'illustrazione è il centro dell'esperienza per un bambino: il riquadro
+   prende quasi metà dello schermo. Il tetto di 580px tiene la larghezza
+   visualizzata sotto i 1856px nativi delle immagini (niente sgranature);
+   la prima height è il fallback per i browser TV senza clamp(). */
 .scene-img-block{
   position:relative;width:100%;
   border-radius:20px;overflow:hidden;
   background:var(--surface);
-  height:34vh;height:clamp(180px,34vh,360px);
+  height:46vh;height:clamp(240px,46vh,580px);
   flex-shrink:0;
 }
 .scene-img-block img{width:100%;height:100%;object-fit:cover;display:block}
