@@ -817,9 +817,6 @@ function handleCtrlMessage(d){
   document.getElementById('ctrl-text').textContent='Controller attivo ✓';
   document.getElementById('ctrl-dot').style.background='#4caf50';
   document.getElementById('qr-panel').style.display='none';
-  /* il controller collegato fa sparire il QR e (se il browser lo permette)
-     mette la TV a schermo intero */
-  tryAutoFullscreen();
 }
 
 /* Inizializzazione a prova di errore: se la libreria Supabase o sessionStorage
@@ -894,22 +891,6 @@ function updateFsBtn(){
 document.addEventListener('fullscreenchange', updateFsBtn);
 document.addEventListener('webkitfullscreenchange', updateFsBtn);
 document.addEventListener('msfullscreenchange', updateFsBtn);
-
-/* Fullscreen automatico al primo collegamento del controller (insieme alla
-   sparizione del QR). ATTENZIONE: molti browser accettano requestFullscreen
-   SOLO su gesto diretto dell'utente; il messaggio del controller arriva via
-   WebSocket e NON è un gesto sulla TV, quindi il browser potrebbe ignorare la
-   richiesta — in quel caso resta il pulsante manuale. Una tantum: se poi
-   l'utente esce dal fullscreen non lo riattiviamo a ogni messaggio. */
-var fsAutoTried = false;
-function tryAutoFullscreen(){
-  if(fsAutoTried) return;
-  fsAutoTried = true;
-  if(fsElement()) return;
-  var el = document.documentElement;
-  var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-  if(req){ try{ req.call(el); }catch(e){} }
-}
 
 makeStars();
 buildMap();
