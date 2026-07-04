@@ -98,7 +98,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 <div id="ctrl-list">
   <p class="section-lbl" id="list-title">Scegli un regno</p>
   <div id="story-btns"></div>
-  <button id="btn-back-realms" onclick="renderRealms()" style="display:none">← Torna ai regni</button>
+  <button id="btn-back-realms" onclick="backToRealms()" style="display:none">← Torna ai regni</button>
 </div>
 
 <!-- SCELTE -->
@@ -126,8 +126,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <span id="s-story" style="color:var(--gold);font-size:12px"></span>
 </div>
 
-<script src="stories.js?v=4"></script>
-<script src="transport.js?v=4"></script>
+<script src="stories.js?v=5"></script>
+<script src="transport.js?v=5"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica). La vista ridotta
    (anteprima + scelte per fase) viene derivata in phaseData(). */
@@ -169,6 +169,7 @@ function renderRealms(){
 
 function openRealmCtrl(id){
   const realm=REALMS.find(r=>r.id===id);
+  send({action:'realm', id}); /* la TV apre lo stesso regno */
   document.getElementById('list-title').textContent=realm.icon+' '+realm.name;
   document.getElementById('btn-back-realms').style.display='block';
   document.getElementById('story-btns').innerHTML=realm.storyIds.map(sid=>{
@@ -179,6 +180,11 @@ function openRealmCtrl(id){
       <div class="s-info"><h3>${s.title}</h3><p>${s.tag}</p></div>
     </div>`;
   }).join('');
+}
+
+function backToRealms(){
+  renderRealms();
+  send({action:'home'}); /* la TV torna alla mappa */
 }
 
 function init(){

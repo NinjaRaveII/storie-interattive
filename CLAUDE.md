@@ -120,11 +120,14 @@ Oggetti JSON inviati sul canale della stanza.
 
 | Azione | Payload | Chi invia | Chi riceve |
 |---|---|---|---|
+| Saluto (collegamento) | `{action:'hello'}` | controller | tv (toglie il QR dallo schermo) |
+| Apertura regno | `{action:'realm', id:'forest'}` | controller | tv (mostra il regno) |
+| Torna alla mappa | `{action:'home'}` | controller | tv |
 | Avvio storia | `{action:'start', id:'oasis'}` | controller | tv |
 | Scelta opzione | `{action:'pick', key:'dune', si:0}` | controller | tv |
 | Restart | `{action:'restart'}` | controller | tv |
 
-`si` = step index (0 = intro, 1 = middle).
+`si` = step index (0 = intro, 1 = middle). Ogni messaggio porta anche un `_mid` (id univoco aggiunto da `transport.js` per la deduplica locale/online).
 
 > 💡 **Da aggiungere in fase 2:** un messaggio di **risincronizzazione** (`{action:'state', ...}`) inviato dalla TV quando un telefono si collega a storia già iniziata, così il controller mostra la fase corretta.
 

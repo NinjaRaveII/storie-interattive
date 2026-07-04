@@ -15,7 +15,7 @@
   --radius:16px;
 }
 body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;overflow:hidden}
-.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.stars{position:fixed;top:0;right:0;bottom:0;left:0;pointer-events:none;z-index:0}
 .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
 #app{position:relative;z-index:1;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 40px 24px;overflow-y:auto;overflow-x:hidden}
@@ -28,8 +28,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   align-items:center;
   height:100%;
 }
-.header-title{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,52px);font-weight:700;color:var(--gold2);text-align:center;margin-bottom:4px;letter-spacing:2px}
-.header-sub{text-align:center;color:var(--muted);font-size:clamp(13px,1.5vw,20px);font-weight:300;font-style:italic;margin-bottom:20px}
+.header-title{font-family:'Playfair Display',serif;font-size:40px;font-size:clamp(28px,3.5vw,52px);font-weight:700;color:var(--gold2);text-align:center;margin-bottom:4px;letter-spacing:2px}
+.header-sub{text-align:center;color:var(--muted);font-size:17px;font-size:clamp(13px,1.5vw,20px);font-weight:300;font-style:italic;margin-bottom:20px}
 
 /* mappa SVG wrapper */
 #world-map-wrap{
@@ -61,26 +61,26 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 }
 .realm-header{display:flex;align-items:center;gap:16px;margin-bottom:28px}
 .realm-icon-big{font-size:52px;line-height:1}
-.realm-name{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,48px);color:var(--gold2)}
-.realm-desc{font-size:clamp(13px,1.5vw,18px);color:var(--muted);font-style:italic;margin-top:4px}
+.realm-name{font-family:'Playfair Display',serif;font-size:38px;font-size:clamp(28px,3.5vw,48px);color:var(--gold2)}
+.realm-desc{font-size:16px;font-size:clamp(13px,1.5vw,18px);color:var(--muted);font-style:italic;margin-top:4px}
 .realm-stories{display:flex;flex-direction:column;gap:14px}
 
 .story-card{background:var(--card);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);padding:22px 28px;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;display:flex;align-items:center;gap:20px}
-.story-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,168,76,.06),transparent);opacity:0;transition:opacity .3s}
+.story-card::before{content:'';position:absolute;top:0;right:0;bottom:0;left:0;background:linear-gradient(135deg,rgba(201,168,76,.06),transparent);opacity:0;transition:opacity .3s}
 .story-card:hover{border-color:var(--gold);transform:translateX(6px);box-shadow:0 12px 40px rgba(201,168,76,.1)}
 .story-card:hover::before{opacity:1}
 .story-card-icon{font-size:36px;flex-shrink:0}
 .story-card-body{flex:1}
 .story-tag{display:inline-block;background:rgba(201,168,76,.12);color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-bottom:8px}
-.story-title{font-family:'Playfair Display',serif;font-size:clamp(18px,2vw,26px);font-weight:700;margin-bottom:6px;color:var(--text)}
-.story-desc{color:var(--muted);font-size:clamp(13px,1.3vw,17px);line-height:1.5;font-style:italic}
+.story-title{font-family:'Playfair Display',serif;font-size:22px;font-size:clamp(18px,2vw,26px);font-weight:700;margin-bottom:6px;color:var(--text)}
+.story-desc{color:var(--muted);font-size:15px;font-size:clamp(13px,1.3vw,17px);line-height:1.5;font-style:italic}
 .story-arrow{font-size:22px;color:var(--gold);opacity:.35;transition:all .3s;flex-shrink:0}
 .story-card:hover .story-arrow{opacity:1;transform:translateX(4px)}
 
 /* regno vuoto */
 .realm-empty{
   text-align:center;padding:48px 24px;
-  color:var(--muted);font-style:italic;font-size:clamp(15px,1.6vw,20px);
+  color:var(--muted);font-style:italic;font-size:18px;font-size:clamp(15px,1.6vw,20px);
 }
 .realm-empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
 
@@ -100,7 +100,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   position:relative;width:100%;
   border-radius:20px;overflow:hidden;
   background:var(--surface);
-  height:clamp(180px,34vh,360px);
+  height:34vh;height:clamp(180px,34vh,360px);
   flex-shrink:0;
 }
 .scene-img-block img{width:100%;height:100%;object-fit:cover;display:block}
@@ -128,7 +128,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 /* SOTTOTITOLI — frase intera con fade */
 .subtitle-text{
   font-family:'Crimson Pro',serif;
-  font-size:clamp(18px,2.2vw,30px);
+  font-size:24px;font-size:clamp(18px,2.2vw,30px);
   font-style:italic;
   font-weight:300;
   color:#fff;
@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.14);
   border-radius:10px;padding:12px 18px;text-align:left;cursor:pointer;
   color:var(--text);font-family:'Crimson Pro',serif;
-  font-size:clamp(14px,1.5vw,20px);
+  font-size:17px;font-size:clamp(14px,1.5vw,20px);
   transition:all .2s;display:flex;align-items:center;gap:12px;
 }
 .choice-btn .cnum{min-width:28px;height:28px;border-radius:50%;border:1px solid rgba(201,168,76,.28);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold);flex-shrink:0}
@@ -174,15 +174,15 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 /* MORAL CARD */
 .moral-card{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:18px 22px;margin-bottom:24px;display:none}
 .moral-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.moral-text{font-size:clamp(15px,1.6vw,20px);color:var(--text);font-style:italic;line-height:1.6}
+.moral-text{font-size:18px;font-size:clamp(15px,1.6vw,20px);color:var(--text);font-style:italic;line-height:1.6}
 .moral-continue{background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold);font-family:'Crimson Pro',serif;font-size:15px;padding:8px 22px;border-radius:24px;cursor:pointer;margin-top:14px;transition:all .2s}
 .moral-continue:hover{background:rgba(201,168,76,.1);border-color:var(--gold)}
 
 /* END */
 #screen-end{display:none;text-align:center;animation:fadeIn .8s ease;max-width:700px}
 .end-icon{font-size:72px;margin-bottom:28px}
-.end-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,52px);color:var(--gold2);margin-bottom:12px}
-.end-sub{font-size:clamp(15px,1.8vw,21px);color:var(--muted);font-style:italic;margin-bottom:36px}
+.end-title{font-family:'Playfair Display',serif;font-size:40px;font-size:clamp(28px,4vw,52px);color:var(--gold2);margin-bottom:12px}
+.end-sub{font-size:18px;font-size:clamp(15px,1.8vw,21px);color:var(--muted);font-style:italic;margin-bottom:36px}
 .btn-restart{background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Crimson Pro',serif;font-size:19px;padding:14px 44px;border-radius:40px;cursor:pointer;transition:all .3s;letter-spacing:1px}
 .btn-restart:hover{background:rgba(201,168,76,.1);transform:scale(1.03)}
 
@@ -334,8 +334,8 @@ window.onerror = function(msg, src, line){
 <!-- ?v=N: cache-busting per i browser delle smart TV, che tengono i .js in
      cache anche ricaricando la pagina. Aumentare N (qui, nel controller e
      in showQR) ogni volta che stories.js o transport.js cambiano. -->
-<script src="stories.js?v=4"></script>
-<script src="transport.js?v=4"></script>
+<script src="stories.js?v=5"></script>
+<script src="transport.js?v=5"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica dei dati, vedi CLAUDE.md §3) */
 
@@ -594,7 +594,7 @@ function loadImg(path){
 
   const img = new Image();
   img.src = path;
-  img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:opacity .5s';
+  img.style.cssText = 'position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:opacity .5s';
   img.style.opacity = '0';
   img.onload = ()=>{
     loading.style.display='none';
@@ -726,7 +726,7 @@ function showQR(){
      telefono che lo inquadra entra automaticamente nella stanza giusta. */
   /* ?v= anche nell'URL del QR: così pure il telefono riscarica il controller
      aggiornato invece della versione in cache */
-  const ctrlUrl = new URL('controller.html?v=4' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
+  const ctrlUrl = new URL('controller.html?v=5' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
@@ -750,6 +750,8 @@ function handleCtrlMessage(d){
   if(d.action==='start') startStory(d.id);
   if(d.action==='pick') pick(d.key,d.si);
   if(d.action==='restart') restart();
+  if(d.action==='realm') openRealm(d.id);
+  if(d.action==='home') goHome();
   document.getElementById('ctrl-text').textContent='Controller attivo ✓';
   document.getElementById('ctrl-dot').style.background='#4caf50';
   document.getElementById('qr-panel').style.display='none';
