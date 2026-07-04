@@ -250,6 +250,26 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 #btn-home:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
 #btn-home.visible{display:flex}
 
+/* PULSANTE SCHERMO INTERO — nasconde la barra del browser TV.
+   L'app è una pagina sola (schermate cambiate via JS, senza ricaricare),
+   quindi una volta in fullscreen ci si resta per tutta la sessione.
+   Sta in alto a destra, opposto al btn-home. Nascosto via JS se il browser
+   non supporta l'API fullscreen (alcune smart TV vecchie). */
+#btn-fullscreen{
+  position:fixed;top:20px;right:24px;z-index:150;
+  background:rgba(18,18,26,.88);
+  border:1px solid rgba(201,168,76,.25);
+  border-radius:30px;
+  padding:9px 18px;
+  color:var(--gold);
+  font-family:'Crimson Pro',serif;
+  font-size:15px;
+  cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:all .2s;
+}
+#btn-fullscreen:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
+
 @keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
@@ -276,6 +296,9 @@ window.onerror = function(msg, src, line){
 
 <!-- PULSANTE HOME SEMPRE VISIBILE durante la storia -->
 <button id="btn-home" onclick="goHome()">← Home</button>
+
+<!-- PULSANTE SCHERMO INTERO: nasconde la barra del browser TV -->
+<button id="btn-fullscreen" onclick="toggleFullscreen()">⛶ Schermo intero</button>
 
 <div id="app">
 
@@ -842,10 +865,48 @@ function goHome(){
   show('screen-list');
 }
 
+/* ===================== SCHERMO INTERO =====================
+   Nasconde la barra del browser TV. Prefissi vendor perché i browser delle
+   smart TV (Tizen/webOS) spesso espongono solo le versioni webkit/ms.
+   requestFullscreen deve partire da un gesto dell'utente (il tap sul pulsante):
+   per questo è un pulsante e non un automatismo al collegamento del controller. */
+function fsElement(){
+  return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
+}
+function toggleFullscreen(){
+  var el = document.documentElement;
+  if(!fsElement()){
+    var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if(req){ try{ req.call(el); }catch(e){} }
+  } else {
+    var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+    if(exit){ try{ exit.call(document); }catch(e){} }
+  }
+}
+function updateFsBtn(){
+  var b = document.getElementById('btn-fullscreen');
+  if(!b) return;
+  b.innerHTML = fsElement() ? '⛶ Esci da schermo intero' : '⛶ Schermo intero';
+}
+document.addEventListener('fullscreenchange', updateFsBtn);
+document.addEventListener('webkitfullscreenchange', updateFsBtn);
+document.addEventListener('msfullscreenchange', updateFsBtn);
+
 makeStars();
 buildMap();
 show('screen-list');
 showQR();
+
+/* se il browser TV non supporta affatto il fullscreen, il pulsante sparisce
+   (meglio niente che un tasto che non fa nulla) */
+(function(){
+  var el = document.documentElement;
+  var supported = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+  if(!supported){
+    var b = document.getElementById('btn-fullscreen');
+    if(b) b.style.display='none';
+  }
+})();
 </script>
 </body>
 </html>
