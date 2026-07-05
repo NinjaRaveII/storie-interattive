@@ -66,6 +66,16 @@ var Progress = (function(){
     return !!(data.endings[storyId] && data.endings[storyId][endKey]);
   }
 
+  /* Quanti finali scoperti appartengono a un ramo di prima scelta (c1):
+     conta le chiavi 'c1_*'. Serve al segno "🌟 n/tot" sulla prima scelta. */
+  function branchEndingsCount(storyId, c1){
+    var e = data.endings[storyId];
+    if(!e || !c1) return 0;
+    var prefix = c1 + '_', n = 0, k;
+    for(k in e){ if(e.hasOwnProperty(k) && k.indexOf(prefix) === 0) n++; }
+    return n;
+  }
+
   function isCompleted(storyId){ return !!data.completed[storyId]; }
 
   function getLastStory(){ return data.lastStory; }
@@ -79,6 +89,7 @@ var Progress = (function(){
     recordEnding: recordEnding,
     endingsCount: endingsCount,
     hasEnding: hasEnding,
+    branchEndingsCount: branchEndingsCount,
     isCompleted: isCompleted,
     getLastStory: getLastStory,
     setLastStory: setLastStory,
