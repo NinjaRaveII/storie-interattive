@@ -63,6 +63,11 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 #btn-back-realms{background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--muted);font-family:'Crimson Pro',serif;font-size:15px;padding:10px 0;border-radius:30px;cursor:pointer;width:100%;margin-top:4px;transition:all .2s}
 #btn-back-realms:active{border-color:var(--gold);color:var(--gold)}
 
+/* tasto per uscire da una storia avviata (es. partita per sbaglio):
+   riporta TV e controller alla mappa dei regni */
+#btn-exit-story{background:transparent;border:1px solid rgba(201,168,76,.25);color:var(--muted);font-family:'Crimson Pro',serif;font-size:15px;padding:12px 0;border-radius:30px;cursor:pointer;width:100%;margin-top:26px;transition:all .2s}
+#btn-exit-story:active{border-color:var(--gold);color:var(--gold)}
+
 /* --- STATUS BAR --- */
 .status-bar{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%);
@@ -107,6 +112,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <div class="preview" id="preview-txt">La storia sta per cominciare…</div>
   <p class="section-lbl">La vostra scelta</p>
   <div id="choice-btns"></div>
+  <button id="btn-exit-story" onclick="exitStory()">← Esci dalla storia</button>
 </div>
 
 <!-- FINE -->
@@ -127,7 +133,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 </div>
 
 <script src="stories.js?v=5"></script>
-<script src="transport.js?v=5"></script>
+<script src="transport.js?v=6"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica). La vista ridotta
    (anteprima + scelte per fase) viene derivata in phaseData(). */
@@ -138,16 +144,70 @@ let cur=null,phase=0,c1key=null;
    solo il ripiego locale (stesso browser/dispositivo). */
 const roomCode = new URLSearchParams(location.search).get('room');
 
-const transport = createTransport(roomCode, ()=>{}, (state)=>{
+const transport = createTransport(roomCode, onTvMessage, (state)=>{
   if(state==='online'){
     setStatus('Stanza '+roomCode+' collegata ✓','#4caf50');
-    /* saluto alla TV: appena collegati, il QR sparisce dallo schermo
-       senza aspettare la prima scelta */
+    /* saluto alla TV: appena collegati (o ri-collegati dopo una caduta),
+       il QR sparisce dallo schermo e la TV risponde con il suo stato
+       corrente (risincronizzazione) */
     transport.send({action:'hello'});
   }
+  else if(state==='reconnecting') setStatus('Riconnessione alla stanza…','#e6a23c');
   else if(state==='error') setStatus('Stanza non raggiungibile','#e57373');
   else setStatus(roomCode ? 'Stanza non attiva sulla TV' : 'Pronto (stesso dispositivo)');
 });
+
+/* ===== RISINCRONIZZAZIONE (CLAUDE.md §4.2) =====
+   La TV risponde al nostro 'hello' con {action:'state', ...}: se ci si
+   collega (o riconnette) a storia già iniziata, il controller salta subito
+   alla schermata giusta invece di ripartire dalla lista dei regni. */
+function onTvMessage(d){
+  if(d && d.action==='state') applyState(d);
+}
+
+function applyState(d){
+  const hideAll=()=>{
+    document.getElementById('ctrl-choices').style.display='none';
+    document.getElementById('ctrl-end').style.display='none';
+    document.getElementById('ctrl-list').style.display='none';
+    document.getElementById('how-to').style.display='none';
+  };
+  if(d.screen==='screen-story' && d.storyId){
+    cur=STORIES.find(s=>s.id===d.storyId)||null;
+    if(!cur) return;
+    hideAll();
+    document.getElementById('s-story').textContent=cur.title;
+    if(d.si>=2){
+      /* la TV sta narrando il finale: al controller resta solo il restart */
+      document.getElementById('ctrl-end').style.display='block';
+      setStatus('Finale in corso sulla TV 🌟');
+    } else {
+      phase = d.si===1 ? 1 : 0;
+      /* stessa rete di sicurezza della TV: senza c1 si ripiega sul primo ramo */
+      c1key = d.c1 || (phase===1 ? Object.keys(cur.steps[1].variants)[0] : null);
+      showPhase();
+    }
+  } else if(d.screen==='screen-realm' && d.realmId){
+    hideAll();
+    cur=null;phase=0;c1key=null;
+    document.getElementById('s-story').textContent='';
+    document.getElementById('ctrl-list').style.display='block';
+    renderRealmStories(d.realmId);
+    setStatus('In ascolto…');
+  } else if(d.screen==='screen-end'){
+    hideAll();
+    document.getElementById('ctrl-end').style.display='block';
+  } else {
+    /* screen-list (mappa) */
+    hideAll();
+    cur=null;phase=0;c1key=null;
+    document.getElementById('s-story').textContent='';
+    document.getElementById('how-to').style.display='block';
+    document.getElementById('ctrl-list').style.display='block';
+    renderRealms();
+    setStatus('In ascolto…');
+  }
+}
 
 function send(data){
   transport.send(data);
@@ -168,8 +228,15 @@ function renderRealms(){
 }
 
 function openRealmCtrl(id){
-  const realm=REALMS.find(r=>r.id===id);
   send({action:'realm', id}); /* la TV apre lo stesso regno */
+  renderRealmStories(id);
+}
+
+/* solo rendering (nessun invio): usato sia dal tap dell'utente sia dalla
+   risincronizzazione, quando è la TV a dirci in che regno siamo */
+function renderRealmStories(id){
+  const realm=REALMS.find(r=>r.id===id);
+  if(!realm) return;
   document.getElementById('list-title').textContent=realm.icon+' '+realm.name;
   document.getElementById('btn-back-realms').style.display='block';
   document.getElementById('story-btns').innerHTML=realm.storyIds.map(sid=>{
@@ -236,6 +303,21 @@ function pickChoice(key,el){
   } else {
     setTimeout(showPhase,900);
   }
+}
+
+/* Esce da una storia in corso (avviata anche per sbaglio): riporta il
+   controller alla lista dei regni e la TV alla mappa (action:'home', che
+   lato TV ferma anche la narrazione audio). */
+function exitStory(){
+  cur=null;phase=0;c1key=null;
+  document.getElementById('ctrl-choices').style.display='none';
+  document.getElementById('ctrl-end').style.display='none';
+  document.getElementById('ctrl-list').style.display='block';
+  document.getElementById('how-to').style.display='block';
+  document.getElementById('s-story').textContent='';
+  renderRealms();
+  send({action:'home'}); /* la TV torna alla mappa e interrompe la storia */
+  setStatus('Uscito dalla storia');
 }
 
 function doRestart(){

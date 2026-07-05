@@ -74,6 +74,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .story-tag{display:inline-block;background:rgba(201,168,76,.12);color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-bottom:8px}
 .story-title{font-family:'Playfair Display',serif;font-size:22px;font-size:clamp(18px,2vw,26px);font-weight:700;margin-bottom:6px;color:var(--text)}
 .story-desc{color:var(--muted);font-size:15px;font-size:clamp(13px,1.3vw,17px);line-height:1.5;font-style:italic}
+.story-progress{margin-top:10px;font-size:13px;font-size:clamp(12px,1.1vw,15px);color:var(--muted);letter-spacing:.5px}
+.story-progress.complete{color:var(--gold2)}
 .story-arrow{font-size:22px;color:var(--gold);opacity:.35;transition:all .3s;flex-shrink:0}
 .story-card:hover .story-arrow{opacity:1;transform:translateX(4px)}
 
@@ -196,6 +198,9 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 }
 .choice-btn .cnum{min-width:26px;height:26px;border-radius:50%;border:1px solid rgba(201,168,76,.45);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold2);flex-shrink:0}
 .choice-btn:hover,.choice-btn.focused{background:rgba(201,168,76,.16);border-color:var(--gold)}
+/* segno "già scoperto" (progress.js): spinto a destra, non toglie spazio al testo */
+.choice-mark{margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;gap:3px;font-size:13px;font-size:clamp(12px,1.2vw,17px);color:var(--gold);opacity:.85;text-shadow:0 1px 6px rgba(0,0,0,.9)}
+.choice-mark.full{color:var(--gold2);opacity:1}
 
 /* MORAL CARD — sotto l'immagine (mostrata solo al finale, quando non ci sono scelte) */
 .moral-card{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:18px 22px;margin:18px auto 24px;max-width:820px;display:none}
@@ -389,12 +394,16 @@ window.onerror = function(msg, src, line){
      cache anche ricaricando la pagina. Aumentare N (qui, nel controller e
      in showQR) ogni volta che stories.js o transport.js cambiano. -->
 <script src="stories.js?v=5"></script>
-<script src="transport.js?v=5"></script>
+<script src="transport.js?v=6"></script>
+<script src="progress.js?v=2"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica dei dati, vedi CLAUDE.md §3) */
 
 /* ===================== STATO ===================== */
 let story=null, stepIdx=0, choice1=null, choice2=null, moralTimer=null;
+/* schermata e regno correnti: servono alla risincronizzazione (la TV li
+   comunica al controller che si collega a storia già iniziata, §4.2) */
+let currentScreen='screen-list', currentRealm=null;
 
 /* ===================== STELLE ===================== */
 function makeStars(){
@@ -511,6 +520,7 @@ function buildMap(){
 /* ===================== APERTURA REGNO ===================== */
 function openRealm(realmId){
   const realm = REALMS.find(r=>r.id===realmId);
+  currentRealm = realmId;
   document.getElementById('realm-icon').textContent = realm.icon;
   document.getElementById('realm-name').textContent = realm.name;
   document.getElementById('realm-desc').textContent = realm.desc;
@@ -522,12 +532,21 @@ function openRealm(realmId){
     container.innerHTML = realm.storyIds.map(sid=>{
       const s = STORIES.find(x=>x.id===sid);
       if(!s) return '';
+      /* progressi salvati (progress.js): quanti finali sono già stati scoperti.
+         Quando sono tutti, la storia mostra un ✓ dorato di completamento totale. */
+      const total = totalEndings(s);
+      const found = Progress.endingsCount(s.id);
+      const allFound = total>0 && found>=total;
+      const progressLine = total>0
+        ? `<div class="story-progress${allFound?' complete':''}">${allFound?'✦ Tutti i finali scoperti':'🌟 '+found+' / '+total+' finali scoperti'}</div>`
+        : '';
       return `<div class="story-card" onclick="startStory('${s.id}')">
         <div class="story-card-icon">${s.icon}</div>
         <div class="story-card-body">
           <span class="story-tag">${s.tag}</span>
           <h3 class="story-title">${s.title}</h3>
           <p class="story-desc">${s.desc}</p>
+          ${progressLine}
         </div>
         <span class="story-arrow">→</span>
       </div>`;
@@ -537,9 +556,17 @@ function openRealm(realmId){
 }
 
 /* ===================== STORIA ===================== */
+/* numero totale di finali distinti di una storia (3×3 = 9), letto dai dati:
+   serve come denominatore del contatore "X/N finali scoperti" */
+function totalEndings(s){
+  const endStep = s.steps.filter(x=>x.type==='end')[0];
+  return endStep ? Object.keys(endStep.ends).length : 0;
+}
+
 function startStory(id){
   story=STORIES.find(s=>s.id===id);
   stepIdx=0;choice1=null;choice2=null;
+  Progress.setLastStory(id); /* ultima storia giocata (anche se non finita) */
   show('screen-story');
   renderStep();
 }
@@ -568,6 +595,9 @@ function renderStep(){
     /* END */
     const key=choice1+'_'+choice2;
     const e=step.ends[key]||step.ends[Object.keys(step.ends)[0]];
+    /* raggiunto un finale: lo registro come scoperto (fondamenta progressi,
+       CLAUDE.md §10 Fase 2) — alimenta il contatore sulle card del regno */
+    Progress.recordEnding(story.id, key);
     setLabel(step.label);
     loadImg(imgPath(story.id,'end',null));
     speak(e.text, audioPath(story.id,'end',key), ()=>{
@@ -596,14 +626,35 @@ function showChoices(choices){
   const cc=document.getElementById('choices');
   cc.innerHTML=choices.map((c,i)=>`
     <button class="choice-btn" onclick="pick('${c.key}',${stepIdx})">
-      <span class="cnum">${i+1}</span><span>${c.text}</span>
+      <span class="cnum">${i+1}</span><span class="choice-txt">${c.text}</span>${choiceMark(c.key)}
     </button>`).join('');
   /* le scelte prendono il posto dei sottotitoli nella fascia bassa */
   document.getElementById('subtitle-bar').style.display='none';
   document.getElementById('choices-wrap').style.display='block';
 }
 
+/* Segno "già scoperto" su una scelta, ricavato dai finali salvati (progress.js).
+   Le scelte restano cliccabili: il segno è solo un promemoria per il bambino.
+   - stepIdx 0 (prima scelta): porta a più finali → contatore "🌟 n/tot" del ramo
+   - stepIdx 1 (seconda scelta): choice1_key è un finale preciso → "🌟" se già visto */
+function choiceMark(key){
+  if(!story) return '';
+  if(stepIdx===0){
+    const branch = story.steps[1] && story.steps[1].variants[key];
+    const total = branch ? branch.choices.length : 0;
+    const found = Progress.branchEndingsCount(story.id, key);
+    if(found<=0) return '';
+    return `<span class="choice-mark${found>=total?' full':''}">🌟 ${found}/${total}</span>`;
+  }
+  return Progress.hasEnding(story.id, choice1+'_'+key) ? '<span class="choice-mark">🌟</span>' : '';
+}
+
 function pick(key,si){
+  /* Guardia anti-doppio-tap (§9): si = passo per cui la scelta è stata fatta.
+     Un secondo tap (o un messaggio in ritardo / fuori ordine) arriva con un si
+     ormai vecchio rispetto a stepIdx già avanzato → viene ignorato, la storia
+     non salta scene. Copre sia i tap dal telefono sia i click sulla TV. */
+  if(!story || si!==stepIdx) return;
   if(si===0) choice1=key; else choice2=key;
   document.getElementById('choices-wrap').style.display='none';
   stepIdx++;
@@ -788,7 +839,7 @@ function showQR(){
      telefono che lo inquadra entra automaticamente nella stanza giusta. */
   /* ?v= anche nell'URL del QR: così pure il telefono riscarica il controller
      aggiornato invece della versione in cache */
-  const ctrlUrl = new URL('controller.html?v=5' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
+  const ctrlUrl = new URL('controller.html?v=6' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
@@ -808,14 +859,31 @@ function showQR(){
    valido anche dopo un refresh della TV. Senza config Supabase, roomCode è null
    e resta attivo solo il ripiego locale. */
 function handleCtrlMessage(d){
+  if(d.action==='state') return; /* lo stato lo manda solo la TV: ignora eventuali echi */
   if(d.action==='start') startStory(d.id);
   if(d.action==='pick') pick(d.key,d.si);
   if(d.action==='restart') restart();
   if(d.action==='realm') openRealm(d.id);
   if(d.action==='home') goHome();
+  /* risincronizzazione (§4.2): a ogni 'hello' (telefono appena collegato o
+     riconnesso) la TV risponde con lo stato corrente, così il controller
+     salta subito alla schermata giusta anche a storia già iniziata */
+  if(d.action==='hello') sendState();
   document.getElementById('ctrl-text').textContent='Controller attivo ✓';
   document.getElementById('ctrl-dot').style.background='#4caf50';
   document.getElementById('qr-panel').style.display='none';
+}
+
+function sendState(){
+  if(!transport) return;
+  transport.send({
+    action:'state',
+    screen: currentScreen,
+    realmId: currentRealm,
+    storyId: story ? story.id : null,
+    si: stepIdx,
+    c1: choice1
+  });
 }
 
 /* Inizializzazione a prova di errore: se la libreria Supabase o sessionStorage
@@ -828,10 +896,17 @@ try{
     if(!roomCode){ roomCode = makeRoomCode(); sessionStorage.setItem('storie-room', roomCode); }
   }
   transport = createTransport(roomCode, handleCtrlMessage, function(state){
+    var t = document.getElementById('ctrl-text');
+    var dot = document.getElementById('ctrl-dot');
     if(state==='online'){
-      document.getElementById('ctrl-text').textContent='📱 Stanza '+roomCode;
+      t.textContent='📱 Stanza '+roomCode;
+      dot.style.background='#4caf50';
+    } else if(state==='reconnecting'){
+      t.textContent='📱 Riconnessione…';
+      dot.style.background='#e6a23c';
     } else if(state==='error'){
-      document.getElementById('ctrl-text').textContent='📱 Stanza non raggiungibile';
+      t.textContent='📱 Stanza non raggiungibile';
+      dot.style.background='#e57373';
     }
   });
 }catch(err){
@@ -842,6 +917,7 @@ try{
 }
 
 function show(id){
+  currentScreen = id;
   ['screen-list','screen-realm','screen-story','screen-end'].forEach(s=>{
     const el=document.getElementById(s);
     if(el) el.style.display = s===id ? 'block' : 'none';

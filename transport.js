@@ -32,12 +32,20 @@ function supabaseReady(){
    - roomCode: codice stanza (null = solo BroadcastChannel locale)
    - onMessage(data, via): chiamato per ogni messaggio ricevuto ('online'|'local')
    - onStatus(state): 'online' (canale stanza attivo) | 'local' (solo stesso
-     dispositivo) | 'error' (canale stanza non raggiungibile, riprova da solo)
+     dispositivo) | 'reconnecting' (connessione caduta dopo essere stata
+     attiva, riconnessione automatica in corso) | 'error' (canale stanza non
+     raggiungibile, riprova da solo)
    Ritorna { room, send(data) }: send pubblica su entrambi i trasporti. */
 function createTransport(roomCode, onMessage, onStatus){
   var bc = null, ws = null;
   var topic = 'realtime:storie-' + roomCode;
   var joined = false, refCounter = 1, hbTimer = null;
+  /* everJoined distingue "mai riuscito a collegarmi" (error) da "connessione
+     caduta dopo essere stata attiva" (reconnecting); hbWatchdog rileva le
+     connessioni MORTE senza evento close (es. TV che perde la rete):
+     se dopo un heartbeat non arriva nulla dal server, chiudiamo noi il
+     socket per innescare la riconnessione automatica. */
+  var everJoined = false, hbWatchdog = null;
 
   /* Deduplica: lo stesso messaggio può arrivare sia via BroadcastChannel sia
      via canale online (telefono e TV sullo stesso dispositivo E nella stanza).
@@ -83,15 +91,24 @@ function createTransport(roomCode, onMessage, onStatus){
       });
       hbTimer = setInterval(function(){
         wsSend({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(refCounter++) });
+        /* watchdog: se entro 10s dall'heartbeat non arriva NULLA dal server,
+           la connessione è morta anche se il browser non ha emesso close */
+        if(hbWatchdog) clearTimeout(hbWatchdog);
+        hbWatchdog = setTimeout(function(){
+          try{ ws.close(); }catch(err){}
+        }, 10000);
       }, 25000);
     };
 
     ws.onmessage = function(e){
+      /* qualunque messaggio dal server prova che il collegamento è vivo */
+      if(hbWatchdog){ clearTimeout(hbWatchdog); hbWatchdog = null; }
       var m;
       try{ m = JSON.parse(e.data); }catch(err){ return; }
       if(m.topic !== topic) return;
       if(m.event === 'phx_reply' && m.payload && m.payload.status === 'ok' && !joined){
         joined = true;
+        everJoined = true;
         if(onStatus) onStatus('online');
       }
       if(m.event === 'broadcast' && m.payload && m.payload.event === 'msg'){
@@ -101,8 +118,12 @@ function createTransport(roomCode, onMessage, onStatus){
 
     ws.onclose = function(){
       if(hbTimer){ clearInterval(hbTimer); hbTimer = null; }
-      if(joined && onStatus) onStatus('error');
+      if(hbWatchdog){ clearTimeout(hbWatchdog); hbWatchdog = null; }
       joined = false;
+      /* se la stanza era già stata attiva, segnala la riconnessione in corso
+         (feedback UI); se non lo è mai stata, si continua a riprovare in
+         silenzio come prima */
+      if(everJoined && onStatus) onStatus('reconnecting');
       /* riconnessione automatica con attesa fissa */
       setTimeout(connect, 3000);
     };
