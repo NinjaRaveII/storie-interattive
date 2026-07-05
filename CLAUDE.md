@@ -2,7 +2,7 @@
 
 > **Scopo di questo documento:** fornire a Claude Code (e a chiunque lavori al progetto) il contesto completo e *aggiornato*, allineato al codice reale, con le decisioni prese, le motivazioni e una roadmap passo-passo verso un MVP funzionante.
 >
-> *Versione 3.3 — 4 luglio 2026. **Schermata storia ridisegnata (immagine più grande, scelte sovrapposte) + schermo intero.** L'immagine di scena è ora a larghezza piena bloccata sul rapporto nativo 1856×576 (nitida, niente sgranatura né crop) e centrata a letterbox; le scelte sono **sovrapposte** in fondo all'immagine (risolto il bug della terza scelta tagliata su TV, §9); pulsante «Schermo intero» per nascondere la barra del browser TV (attivabile solo col telecomando: l'API fullscreen richiede un gesto utente, l'automatismo al collegamento del controller NON funziona, §13); avviso relativo e rimozione del link inutile sul pannello QR. Le basi restano invariate: MVP cross-device raggiunto e testato su TV reale. Immagini complete per tutte e 3 le storie; `stories.js` come fonte unica (dati + regni); trasporto cross-device via **WebSocket puro** (la libreria `supabase-js` non gira sui browser delle smart TV); codice stanza + QR + sparizione automatica del QR; sito pubblicato su GitHub Pages; molti adattamenti di compatibilità per i browser delle smart TV (§13). La v3.1 aveva aggiunto la terza storia `firefly` con i 13 audio e il raccordo col documento di strategia.*
+> *Versione 3.4 — 5 luglio 2026. **Progressi persistenti + robustezza cross-device. Fase 1 (MVP) completata al 100%.** Novità: (1) **salvataggio progressi** in `localStorage` via nuovo modulo `progress.js` (ultima storia, storie completate, finali scoperti) con contatore «X / 9 finali scoperti» sulle card e segni 🌟 sulle scelte già esplorate (restano cliccabili); attenzione: i progressi sono legati al browser della TV, non alla persona — vedi step evolutivo in Fase 3; (2) **tasto «Esci dalla storia»** sul controller (storia avviata per sbaglio); (3) **anti-doppio-tap**: `pick()` accetta solo la scelta del passo corrente; (4) **risincronizzazione**: la TV risponde a `hello` con `{action:'state',…}` e il controller salta alla schermata giusta anche a storia iniziata; (5) **riconnessione**: watchdog sull'heartbeat in `transport.js`, stato `reconnecting` visibile su TV e controller, ri-`hello` automatico. Chiusi anche il test su rete dati 4G (indipendenza dalla LAN confermata) e la rigenerazione della chiave ElevenLabs. Cache-busting a `?v=6` (transport + QR). La v3.3 aveva ridisegnato la schermata storia (immagine a larghezza piena in rapporto nativo 1856×576, scelte sovrapposte) e aggiunto lo schermo intero (solo via telecomando, §13); le basi restano: `stories.js` fonte unica, WebSocket puro (niente `supabase-js` sulle smart TV), stanza + QR, GitHub Pages, compatibilità smart TV (§13).*
 >
 > 📈 **Strategia commerciale e priorità di prodotto:** vedi `storie-interattive-strategia-commercializzazione.md` (modelli di monetizzazione, roadmap verso i primi utenti, funzionalità decise e loro ordine di sviluppo). Le decisioni di prodotto prese lì sono riflesse nella roadmap di questo documento (§10).
 
@@ -31,7 +31,7 @@ L'uso reale previsto è **telefono e TV su dispositivi DIVERSI** (telefono in ma
 | Font | Google Fonts — Playfair Display (titoli) + Crimson Pro (corpo) | invariato |
 | Immagini scena | **File locali** in `images/<storia>/...`, generate con Gemini (via browser) e convertite in `.jpg` | ✅ **FATTO**: 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`) |
 | Sintesi vocale | **Audio pre-generati (file) + Web Speech API come ripiego** | ✅ **FATTO** per `oasis`, `bell` e `firefly` (39 mp3 via ElevenLabs, script `generate-audio.mjs`, vedi §6) |
-| Comunicazione cross-device | **Supabase Realtime via WebSocket puro** | ✅ **funzionante e testato su TV reale** (4 luglio 2026): progetto Supabase configurato in `transport.js`, canale stanza attivo dal telefono alla TV. Manca solo la controprova su reti diverse (telefono in 4G) |
+| Comunicazione cross-device | **Supabase Realtime via WebSocket puro** | ✅ **funzionante e testato su TV reale** (4 luglio 2026) e **su rete dati 4G** (5 luglio 2026): indipendente dalla LAN. Riconnessione con watchdog e risincronizzazione automatica (§4.2) |
 | Comunicazione stesso-dispositivo | `BroadcastChannel('storie-interattive')` | ✅ ripiego automatico dentro `transport.js`, sempre attivo |
 | Pairing TV↔telefono | **Codice stanza** veicolato via **QR code** | ✅ **implementato**: la TV genera il codice (`sessionStorage`), lo mostra nel pannello QR e lo include nell'URL (`?room=`); il controller lo legge e entra nella stanza |
 | Hosting | **GitHub Pages** | ✅ **ONLINE**: `https://ninjaraveii.github.io/storie-interattive/` — deploy automatico a ogni push su `main` |
@@ -53,7 +53,11 @@ Contiene `STORIES[]` completo (steps, testi, keyword, 9 finali) **più** le ante
 
 `createTransport(roomCode, onMessage, onStatus)` unifica i due trasporti: canale Supabase Realtime `storie-<codice>` (cross-device) + `BroadcastChannel` (ripiego stesso-dispositivo, sempre attivo). In testa al file la config `SUPABASE_URL` / `SUPABASE_KEY` (publishable, pubblica per design): se vuota, funziona solo il ripiego locale e `roomCode` resta `null`.
 
-> ⚠️ **Niente libreria `supabase-js`.** Il client ufficiale non gira sui browser delle smart TV. `transport.js` implementa a mano il **protocollo Phoenix** (quello di Supabase Realtime) su **WebSocket nativo**, in **ES5**: `phx_join` del canale `realtime:storie-<codice>`, heartbeat ogni 25s, eventi `broadcast`, riconnessione automatica alla chiusura. Ogni messaggio porta un `_mid` per la deduplica (lo stesso `send` può arrivare sia via WebSocket sia via BroadcastChannel quando telefono e TV sono sullo stesso dispositivo).
+> ⚠️ **Niente libreria `supabase-js`.** Il client ufficiale non gira sui browser delle smart TV. `transport.js` implementa a mano il **protocollo Phoenix** (quello di Supabase Realtime) su **WebSocket nativo**, in **ES5**: `phx_join` del canale `realtime:storie-<codice>`, heartbeat ogni 25s, eventi `broadcast`, riconnessione automatica alla chiusura. Ogni messaggio porta un `_mid` per la deduplica (lo stesso `send` può arrivare sia via WebSocket sia via BroadcastChannel quando telefono e TV sono sullo stesso dispositivo). Dal 5 luglio 2026: **watchdog sull'heartbeat** (se entro 10s dall'heartbeat non arriva nulla dal server, il socket viene chiuso per innescare la riconnessione — copre le connessioni "morte" senza evento `close`) e stato **`reconnecting`** in `onStatus` (distinto da `error`: la stanza era attiva e sta tornando), mostrato dal badge della TV e dalla status bar del controller.
+
+### `progress.js` — Progressi persistenti (✅ dal 5 luglio 2026)
+
+Modulo `Progress` (IIFE, ES5, tutto in try/catch: se `localStorage` manca o è in sola lettura si degrada a memoria volatile). Salva sotto la chiave `storie-progress-v1`: `lastStory`, `completed` (storie completate), `endings` (finali scoperti per storia). API: `recordEnding(storyId, endKey)`, `endingsCount`, `branchEndingsCount(storyId, c1)`, `hasEnding`, `isCompleted`, `getLastStory`, `setLastStory`, `reset`. Generico per design: non conosce `STORIES`/`REALMS`. Consumatore: `tv.html` (registra il finale allo step `end`, contatore sulle card, segni 🌟 sulle scelte). ⚠️ I progressi sono legati **al browser del dispositivo TV** (vedi Fase 2/3 in §10).
 
 ### `tv.html` — Schermo grande (TV / laptop)
 
@@ -122,7 +126,8 @@ Oggetti JSON inviati sul canale della stanza.
 
 | Azione | Payload | Chi invia | Chi riceve |
 |---|---|---|---|
-| Saluto (collegamento) | `{action:'hello'}` | controller | tv (toglie il QR dallo schermo) |
+| Saluto (collegamento) | `{action:'hello'}` | controller | tv (toglie il QR e risponde con `state`) |
+| Stato corrente (risincronizzazione) | `{action:'state', screen, realmId, storyId, si, c1}` | tv | controller (ricostruisce la schermata giusta) |
 | Apertura regno | `{action:'realm', id:'forest'}` | controller | tv (mostra il regno) |
 | Torna alla mappa | `{action:'home'}` | controller | tv |
 | Avvio storia | `{action:'start', id:'oasis'}` | controller | tv |
@@ -131,7 +136,7 @@ Oggetti JSON inviati sul canale della stanza.
 
 `si` = step index (0 = intro, 1 = middle). Ogni messaggio porta anche un `_mid` (id univoco aggiunto da `transport.js` per la deduplica locale/online).
 
-> 💡 **Da aggiungere in fase 2:** un messaggio di **risincronizzazione** (`{action:'state', ...}`) inviato dalla TV quando un telefono si collega a storia già iniziata, così il controller mostra la fase corretta.
+> ✅ **Risincronizzazione (fatta, 5 luglio 2026):** a ogni `hello` (telefono appena collegato *o riconnesso dopo una caduta*) la TV risponde con `state`; il controller — che ora ascolta i messaggi in arrivo — salta direttamente alla schermata coerente (mappa / regno / fase 1 / fase 2 / finale). Anti-doppio-tap: `pick(key,si)` sulla TV accetta solo `si === stepIdx` corrente, quindi doppi tap e messaggi in ritardo/fuori ordine vengono ignorati.
 
 ---
 
@@ -293,8 +298,10 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 15. **✅ Terza scelta tagliata su TV + immagine ingrandita (4 luglio 2026).** Le scelte erano impilate *sotto* l'immagine: con testi lunghi che andavano a capo, la colonna superava i `100vh` e la terza scelta usciva dallo schermo (la TV non scrolla). Risolto spostando le scelte in **overlay sovrapposto** in fondo all'immagine (dove stanno i sottotitoli, che ora si alternano con le scelte): stando *sopra* l'immagine la loro altezza non entra più nel layout → overflow impossibile a qualsiasi risoluzione (verificato `pageScrolls:false` a 720p e 1080p). Contestualmente l'immagine è stata ingrandita a larghezza piena bloccata sul rapporto nativo 1856×576 (`height:0;padding-top:31.03%`, niente `aspect-ratio` per compatibilità TV) e centrata a letterbox: resta nitida (scala ~0,99×, mai ingrandita, nessun crop). **Vincolo scoperto:** le immagini sono panoramiche 3,22:1 alte solo 576px → un vero fullscreen 16:9 le ingrandirebbe ~1,9× (sgranatura) e ne taglierebbe ~45% ai lati; il massimo nitido è la fascia a larghezza piena in rapporto nativo (§13).
 16. **✅ Schermo intero + pulizia pannello QR (4 luglio 2026).** Aggiunto pulsante «Schermo intero» (in alto a destra) che nasconde la barra del browser TV; essendo l'app una pagina sola, una volta in fullscreen ci si resta per tutta la sessione. Sul pannello QR: avviso che invita a premere schermo intero col telecomando prima di proseguire col telefono, e rimosso il link `http/...` sotto il codice stanza (inutile). *Limite noto:* il fullscreen si attiva **solo col telecomando** (vedi §13) — l'automatismo al collegamento del controller è stato tentato e **rimosso** perché non funziona.
 
+17. **✅ Test su reti diverse (5 luglio 2026).** Verificato col telefono su rete dati (4G): il cross-device funziona anche fuori dalla LAN, non dipende dalla rete locale.
+
 ### Ancora aperti
-17. **🟡 Test su reti diverse.** Il cross-device funziona con telefono e TV sulla stessa rete/casa; resta da provare col telefono su rete dati (4G) per confermare che non dipenda dalla LAN (Fase 1, punto 8).
+*(nessun problema noto aperto al momento)*
 
 ---
 
@@ -316,13 +323,17 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - Corretto bug voce robotica dopo il tasto Home (§9) e layout immagine/contenuto su finestre desktop basse (§9), con scroll di sicurezza aggiunto.
 - **Schermata storia ridisegnata (4 luglio 2026):** immagine a larghezza piena bloccata sul rapporto nativo (nitida, centrata a letterbox), scelte **sovrapposte** in fondo all'immagine → risolto il bug della terza scelta tagliata su TV; progresso ed etichetta fase spostati in una barra sovrapposta in alto (§9 punto 15).
 - **Schermo intero (4 luglio 2026):** pulsante «Schermo intero» attivabile col telecomando per nascondere la barra del browser TV; avviso relativo sul pannello QR e rimozione del link inutile (§9 punto 16).
+- **Progressi persistenti (5 luglio 2026):** modulo `progress.js` (localStorage), contatore «X / 9 finali scoperti» sulle card e segni 🌟 sulle scelte già esplorate (restano cliccabili; sulla prima scelta il segno è un contatore di ramo «🌟 n/3»).
+- **Tasto «Esci dalla storia» sul controller (5 luglio 2026):** esce da una storia avviata (anche per sbaglio) riportando controller e TV alla mappa in sincrono.
+- **Robustezza cross-device (5 luglio 2026):** anti-doppio-tap, risincronizzazione via `state`, riconnessione con watchdog e stato visibile (§4.2 e Fase 2).
+- **Test 4G (5 luglio 2026):** confermato che il cross-device funziona col telefono su rete dati, indipendente dalla LAN. Chiave ElevenLabs rigenerata. **Fase 1 (MVP) completata al 100%.**
 
 ---
 
 ### ✅ FASE 0 — Messa in sicurezza (COMPLETATA)
 - [x] Chiave ElevenLabs rimossa da `tv.html`.
 - [x] Chiave ripulita anche dalla cronologia di GitHub.
-- [ ] *(consigliato, se non già fatto)* Rigenerare la chiave su elevenlabs.io per sicurezza, nel caso il repo sia stato pubblico prima della pulizia.
+- [x] Rigenerata la chiave su elevenlabs.io per sicurezza (5 luglio 2026).
 
 ### 🟦 FASE 1 — MVP funzionante cross-device
 *Obiettivo: telefono e TV su dispositivi diversi, online, per famiglia e amici.*
@@ -334,7 +345,7 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 5. [x] **Voce:** pre-generati gli audio (1 intro + 3 middle + 9 end per storia) per `oasis`, `bell` e `firefly`, salvati in `audio/`; i file suonano correttamente; Web Speech come ripiego funzionante.
 6. [x] **Immagini:** 5/5 per tutte e 3 le storie (`oasis`, `bell`, `firefly`), personaggi coerenti verificati; riquadro scena ingrandito.
 7. [x] **Pubblicazione:** ✅ online su GitHub Pages — `https://ninjaraveii.github.io/storie-interattive/` (deploy automatico a ogni push su `main`).
-8. [~] **Test reale:** ✅ funziona su TV Samsung reale col telefono (stessa casa). Resta da provare col telefono su **rete dati (4G)** per confermare l'indipendenza dalla LAN.
+8. [x] **Test reale:** ✅ funziona su TV Samsung reale col telefono, sia in casa (stessa rete) sia col telefono su **rete dati (4G)** — confermata l'indipendenza dalla LAN (5 luglio 2026).
 
 **Definizione di "MVP riuscito":** ✅ **raggiunta** — da un telefono inquadro il QR sulla TV, scelgo regno → storia → opzioni, e la TV mostra scena + immagine + narrazione audio fino al finale con morale.
 
@@ -342,10 +353,10 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - [x] **Salvataggio persistente dei progressi** (`localStorage`) — *fatto 5 luglio 2026.* Modulo `progress.js` (fonte unica dei progressi, generico: non conosce STORIES/REALMS, ES5 + try/catch per le smart TV). Salva `lastStory`, `completed`, `endings` (finali scoperti per storia). `tv.html` registra il finale allo step `end` e mostra il contatore **"X / N finali scoperti"** (→ "✦ Tutti i finali scoperti" quando sono tutti) sulle card del regno. ⭐ *Era la "fondamenta prioritaria" (doc strategia §6): medaglie, contatore finali, regni sbloccabili e mappa viva dipendono da questo.*
   - ⚠️ **Limite noto (per design attuale):** `localStorage` lega i progressi **al browser di quel singolo dispositivo (la TV)**, non alla persona/famiglia. Non c'è nickname né login; non dipende da IP né dal codice stanza (quello vive in `sessionStorage`). Progressi = "della TV di casa": cambiando dispositivo/browser si riparte da zero. Va bene per lo scenario attuale (una famiglia, una TV), ma vedi lo step evolutivo in Fase 3 ("progressi legati alla persona").
 - [x] **Interrompere la storia e tornare ai regni dal controller** *(richiesta e fatta 5 luglio 2026)*: aggiunto il pulsante «← Esci dalla storia» nella schermata scelte del controller; invia `{action:'home'}`, che lato TV ferma la narrazione e torna alla mappa, riportando controller e TV in cima e in sincrono.
-- [ ] Risincronizzazione: la TV invia lo stato corrente quando un telefono si collega a metà.
-- [ ] Gestione disconnessioni/riconnessioni e messaggi di stato connessione.
+- [x] Risincronizzazione *(fatta 5 luglio 2026)*: la TV risponde a `hello` con `{action:'state',…}`; il controller ricostruisce la schermata giusta anche collegandosi a storia già iniziata (§4.2).
+- [x] Gestione disconnessioni/riconnessioni *(fatta 5 luglio 2026)*: watchdog sull'heartbeat in `transport.js` (connessioni morte senza `close`), stato `reconnecting` distinto da `error`, feedback su TV (badge) e controller (status bar); alla riconnessione il controller ri-manda `hello` e si risincronizza.
 - [ ] Immagini dedicate per ciascuno dei 9 finali.
-- [ ] Piccoli controlli: evitare doppi tap, gestire ordine dei messaggi.
+- [x] Piccoli controlli *(fatti 5 luglio 2026)*: anti-doppio-tap e ordine dei messaggi — `pick(key,si)` sulla TV accetta solo `si === stepIdx` corrente (§4.2).
 - [x] UI: immagine interamente visibile (sfumatura ridotta) e morale a schermo più a lungo con tasto "Continua" (§9, punti 11–12 — fatto 3 luglio 2026).
 - [ ] **Review grafica della mappa** *(richiesta 3 luglio 2026)*: oggi è molto stilizzata (poligoni piatti); da rivedere su reference visive che fornirà Alberto.
 - [ ] **Revisione design complessiva** con il plugin `frontend-design` *(richiesta 3 luglio 2026)*: passata generale su tipografia, colori, componenti di entrambe le pagine.
@@ -442,4 +453,4 @@ Questa modalità **rompe due assunti** del progetto base, in modo consapevole:
 
 ---
 
-*Documento generato il 30 giugno 2026, ultimo aggiornamento 4 luglio 2026 — versione 3.3.*
+*Documento generato il 30 giugno 2026, ultimo aggiornamento 5 luglio 2026 — versione 3.4.*
