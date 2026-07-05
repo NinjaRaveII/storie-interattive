@@ -394,13 +394,16 @@ window.onerror = function(msg, src, line){
      cache anche ricaricando la pagina. Aumentare N (qui, nel controller e
      in showQR) ogni volta che stories.js o transport.js cambiano. -->
 <script src="stories.js?v=5"></script>
-<script src="transport.js?v=5"></script>
+<script src="transport.js?v=6"></script>
 <script src="progress.js?v=2"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica dei dati, vedi CLAUDE.md §3) */
 
 /* ===================== STATO ===================== */
 let story=null, stepIdx=0, choice1=null, choice2=null, moralTimer=null;
+/* schermata e regno correnti: servono alla risincronizzazione (la TV li
+   comunica al controller che si collega a storia già iniziata, §4.2) */
+let currentScreen='screen-list', currentRealm=null;
 
 /* ===================== STELLE ===================== */
 function makeStars(){
@@ -517,6 +520,7 @@ function buildMap(){
 /* ===================== APERTURA REGNO ===================== */
 function openRealm(realmId){
   const realm = REALMS.find(r=>r.id===realmId);
+  currentRealm = realmId;
   document.getElementById('realm-icon').textContent = realm.icon;
   document.getElementById('realm-name').textContent = realm.name;
   document.getElementById('realm-desc').textContent = realm.desc;
@@ -646,6 +650,11 @@ function choiceMark(key){
 }
 
 function pick(key,si){
+  /* Guardia anti-doppio-tap (§9): si = passo per cui la scelta è stata fatta.
+     Un secondo tap (o un messaggio in ritardo / fuori ordine) arriva con un si
+     ormai vecchio rispetto a stepIdx già avanzato → viene ignorato, la storia
+     non salta scene. Copre sia i tap dal telefono sia i click sulla TV. */
+  if(!story || si!==stepIdx) return;
   if(si===0) choice1=key; else choice2=key;
   document.getElementById('choices-wrap').style.display='none';
   stepIdx++;
@@ -830,7 +839,7 @@ function showQR(){
      telefono che lo inquadra entra automaticamente nella stanza giusta. */
   /* ?v= anche nell'URL del QR: così pure il telefono riscarica il controller
      aggiornato invece della versione in cache */
-  const ctrlUrl = new URL('controller.html?v=5' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
+  const ctrlUrl = new URL('controller.html?v=6' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
@@ -850,14 +859,31 @@ function showQR(){
    valido anche dopo un refresh della TV. Senza config Supabase, roomCode è null
    e resta attivo solo il ripiego locale. */
 function handleCtrlMessage(d){
+  if(d.action==='state') return; /* lo stato lo manda solo la TV: ignora eventuali echi */
   if(d.action==='start') startStory(d.id);
   if(d.action==='pick') pick(d.key,d.si);
   if(d.action==='restart') restart();
   if(d.action==='realm') openRealm(d.id);
   if(d.action==='home') goHome();
+  /* risincronizzazione (§4.2): a ogni 'hello' (telefono appena collegato o
+     riconnesso) la TV risponde con lo stato corrente, così il controller
+     salta subito alla schermata giusta anche a storia già iniziata */
+  if(d.action==='hello') sendState();
   document.getElementById('ctrl-text').textContent='Controller attivo ✓';
   document.getElementById('ctrl-dot').style.background='#4caf50';
   document.getElementById('qr-panel').style.display='none';
+}
+
+function sendState(){
+  if(!transport) return;
+  transport.send({
+    action:'state',
+    screen: currentScreen,
+    realmId: currentRealm,
+    storyId: story ? story.id : null,
+    si: stepIdx,
+    c1: choice1
+  });
 }
 
 /* Inizializzazione a prova di errore: se la libreria Supabase o sessionStorage
@@ -870,10 +896,17 @@ try{
     if(!roomCode){ roomCode = makeRoomCode(); sessionStorage.setItem('storie-room', roomCode); }
   }
   transport = createTransport(roomCode, handleCtrlMessage, function(state){
+    var t = document.getElementById('ctrl-text');
+    var dot = document.getElementById('ctrl-dot');
     if(state==='online'){
-      document.getElementById('ctrl-text').textContent='📱 Stanza '+roomCode;
+      t.textContent='📱 Stanza '+roomCode;
+      dot.style.background='#4caf50';
+    } else if(state==='reconnecting'){
+      t.textContent='📱 Riconnessione…';
+      dot.style.background='#e6a23c';
     } else if(state==='error'){
-      document.getElementById('ctrl-text').textContent='📱 Stanza non raggiungibile';
+      t.textContent='📱 Stanza non raggiungibile';
+      dot.style.background='#e57373';
     }
   });
 }catch(err){
@@ -884,6 +917,7 @@ try{
 }
 
 function show(id){
+  currentScreen = id;
   ['screen-list','screen-realm','screen-story','screen-end'].forEach(s=>{
     const el=document.getElementById(s);
     if(el) el.style.display = s===id ? 'block' : 'none';
