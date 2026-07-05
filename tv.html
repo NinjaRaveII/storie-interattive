@@ -74,6 +74,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .story-tag{display:inline-block;background:rgba(201,168,76,.12);color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-bottom:8px}
 .story-title{font-family:'Playfair Display',serif;font-size:22px;font-size:clamp(18px,2vw,26px);font-weight:700;margin-bottom:6px;color:var(--text)}
 .story-desc{color:var(--muted);font-size:15px;font-size:clamp(13px,1.3vw,17px);line-height:1.5;font-style:italic}
+.story-progress{margin-top:10px;font-size:13px;font-size:clamp(12px,1.1vw,15px);color:var(--muted);letter-spacing:.5px}
+.story-progress.complete{color:var(--gold2)}
 .story-arrow{font-size:22px;color:var(--gold);opacity:.35;transition:all .3s;flex-shrink:0}
 .story-card:hover .story-arrow{opacity:1;transform:translateX(4px)}
 
@@ -390,6 +392,7 @@ window.onerror = function(msg, src, line){
      in showQR) ogni volta che stories.js o transport.js cambiano. -->
 <script src="stories.js?v=5"></script>
 <script src="transport.js?v=5"></script>
+<script src="progress.js?v=1"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica dei dati, vedi CLAUDE.md §3) */
 
@@ -522,12 +525,21 @@ function openRealm(realmId){
     container.innerHTML = realm.storyIds.map(sid=>{
       const s = STORIES.find(x=>x.id===sid);
       if(!s) return '';
+      /* progressi salvati (progress.js): quanti finali sono già stati scoperti.
+         Quando sono tutti, la storia mostra un ✓ dorato di completamento totale. */
+      const total = totalEndings(s);
+      const found = Progress.endingsCount(s.id);
+      const allFound = total>0 && found>=total;
+      const progressLine = total>0
+        ? `<div class="story-progress${allFound?' complete':''}">${allFound?'✦ Tutti i finali scoperti':'🌟 '+found+' / '+total+' finali scoperti'}</div>`
+        : '';
       return `<div class="story-card" onclick="startStory('${s.id}')">
         <div class="story-card-icon">${s.icon}</div>
         <div class="story-card-body">
           <span class="story-tag">${s.tag}</span>
           <h3 class="story-title">${s.title}</h3>
           <p class="story-desc">${s.desc}</p>
+          ${progressLine}
         </div>
         <span class="story-arrow">→</span>
       </div>`;
@@ -537,9 +549,17 @@ function openRealm(realmId){
 }
 
 /* ===================== STORIA ===================== */
+/* numero totale di finali distinti di una storia (3×3 = 9), letto dai dati:
+   serve come denominatore del contatore "X/N finali scoperti" */
+function totalEndings(s){
+  const endStep = s.steps.filter(x=>x.type==='end')[0];
+  return endStep ? Object.keys(endStep.ends).length : 0;
+}
+
 function startStory(id){
   story=STORIES.find(s=>s.id===id);
   stepIdx=0;choice1=null;choice2=null;
+  Progress.setLastStory(id); /* ultima storia giocata (anche se non finita) */
   show('screen-story');
   renderStep();
 }
@@ -568,6 +588,9 @@ function renderStep(){
     /* END */
     const key=choice1+'_'+choice2;
     const e=step.ends[key]||step.ends[Object.keys(step.ends)[0]];
+    /* raggiunto un finale: lo registro come scoperto (fondamenta progressi,
+       CLAUDE.md §10 Fase 2) — alimenta il contatore sulle card del regno */
+    Progress.recordEnding(story.id, key);
     setLabel(step.label);
     loadImg(imgPath(story.id,'end',null));
     speak(e.text, audioPath(story.id,'end',key), ()=>{

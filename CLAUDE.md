@@ -339,7 +339,9 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 **Definizione di "MVP riuscito":** ✅ **raggiunta** — da un telefono inquadro il QR sulla TV, scelgo regno → storia → opzioni, e la TV mostra scena + immagine + narrazione audio fino al finale con morale.
 
 ### 🟩 FASE 2 — Robustezza e qualità
-- [ ] **Salvataggio persistente dei progressi** (`localStorage`): ultima storia, storie completate, finali scoperti. ⭐ *Promosso a "fondamenta prioritaria" dal documento di strategia (§6): medaglie, contatore finali, regni sbloccabili e mappa viva dipendono tutti da questo — da costruire per primo tra le funzionalità di prodotto.*
+- [x] **Salvataggio persistente dei progressi** (`localStorage`) — *fatto 5 luglio 2026.* Modulo `progress.js` (fonte unica dei progressi, generico: non conosce STORIES/REALMS, ES5 + try/catch per le smart TV). Salva `lastStory`, `completed`, `endings` (finali scoperti per storia). `tv.html` registra il finale allo step `end` e mostra il contatore **"X / N finali scoperti"** (→ "✦ Tutti i finali scoperti" quando sono tutti) sulle card del regno. ⭐ *Era la "fondamenta prioritaria" (doc strategia §6): medaglie, contatore finali, regni sbloccabili e mappa viva dipendono da questo.*
+  - ⚠️ **Limite noto (per design attuale):** `localStorage` lega i progressi **al browser di quel singolo dispositivo (la TV)**, non alla persona/famiglia. Non c'è nickname né login; non dipende da IP né dal codice stanza (quello vive in `sessionStorage`). Progressi = "della TV di casa": cambiando dispositivo/browser si riparte da zero. Va bene per lo scenario attuale (una famiglia, una TV), ma vedi lo step evolutivo in Fase 3 ("progressi legati alla persona").
+- [ ] **Interrompere la storia e tornare ai regni dal controller** *(richiesta 5 luglio 2026)*: oggi, avviata una storia dal telefono, il controller mostra solo le scelte — non c'è un tasto per uscire (utile se la si fa partire per sbaglio). Sulla TV il tasto Home esiste già; serve l'equivalente sul controller (che invii `home`/`realm` per riportare anche la TV indietro).
 - [ ] Risincronizzazione: la TV invia lo stato corrente quando un telefono si collega a metà.
 - [ ] Gestione disconnessioni/riconnessioni e messaggi di stato connessione.
 - [ ] Immagini dedicate per ciascuno dei 9 finali.
@@ -353,7 +355,8 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 
 - [ ] Nuove storie e sblocco dei regni `mountain` / `sea` / `sky` — obiettivo catalogo dal documento di strategia: 2 storie per regno (12 totali) + un regno "vetrina" a 3, verso il traguardo 3×6 = 18.
 - [ ] **Medaglie a due livelli** *(decisa — vedi doc strategia §5)*: argento al completamento delle 3 storie di un regno, oro alla scoperta di tutti i finali del regno. Sostituisce la vecchia idea generica di "badge di completamento". Progresso salvato in `localStorage` (Fase 2).
-- [ ] **Contatore finali scoperti** *(decisa — doc strategia §5)*: es. "3 finali su 9 scoperti" nella schermata di selezione storia.
+- [x] **Contatore finali scoperti** *(decisa — doc strategia §5)*: ✅ fatto 5 luglio 2026 — "X / N finali scoperti" sulle card del regno (`tv.html`), alimentato da `progress.js` (Fase 2).
+- [ ] ⭐ **Progressi legati alla persona/famiglia, non al dispositivo** *(step evolutivo importante — richiesta 5 luglio 2026)*: oggi `localStorage` lega i progressi al singolo browser della TV (vedi limite in Fase 2). Per farli "seguire l'utente" tra dispositivi diversi (TV di casa ↔ TV dei nonni) servirebbe un profilo leggero — es. codice/nickname salvato su **Supabase** (già usato per il realtime), da cui la TV recupera i progressi invece che da `localStorage`. Alternativa minima: export/import manuale. Scelta di prodotto da valutare quando l'uso diventa multi-dispositivo.
 - [ ] **Icone sulle scelte** *(decisa — doc strategia §5)*: grandi simboli colorati accanto/al posto del testo, per chi non legge ancora.
 - [ ] **Regni con sblocco graduale** e **mappa viva** *(decise — doc strategia §5)*.
 - [ ] Modalità "solo TV" (scelte con timer, senza telefono).
