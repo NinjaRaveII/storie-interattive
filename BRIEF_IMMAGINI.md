@@ -246,3 +246,67 @@ images/firefly/middle_stream.jpg
 images/firefly/middle_oak.jpg
 images/firefly/end.jpg
 ```
+
+---
+
+## Medaglie — ritratti su sfondo trasparente (`images/medals/`)
+
+> Per il **sistema medaglie** (vedi `SISTEMA_MEDAGLIE.md`, forma scelta = "ritaglio sul corpo"). Ogni medaglia è la figura **vera** del protagonista (o del regno) ritagliata: serve quindi un ritratto **isolato su sfondo trasparente**, da cui il codice ricava forma, spessore 2.5D e alone. Non è una scena: è il solo personaggio.
+
+### Metodo consigliato: SCONTORNARE l'immagine esistente (non generare)
+
+⭐ **Preferire lo scontorno alla generazione.** Generare un ritratto nuovo produce un personaggio leggermente *diverso* (problema di coerenza, lezione appresa #3). Meglio **ritagliare la figura da una scena già fatta** dove il protagonista è a figura intera e frontale — così è *identico* a quello delle storie. Per `bell`, `intro.jpg` è perfetta (Tobia in piedi, frontale). ✅ Fatto per Tobia (`images/medals/bell.png`) il 5 luglio 2026.
+
+**Ricetta (locale, nessun upload della tua immagine a servizi esterni):**
+1. Strumenti (una volta): `python -m pip install pillow "rembg[cpu]"` (Pillow per ritagliare, rembg = scontorno AI con modello U2Net, ~176 MB al primo uso).
+2. Script: apri la scena, ritaglia il rettangolo attorno al protagonista, passa il ritaglio a `rembg.remove()` → salva PNG con alpha. Le proporzioni del ritaglio (`l, r, t, b`) vanno tarate a occhio sulla posizione del personaggio nella scena (per `bell/intro.jpg`: ~`0.40–0.57` in orizzontale, `0.18–0.995` in verticale).
+3. Verifica il PNG risultante (bordi puliti su capelli/estremità) e salvalo in `images/medals/`.
+
+> **Quando invece serve generare** (fallback): se per un personaggio non esiste una scena con la figura intera frontale ben isolabile, allora si genera un ritratto ex-novo con il preambolo "ritratto medaglia" qui sotto, curando la coerenza col personaggio delle storie.
+
+### Regole specifiche di questi asset (diverse dalle scene)
+
+- **Un solo soggetto, isolato.** Niente ambientazione, niente altri personaggi, niente oggetti di scena non indossati.
+- **Posa frontale, intera, neutra e amichevole:** in piedi, rivolto verso chi guarda, corpo ben leggibile come sagoma (braccia leggermente staccate dal corpo, non nascoste). Espressione dolce e sorridente.
+- **Stesso identico personaggio delle scene** (riusa la scheda qui sotto — stessi colori/vestiti già usati in `images/<storia>/`). Idealmente generalo nella stessa sessione delle scene, o partendo da un frame esistente come riferimento.
+- **Sfondo piatto e uniforme, rimovibile:** genera su **fondo bianco pieno** (o un verde/magenta pieno da chroma-key) **senza ombre proiettate a terra**, così si può ritagliare a `PNG con trasparenza`. Molti generatori non producono trasparenza diretta: genera su bianco piatto e poi rimuovi lo sfondo (strumento di background-removal o ritaglio manuale).
+- **Margine generoso** attorno al personaggio (10–15% per lato): serve spazio per estrusione e alone.
+- **Formato:** PNG quadrato (es. 1024×1024) con sfondo trasparente, personaggio centrato.
+
+### Preambolo (variante "ritratto medaglia")
+
+```
+STYLE: dreamy storybook character portrait for very young children (ages 3-6),
+same rendering as the story illustrations, warm muted palette, soft painterly
+shapes, big expressive warm eyes, gentle and reassuring. FULL-BODY, single
+character only, standing front-facing in a friendly neutral pose, arms slightly
+away from the body so the silhouette is clear, smiling softly. Plain flat solid
+white background, NO scenery, NO props, NO cast shadow on the ground, subject
+fully inside frame with generous margin. Nothing scary, no weapons.
+```
+
+### Soggetti (protagonisti)
+
+```
+[STYLE-RITRATTO] [Sara]  → images/medals/oasis.png
+[STYLE-RITRATTO] [Tobia] → images/medals/bell.png
+[STYLE-RITRATTO] [Bruno] → images/medals/firefly.png
+```
+(le schede `[Sara]`, `[Tobia]`, `[Bruno]` sono quelle già definite sopra per ciascuna storia.)
+
+### Soggetti (regni) — per i livelli 4/5, da fare in un secondo momento
+
+Simbolo/landmark riconoscibile del regno, stesso stile, stesse regole (isolato, sfondo piatto, margine):
+```
+Le Terre Dimenticate  → l'arco di pietra dell'oasi nel deserto   → images/medals/realm_oasis.png
+Le Terre di Mezzo     → la torre-campanile del castello dorato    → images/medals/realm_bell.png
+La Grande Foresta     → la grande quercia con lucciole            → images/medals/realm_firefly.png
+```
+
+### Da salvare
+```
+images/medals/oasis.png          (Sara)
+images/medals/bell.png           (Tobia)
+images/medals/firefly.png        (Bruno)
+images/medals/realm_*.png        (simboli dei regni, in un secondo momento)
+```
