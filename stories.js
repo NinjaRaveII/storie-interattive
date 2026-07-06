@@ -243,6 +243,8 @@ const REALMS = [
     /* coordinate SVG del poligono della regione */
     shape:'M 120,80 L 320,60 L 380,160 L 340,260 L 180,280 L 80,200 Z',
     labelX:230, labelY:175,
+    /* posizione del marker sulla mappa dipinta (percentuali) */
+    mapX:13, mapY:62,
   },
   {
     id:'mountain', icon:'🏔️', name:'Le Cime Tempestose',
@@ -251,6 +253,7 @@ const REALMS = [
     storyIds:[],
     shape:'M 380,60 L 580,40 L 660,120 L 620,220 L 460,240 L 380,160 Z',
     labelX:520, labelY:145,
+    mapX:32, mapY:26,
   },
   {
     id:'sea', icon:'🌊', name:'L\'Oceano Profondo',
@@ -259,6 +262,7 @@ const REALMS = [
     storyIds:[],
     shape:'M 620,220 L 780,180 L 860,300 L 820,420 L 660,440 L 560,360 L 580,260 Z',
     labelX:710, labelY:320,
+    mapX:42, mapY:74,
   },
   {
     id:'desert', icon:'🌵', name:'Le Terre Dimenticate',
@@ -267,6 +271,7 @@ const REALMS = [
     storyIds:['oasis'],
     shape:'M 80,200 L 180,280 L 200,420 L 100,460 L 20,360 L 40,260 Z',
     labelX:110, labelY:340,
+    mapX:82, mapY:80,
   },
   {
     id:'kingdom', icon:'🏰', name:'Le Terre di Mezzo',
@@ -275,6 +280,7 @@ const REALMS = [
     storyIds:['bell'],
     shape:'M 200,420 L 340,260 L 460,240 L 560,360 L 520,500 L 340,540 L 200,500 Z',
     labelX:375, labelY:410,
+    mapX:65, mapY:48,
   },
   {
     id:'sky', icon:'✨', name:'Il Cielo Infinito',
@@ -283,6 +289,7 @@ const REALMS = [
     storyIds:[],
     shape:'M 580,40 L 780,20 L 860,120 L 780,180 L 660,120 Z',
     labelX:720, labelY:100,
+    mapX:80, mapY:16,
   },
 ];
 

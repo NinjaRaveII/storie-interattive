@@ -31,27 +31,47 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .header-title{font-family:'Playfair Display',serif;font-size:40px;font-size:clamp(28px,3.5vw,52px);font-weight:700;color:var(--gold2);text-align:center;margin-bottom:4px;letter-spacing:2px}
 .header-sub{text-align:center;color:var(--muted);font-size:17px;font-size:clamp(13px,1.5vw,20px);font-weight:300;font-style:italic;margin-bottom:20px}
 
-/* mappa SVG wrapper */
+/* mappa dipinta: wrapper + marker cliccabili sui regni */
 #world-map-wrap{
   width:100%;flex:1;
   display:flex;align-items:center;justify-content:center;
   position:relative;min-height:0;
 }
-#world-map{width:100%;height:100%;max-height:calc(100vh - 180px)}
+/* Lo stage si stringe attorno all'immagine (inline-block): i marker (% dello stage)
+   restano allineati. L'immagine è limitata in altezza dal viewport (calc, TV-safe:
+   niente min()/aspect-ratio) così su TV la pagina non scrolla. */
+.map-stage{position:relative;display:inline-block;line-height:0;max-width:100%}
+.world-map-img{display:block;max-width:100%;max-height:calc(100vh - 200px);width:auto;height:auto}
 
-/* tooltip sulla mappa */
-#map-tooltip{
-  position:absolute;
-  background:rgba(18,18,26,.96);
-  border:1px solid rgba(201,168,76,.35);
-  border-radius:12px;padding:12px 18px;
-  pointer-events:none;opacity:0;
-  transition:opacity .2s;z-index:50;
-  text-align:center;min-width:160px;
+.map-marker{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  width:140px;cursor:pointer;
 }
-#map-tooltip.show{opacity:1}
-#map-tooltip .tt-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold2);margin-bottom:4px}
-#map-tooltip .tt-count{font-size:13px;color:var(--muted);font-style:italic}
+.map-marker .node{
+  width:13px;height:13px;border-radius:50%;margin-bottom:7px;
+  background:radial-gradient(circle at 40% 35%,#ffe9a8,#c9a84c 70%);
+  box-shadow:0 0 10px rgba(232,201,107,.85),0 0 0 5px rgba(201,168,76,.18);
+  transition:transform .2s;
+}
+.map-marker:not(.locked) .node{animation:mnpulse 2.6s ease-in-out infinite}
+@keyframes mnpulse{
+  0%,100%{box-shadow:0 0 8px rgba(232,201,107,.7),0 0 0 5px rgba(201,168,76,.15)}
+  50%{box-shadow:0 0 15px rgba(232,201,107,.95),0 0 0 7px rgba(201,168,76,.22)}
+}
+.map-marker .lbl{
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-size:clamp(12px,1.3vw,17px);
+  color:#f4eeda;letter-spacing:.5px;line-height:1.15;
+  text-shadow:0 1px 3px #000,0 0 6px #000,0 0 11px #000;
+}
+.map-marker .cnt{font-size:11px;color:var(--gold2);margin-top:3px;text-shadow:0 1px 3px #000,0 0 6px #000}
+.map-marker:not(.locked):hover .node{transform:scale(1.4)}
+.map-marker:not(.locked):hover .lbl{color:#fff}
+.map-marker.locked{cursor:default;opacity:.5}
+.map-marker.locked .node{background:#6a6a72;box-shadow:none;animation:none}
+.map-marker.locked .lbl{color:#bab4a6}
+.map-marker.locked .cnt{color:#8a8070}
 
 /* ===== SCHERMATA REGNO (lista storie del regno) ===== */
 #screen-realm{
@@ -311,8 +331,7 @@ window.onerror = function(msg, src, line){
     <h1 class="header-title">✦ Il Mondo delle Storie ✦</h1>
     <p class="header-sub">Scegli un regno e parti per l'avventura</p>
     <div id="world-map-wrap">
-      <!-- SVG mappa generata da JS -->
-      <div id="map-tooltip"><div class="tt-name" id="tt-name"></div><div class="tt-count" id="tt-count"></div></div>
+      <!-- mappa dipinta + marker dei regni generati da buildMap() -->
     </div>
   </div>
 
@@ -393,7 +412,7 @@ window.onerror = function(msg, src, line){
 <!-- ?v=N: cache-busting per i browser delle smart TV, che tengono i .js in
      cache anche ricaricando la pagina. Aumentare N (qui, nel controller e
      in showQR) ogni volta che stories.js o transport.js cambiano. -->
-<script src="stories.js?v=5"></script>
+<script src="stories.js?v=7"></script>
 <script src="transport.js?v=6"></script>
 <script src="progress.js?v=2"></script>
 <script>
@@ -422,99 +441,39 @@ function makeStars(){
 /* ===================== MAPPA SVG ===================== */
 function buildMap(){
   const wrap = document.getElementById('world-map-wrap');
-  const tooltip = document.getElementById('map-tooltip');
+  wrap.innerHTML = '';
 
-  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('viewBox','0 0 900 560');
-  svg.setAttribute('id','world-map');
-  svg.style.cssText='width:100%;height:100%;max-height:calc(100vh - 180px);filter:drop-shadow(0 0 40px rgba(201,168,76,.08))';
+  const stage = document.createElement('div');
+  stage.className = 'map-stage';
 
-  /* sfondo oceano */
-  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  bg.setAttribute('width','900');bg.setAttribute('height','560');
-  bg.setAttribute('fill','#070d1a');bg.setAttribute('rx','20');
-  svg.appendChild(bg);
-
-  /* griglia decorativa */
-  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
-  defs.innerHTML = `
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(201,168,76,.04)" stroke-width="0.5"/>
-    </pattern>
-    <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  `;
-  svg.appendChild(defs);
-  const gridRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  gridRect.setAttribute('width','900');gridRect.setAttribute('height','560');
-  gridRect.setAttribute('fill','url(#grid)');svg.appendChild(gridRect);
+  const img = document.createElement('img');
+  img.className = 'world-map-img';
+  img.src = 'images/map/world.png';
+  img.alt = 'Mappa del mondo delle storie';
+  stage.appendChild(img);
 
   REALMS.forEach(realm => {
-    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.classList.add('map-region');
-    if(!realm.storyIds.length) g.classList.add('locked');
+    const active = realm.storyIds.length > 0;
+    const m = document.createElement('div');
+    m.className = 'map-marker' + (active ? '' : ' locked');
+    m.style.left = realm.mapX + '%';
+    m.style.top  = realm.mapY + '%';
 
-    /* forma della regione */
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d', realm.shape);
-    path.setAttribute('fill', realm.color);
-    path.setAttribute('stroke', realm.colorLight);
-    path.setAttribute('stroke-width','1.5');
-    g.appendChild(path);
+    const sub = active
+      ? `${realm.storyIds.length} stor${realm.storyIds.length>1?'ie':'ia'}`
+      : 'Presto…';
+    m.innerHTML =
+      '<div class="node"></div>' +
+      `<div class="lbl">${realm.name}</div>` +
+      `<div class="cnt">${sub}</div>`;
 
-    /* texture puntini interni */
-    for(let i=0;i<6;i++){
-      const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
-      dot.setAttribute('cx', realm.labelX + (Math.random()*80-40));
-      dot.setAttribute('cy', realm.labelY + (Math.random()*60-30));
-      dot.setAttribute('r','1.5');
-      dot.setAttribute('fill', realm.colorLight);
-      dot.setAttribute('opacity','0.3');
-      g.appendChild(dot);
+    if(active){
+      m.addEventListener('click', ()=>openRealm(realm.id));
     }
-
-    /* icona + nome */
-    const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-    fo.setAttribute('x', realm.labelX - 60);
-    fo.setAttribute('y', realm.labelY - 40);
-    fo.setAttribute('width','120');
-    fo.setAttribute('height','80');
-    fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="text-align:center;pointer-events:none">
-      <div style="font-size:26px;line-height:1.2">${realm.icon}</div>
-      <div style="font-family:'Playfair Display',serif;font-size:11px;color:${realm.colorLight};letter-spacing:1px;line-height:1.3;margin-top:2px">${realm.name}</div>
-      ${realm.storyIds.length ? `<div style="font-size:9px;color:rgba(201,168,76,.6);margin-top:2px">${realm.storyIds.length} stor${realm.storyIds.length>1?'ie':'ia'}</div>` : '<div style="font-size:9px;color:rgba(255,255,255,.25);margin-top:2px">Presto…</div>'}
-    </div>`;
-    g.appendChild(fo);
-
-    /* interazione */
-    if(realm.storyIds.length){
-      g.addEventListener('click', ()=>openRealm(realm.id));
-      g.addEventListener('mouseenter', (e)=>{
-        const r = svg.getBoundingClientRect();
-        const x = realm.labelX / 900 * r.width + r.left;
-        const y = realm.labelY / 560 * r.height + r.top;
-        document.getElementById('tt-name').textContent = realm.name;
-        document.getElementById('tt-count').textContent = `${realm.storyIds.length} ${realm.storyIds.length>1?'storie disponibili':'storia disponibile'}`;
-        tooltip.style.left = (x - tooltip.offsetWidth/2) + 'px';
-        tooltip.style.top = (y - 90) + 'px';
-        tooltip.classList.add('show');
-      });
-      g.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
-    }
-
-    svg.appendChild(g);
+    stage.appendChild(m);
   });
 
-  /* bordi decorativi della mappa */
-  const border = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  border.setAttribute('width','898');border.setAttribute('height','558');
-  border.setAttribute('x','1');border.setAttribute('y','1');
-  border.setAttribute('fill','none');
-  border.setAttribute('stroke','rgba(201,168,76,.15)');
-  border.setAttribute('stroke-width','1');
-  border.setAttribute('rx','20');
-  svg.appendChild(border);
-
-  wrap.appendChild(svg);
+  wrap.appendChild(stage);
 }
 
 /* ===================== APERTURA REGNO ===================== */
@@ -839,7 +798,7 @@ function showQR(){
      telefono che lo inquadra entra automaticamente nella stanza giusta. */
   /* ?v= anche nell'URL del QR: così pure il telefono riscarica il controller
      aggiornato invece della versione in cache */
-  const ctrlUrl = new URL('controller.html?v=6' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
+  const ctrlUrl = new URL('controller.html?v=7' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
