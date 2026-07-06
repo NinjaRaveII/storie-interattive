@@ -294,19 +294,32 @@ fully inside frame with generous margin. Nothing scary, no weapons.
 ```
 (le schede `[Sara]`, `[Tobia]`, `[Bruno]` sono quelle già definite sopra per ciascuna storia.)
 
-### Soggetti (regni) — per i livelli 4/5, da fare in un secondo momento
+### Soggetti (regni) — livelli 4/5 (✅ fatti, 6 luglio 2026)
 
-Simbolo/landmark riconoscibile del regno, stesso stile, stesse regole (isolato, sfondo piatto, margine):
+Landmark riconoscibile del regno, stesso stile, stesse regole (isolato, sfondo bianco piatto, margine). **Nota di metodo:** ritagliarli dalla mappa dipinta con `rembg` NON funziona bene (risoluzione troppo bassa ~110px; la foresta non ha un soggetto unico isolabile) → **generarli isolati con Gemini nella stessa chat della mappa** (stile mantenuto, alta risoluzione) e poi scontornare il fondo bianco con `rembg`.
 ```
-Le Terre Dimenticate  → l'arco di pietra dell'oasi nel deserto   → images/medals/realm_oasis.png
-Le Terre di Mezzo     → la torre-campanile del castello dorato    → images/medals/realm_bell.png
-La Grande Foresta     → la grande quercia con lucciole            → images/medals/realm_firefly.png
+La Grande Foresta     → grande quercia con lucciole + pini    → images/medals/realm_forest.png   ✅
+Le Terre di Mezzo     → castello dorato (senza il campanile
+                        staccato: sagoma unica)               → images/medals/realm_kingdom.png  ✅
+Le Terre Dimenticate  → oasi con palme e laghetto turchese    → images/medals/realm_desert.png   ✅
+```
+(i nomi file usano gli **id dei regni** in `stories.js`: `forest`/`kingdom`/`desert`.)
+
+### Soggetto livello 1 — «Prima storia in assoluto» (✅ fatto, 6 luglio 2026)
+
+**Il Libro delle Storie**: libro fiabesco aperto, pagine di pergamena senza testo, stella dorata che si alza dalle pagine con scia di scintille, copertina in pelle bruna con fregi dorati. Generato con Gemini (stessa chat), scontornato con `rembg`.
+```
+images/medals/first_story.png   ✅
 ```
 
-### Da salvare
+### Da salvare (stato: ✅ tutti presenti)
 ```
-images/medals/oasis.png          (Sara)
-images/medals/bell.png           (Tobia)
-images/medals/firefly.png        (Bruno)
-images/medals/realm_*.png        (simboli dei regni, in un secondo momento)
+images/medals/oasis.png          (Sara)      ✅
+images/medals/bell.png           (Tobia)     ✅
+images/medals/firefly.png        (Bruno)     ✅
+images/medals/realm_forest.png   (quercia)   ✅
+images/medals/realm_kingdom.png  (castello)  ✅
+images/medals/realm_desert.png   (oasi)      ✅
+images/medals/first_story.png    (libro)     ✅
 ```
+Livelli 6/7: nessun asset dedicato — riusano `images/map/world.png` (mappa dipinta della home).

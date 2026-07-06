@@ -89,17 +89,17 @@ Per un pubblico di 3–6 anni "oro vale più di argento" è una convenzione cult
 
 Nella galleria la gerarchia è leggibile a colpo d'occhio senza leggere: **grigia** = da conquistare · **colorata** = esplorata · **colorata e brillante** = completa.
 
-### Aspetto per livello
+### Aspetto per livello (asset: ✅ tutti pronti in `images/medals/`, 6 luglio 2026)
 
-| Livello | Soggetto raffigurato | Stato |
-|---------|---------------------|-------|
-| 2 — Storia esplorata | Sagoma del **protagonista** | esplorata (spenta) |
-| 3 — Storia completa | Sagoma del **protagonista** | completa (accesa) |
-| 4 — Regno esplorato | Sagoma/simbolo del **regno** | esplorata (spenta) |
-| 5 — Regno completo | Sagoma/simbolo del **regno** | completa (accesa) |
-| 1 — Prima storia | elemento neutro (idea: **stella** o piccolo scrigno) | accesa |
-| 6 — Tutti i regni esplorati | **mappa del mondo** intera | esplorata (spenta) |
-| 7 — Completamento assoluto | **mappa del mondo tutta illuminata** (gancio con la futura "mappa viva") | completa (accesa) |
+| Livello | Soggetto raffigurato | Stato | Asset |
+|---------|---------------------|-------|-------|
+| 2 — Storia esplorata | Il **protagonista** vero (ritaglio) | esplorata (spenta) | `oasis.png` / `bell.png` / `firefly.png` |
+| 3 — Storia completa | Il **protagonista** vero (ritaglio) | completa (accesa) | idem (cambia solo lo stato) |
+| 4 — Regno esplorato | Il **landmark** del regno | esplorata (spenta) | `realm_forest.png` (quercia con lucciole) / `realm_kingdom.png` (castello dorato) / `realm_desert.png` (oasi) |
+| 5 — Regno completo | Il **landmark** del regno | completa (accesa) | idem |
+| 1 — Prima storia | **Il Libro delle Storie** aperto con stella dorata che si alza (scelto 6 luglio 2026: rappresenta la prima storia e l'app stessa, neutro sui regni, coerente col linguaggio 🌟) | sempre accesa | `first_story.png` |
+| 6 — Tutti i regni esplorati | **mappa del mondo** intera | esplorata (spenta) | riusa `images/map/world.png` (la mappa dipinta della home) |
+| 7 — Completamento assoluto | **mappa del mondo tutta illuminata** (gancio con la futura "mappa viva") | completa (accesa) | idem + trattamento "accesa" |
 
 ---
 
@@ -107,7 +107,11 @@ Nella galleria la gerarchia è leggibile a colpo d'occhio senza leggere: **grigi
 
 Scelta la forma **ritaglio sul corpo** (§5), per ogni **personaggio** e per ogni **regno** serve un **ritratto su sfondo trasparente** (PNG con alpha), nella stessa resa grafica della storia. Da lì il 2.5D ricava forma, spessore (estrusione via `drop-shadow` sull'alpha) e bordo — nessun tracciato SVG da disegnare a mano.
 
-**Metodo (vedi ricetta in `BRIEF_IMMAGINI.md`): scontornare l'immagine esistente, non generare** — si ritaglia la figura del protagonista da una scena dove è a figura intera/frontale (es. `intro.jpg`) e si toglie lo sfondo con `rembg` (scontorno AI locale). Così il personaggio resta identico a quello delle storie. ✅ **Tobia fatto** (`images/medals/bell.png`, 5 luglio 2026); restano Sara (`oasis`) e Bruno (`firefly`), più i simboli dei regni.
+**✅ TUTTI GLI ASSET SONO PRONTI (6 luglio 2026)** in `images/medals/`. Metodo usato (ricetta in `BRIEF_IMMAGINI.md`):
+- **Protagonisti** (Sara/Tobia/Bruno): **scontornati dalle scene esistenti** con `rembg` (identici a quelli delle storie, non rigenerati).
+- **Landmark dei regni**: ritagliarli dalla mappa dipinta dava risultati troppo piccoli (~110px) o impossibili (la foresta non ha un soggetto unico isolabile) → **generati con Gemini nella stessa chat della mappa** (stile identico, alta risoluzione, fondo bianco) e poi scontornati con `rembg`.
+- **Livello 1** (Libro delle Storie): generato come i landmark.
+- **Livelli 6/7**: nessun asset nuovo — si riusa la mappa dipinta `images/map/world.png` (che ha già i bordi sfumati a trasparente).
 
 > Per i livelli 1, 6, 7 (medaglie globali) gli asset dipendono dalle decisioni in §9.
 
@@ -148,10 +152,10 @@ Scelta la forma **ritaglio sul corpo** (§5), per ogni **personaggio** e per ogn
 
 ## 9. Decisioni ancora aperte
 
-1. **Grafica dei livelli 1, 6, 7** (non legati a una storia/regno): L1 = stella o scrigno (accesa); L6 = mappa del mondo (esplorata); L7 = mappa del mondo tutta illuminata (accesa, gancio con "mappa viva").
+1. ~~**Grafica dei livelli 1, 6, 7**~~ → **decisa (6 luglio 2026)**: L1 = **Libro delle Storie** aperto con stella dorata che si alza (`first_story.png`, sempre accesa); L6 = mappa del mondo (esplorata); L7 = mappa del mondo illuminata (accesa, gancio con "mappa viva"). L6/L7 riusano `images/map/world.png`.
 2. Testo/etichetta sotto ogni medaglia nella galleria (nome del traguardo? nome della storia?).
 3. Eventuale **suono** allo sblocco (valutare; coerente con l'audio già presente).
-4. Colore base delle medaglie "esplorate": colore dominante del personaggio o palette più ricca? (nel mockup Tobia usa pelle+capelli+mantello — da decidere quanto dettaglio mettere).
+4. ~~Colore base delle medaglie "esplorate"~~ → **decisa nei fatti**: illustrazione a colori pieni (il personaggio/landmark vero, non monocromo).
 
 ---
 
