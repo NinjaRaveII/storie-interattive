@@ -296,6 +296,60 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 #btn-fullscreen:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===================== MEDAGLIE (galleria + festa) ===================== */
+/* Bottone galleria: in alto a sinistra, visibile solo sulla mappa (screen-list),
+   dove il btn-home è invece nascosto → nessuna sovrapposizione. */
+#btn-medals{
+  position:fixed;top:20px;left:24px;z-index:150;
+  background:rgba(18,18,26,.88);border:1px solid rgba(201,168,76,.25);
+  border-radius:30px;padding:9px 18px;color:var(--gold);
+  font-family:'Crimson Pro',serif;font-size:15px;cursor:pointer;
+  display:none;align-items:center;gap:8px;transition:all .2s;
+}
+#btn-medals:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
+#btn-medals.visible{display:flex}
+
+/* compatta: deve stare tutta a schermo anche a 720p (la TV non scrolla) */
+#screen-medals{display:none;width:100%;max-width:1120px;margin:0 auto;animation:fadeIn .6s ease;text-align:center}
+.medals-title{font-family:'Playfair Display',serif;font-size:24px;font-size:clamp(19px,2.3vw,32px);color:var(--gold2);margin:2px 0 1px}
+.medals-sub{color:var(--muted);font-style:italic;font-size:13px;font-size:clamp(11px,1.2vw,15px);margin-bottom:2px}
+.medals-group-lbl{font-family:'Crimson Pro',serif;color:var(--gold);font-size:13px;font-size:clamp(11px,1.2vw,15px);letter-spacing:1px;margin:8px 0 0;text-transform:uppercase;opacity:.8}
+.medals-row{display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
+.medal-item{width:116px;text-align:center}
+.medal-frame{position:relative;height:80px;height:clamp(62px,9vh,96px);display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
+.medal-item .m-img{max-height:76px;max-height:clamp(58px,8.6vh,92px);max-width:108px;width:auto;height:auto;display:block}
+.medal-item .m-name{font-family:'Playfair Display',serif;font-size:12px;color:var(--gold2);line-height:1.1}
+.medal-item .m-state{font-size:9px;color:var(--muted)}
+
+.medal-item:not(.locked) .m-float{animation:m-bob 4.4s ease-in-out infinite}
+@keyframes m-bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-5px) rotate(1deg)}}
+
+/* stato ESPLORATA (spenta): colori pieni, spessore + bordo dorato tenue */
+.medal-item.explored .m-img{filter:drop-shadow(.8px 1.1px 0 #4a3620) drop-shadow(.8px 1.1px 0 #43301c) drop-shadow(.8px 1.1px 0 #382816) drop-shadow(.8px 1.1px 0 #2c1f11) drop-shadow(0 0 1px #caa242) drop-shadow(0 4px 7px rgba(0,0,0,.5))}
+/* stato COMPLETA (accesa): alone dorato pulsante */
+.medal-item.complete .m-img{animation:m-glow 2.6s ease-in-out infinite}
+@keyframes m-glow{
+  0%,100%{filter:drop-shadow(.8px 1.1px 0 #5a4326) drop-shadow(.8px 1.1px 0 #40301b) drop-shadow(.8px 1.1px 0 #322512) drop-shadow(0 0 1px #ffe6a0) drop-shadow(0 0 6px rgba(255,224,130,.6)) drop-shadow(0 0 14px rgba(255,200,80,.4))}
+  50%{filter:drop-shadow(.8px 1.1px 0 #5a4326) drop-shadow(.8px 1.1px 0 #40301b) drop-shadow(.8px 1.1px 0 #322512) drop-shadow(0 0 2px #fff2c8) drop-shadow(0 0 12px rgba(255,232,150,.95)) drop-shadow(0 0 26px rgba(255,205,90,.6))}
+}
+.medal-item.complete .m-name{color:#ffe6a0}
+/* stato DA CONQUISTARE: silhouette grigia + lucchetto */
+.medal-item.locked .m-img{filter:grayscale(1) brightness(.3) drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+.medal-item.locked .m-name{color:#8a8070}
+.medal-item.locked .m-lock{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:26px;filter:drop-shadow(0 2px 4px #000);z-index:3}
+
+.m-spark{position:absolute;font-size:15px;color:#fff3c4;text-shadow:0 0 8px #ffd873,0 0 16px #ffb43c;opacity:0;z-index:4}
+.medal-item.complete .m-spark{animation:m-tw 2.4s ease-in-out infinite}
+.m-spark.a{top:0;left:20px}.m-spark.b{top:18px;right:12px;font-size:12px;animation-delay:.6s}.m-spark.c{bottom:16px;right:16px;font-size:17px;animation-delay:1.2s}
+@keyframes m-tw{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1)}}
+
+/* festa a fine storia: medaglie appena sbloccate dentro screen-end */
+.end-newmsg{font-family:'Playfair Display',serif;color:var(--gold2);font-size:18px;font-size:clamp(15px,1.8vw,22px);margin:6px 0 2px}
+#end-medals{display:flex;flex-wrap:wrap;justify-content:center;gap:28px;margin:12px 0 20px}
+#end-medals .medal-item{width:150px}
+#end-medals .medal-frame{height:150px;height:clamp(120px,20vh,170px)}
+#end-medals .m-img{max-height:150px;max-height:clamp(116px,19vh,166px);max-width:150px}
 </style>
 </head>
 <body>
@@ -324,6 +378,9 @@ window.onerror = function(msg, src, line){
 
 <!-- PULSANTE SCHERMO INTERO: nasconde la barra del browser TV -->
 <button id="btn-fullscreen" onclick="toggleFullscreen()">⛶ Schermo intero</button>
+
+<!-- PULSANTE GALLERIA MEDAGLIE: solo sulla mappa (screen-list) -->
+<button id="btn-medals" onclick="openMedals()">🏅 Medaglie</button>
 
 <div id="app">
 
@@ -390,7 +447,17 @@ window.onerror = function(msg, src, line){
     <div class="end-icon">🌟</div>
     <h2 class="end-title">Fine della storia!</h2>
     <p class="end-sub">Che bella avventura insieme</p>
+    <!-- festa: medaglie appena sbloccate (solo al primo sblocco) -->
+    <div id="end-newmsg" class="end-newmsg" style="display:none">✨ Hai conquistato una nuova medaglia!</div>
+    <div id="end-medals" style="display:none"></div>
     <button class="btn-restart" onclick="restart()">↩ Torna alle storie</button>
+  </div>
+
+  <!-- GALLERIA MEDAGLIE (aperta dal bottone TV o da {action:'medals'} del telefono) -->
+  <div id="screen-medals">
+    <h1 class="medals-title">🏅 Le mie medaglie</h1>
+    <p class="medals-sub">Scopri le storie e i regni per accenderle tutte</p>
+    <div id="medals-body"></div>
   </div>
 </div>
 
@@ -415,6 +482,12 @@ window.onerror = function(msg, src, line){
 <script src="stories.js?v=7"></script>
 <script src="transport.js?v=6"></script>
 <script src="progress.js?v=2"></script>
+<!-- canvas-confetti (CDN, uso parsimonioso): festa di sblocco medaglie.
+     ASYNC obbligatorio: se fosse bloccante e il CDN fosse lento/irraggiungibile
+     (tipico sulle smart TV, §13) bloccherebbe il parser e l'intera app non
+     partirebbe. Con async non blocca mai; l'uso è protetto da typeof confetti,
+     quindi se non è ancora caricato la medaglia appare solo senza coriandoli. -->
+<script async src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
 /* Dati storie: caricati da stories.js (fonte unica dei dati, vedi CLAUDE.md §3) */
 
@@ -555,8 +628,12 @@ function renderStep(){
     const key=choice1+'_'+choice2;
     const e=step.ends[key]||step.ends[Object.keys(step.ends)[0]];
     /* raggiunto un finale: lo registro come scoperto (fondamenta progressi,
-       CLAUDE.md §10 Fase 2) — alimenta il contatore sulle card del regno */
+       CLAUDE.md §10 Fase 2) — alimenta il contatore sulle card del regno.
+       Prima fotografo gli stati delle medaglie, poi registro: la differenza
+       dice quali medaglie sono state sbloccate ORA (festa solo al 1° sblocco). */
+    const beforeMedals = medalStatesSnapshot();
     Progress.recordEnding(story.id, key);
+    justUnlocked = newlyUnlocked(beforeMedals);
     setLabel(step.label);
     loadImg(imgPath(story.id,'end',null));
     speak(e.text, audioPath(story.id,'end',key), ()=>{
@@ -622,6 +699,7 @@ function pick(key,si){
 
 function showEnd(){
   stopSpeak();
+  renderEndMedals();
   show('screen-end');
 }
 
@@ -634,6 +712,153 @@ function restart(){
   const realm = REALMS.find(r=>r.storyIds.includes(lastId||''));
   if(realm) openRealm(realm.id);
   else show('screen-list');
+}
+
+/* ===================== MEDAGLIE =====================
+   Le medaglie NON salvano nulla di nuovo: gli stati si DERIVANO da progress.js.
+   Definizione dinamica da STORIES/REALMS (un regno/una storia in più → medaglie
+   in più, da sole). Tre stati: 'locked' (da conquistare) / 'explored' (spenta) /
+   'complete' (accesa). Piramide a 7 livelli (SISTEMA_MEDAGLIE.md). */
+function anyEndingSeen(){
+  for(var i=0;i<STORIES.length;i++){ if(Progress.endingsCount(STORIES[i].id)>0) return true; }
+  return false;
+}
+function storyState(s){
+  const total=totalEndings(s), found=Progress.endingsCount(s.id);
+  if(total>0 && found>=total) return 'complete';
+  if(found>0) return 'explored';
+  return 'locked';
+}
+function realmState(r){
+  if(!r.storyIds.length) return 'locked';
+  let allC=true, allE=true;
+  r.storyIds.forEach(sid=>{
+    const s=STORIES.find(x=>x.id===sid);
+    const st = s ? storyState(s) : 'locked';
+    if(st!=='complete') allC=false;
+    if(st==='locked') allE=false;
+  });
+  return allC?'complete':(allE?'explored':'locked');
+}
+/* "tutti i regni" = tutti i regni ATTIVI (con storie): raggiungibile ora, si
+   adegua da solo quando si sbloccano nuovi regni. */
+function allRealmsState(){
+  const active=REALMS.filter(r=>r.storyIds.length);
+  if(!active.length) return 'locked';
+  let allC=true, allE=true;
+  active.forEach(r=>{
+    const st=realmState(r);
+    if(st!=='complete') allC=false;
+    if(st==='locked') allE=false;
+  });
+  return allC?'complete':(allE?'explored':'locked');
+}
+
+/* Elenco medaglie (con funzione state() che legge progress.js al volo). */
+function medalDefs(){
+  const defs=[];
+  defs.push({id:'first', name:'La prima storia', img:'images/medals/first_story.png',
+             state:()=> anyEndingSeen()?'complete':'locked'});
+  STORIES.forEach(s=>{
+    defs.push({id:'story:'+s.id, name:s.title, img:'images/medals/'+s.id+'.png',
+               state:()=> storyState(s)});
+  });
+  REALMS.forEach(r=>{
+    if(!r.storyIds.length) return;
+    defs.push({id:'realm:'+r.id, name:r.name, img:'images/medals/realm_'+r.id+'.png',
+               state:()=> realmState(r)});
+  });
+  defs.push({id:'all', name:'Tutti i regni', img:'images/map/world.png',
+             state:()=> allRealmsState()});
+  return defs;
+}
+
+function medalItemHtml(def){
+  const st=def.state();
+  const stLabel = st==='complete' ? 'Completa ✨' : (st==='explored' ? 'Esplorata' : 'Da conquistare');
+  const lock = st==='locked' ? '<div class="m-lock">🔒</div>' : '';
+  const sparks = st==='complete' ? '<span class="m-spark a">✦</span><span class="m-spark b">✧</span><span class="m-spark c">✦</span>' : '';
+  return `<div class="medal-item ${st}">
+    <div class="medal-frame">${sparks}${lock}<div class="m-float"><img class="m-img" src="${def.img}" alt="${def.name}"></div></div>
+    <div class="m-name">${def.name}</div>
+    <div class="m-state">${stLabel}</div>
+  </div>`;
+}
+
+function buildGallery(){
+  const defs=medalDefs();
+  const groups=[
+    {lbl:'La prima storia', ids:['first']},
+    {lbl:'Le storie', pref:'story:'},
+    {lbl:'I regni', pref:'realm:'},
+    {lbl:'Tutti i regni', ids:['all']}
+  ];
+  let html='';
+  groups.forEach(g=>{
+    const items=defs.filter(d=> g.ids ? g.ids.indexOf(d.id)>=0 : d.id.indexOf(g.pref)===0);
+    if(!items.length) return;
+    html+=`<div class="medals-group-lbl">${g.lbl}</div><div class="medals-row">${items.map(medalItemHtml).join('')}</div>`;
+  });
+  document.getElementById('medals-body').innerHTML=html;
+}
+
+function openMedals(){
+  buildGallery();
+  show('screen-medals');
+}
+
+/* --- Festa a fine storia: solo le medaglie appena sbloccate (primo sblocco) --- */
+const STATE_RANK={locked:0, explored:1, complete:2};
+let justUnlocked=[];
+
+function medalStatesSnapshot(){
+  const m={}; medalDefs().forEach(d=>{ m[d.id]=d.state(); }); return m;
+}
+/* confronta lo stato di ogni medaglia prima/dopo: sbloccata = salita di livello */
+function newlyUnlocked(before){
+  const res=[];
+  medalDefs().forEach(d=>{
+    const now=d.state(), was=before[d.id]||'locked';
+    if(STATE_RANK[now]>STATE_RANK[was]) res.push({def:d, state:now});
+  });
+  return res;
+}
+
+function renderEndMedals(){
+  const wrap=document.getElementById('end-medals');
+  const msg=document.getElementById('end-newmsg');
+  if(!justUnlocked || !justUnlocked.length){
+    wrap.style.display='none'; wrap.innerHTML=''; msg.style.display='none';
+    return;
+  }
+  msg.textContent = justUnlocked.length>1 ? '✨ Hai conquistato nuove medaglie!' : '✨ Hai conquistato una nuova medaglia!';
+  msg.style.display='block';
+  wrap.style.display='flex';
+  /* medaglie affiancate orizzontalmente (SISTEMA_MEDAGLIE.md §7) */
+  wrap.innerHTML=justUnlocked.map(u=> medalItemHtml(u.def)).join('');
+  const anyComplete=justUnlocked.some(u=> u.state==='complete');
+  setTimeout(()=>{ partyConfetti(); if(anyComplete) partyFireworks(); }, 300);
+}
+
+function partyConfetti(){
+  if(typeof confetti!=='function') return;
+  try{
+    confetti({particleCount:120, spread:75, origin:{y:0.7}, colors:['#e8c96b','#c9a84c','#f0ead6','#4a90a4']});
+    setTimeout(()=>{ try{ confetti({particleCount:70, angle:60, spread:60, origin:{x:0,y:0.7}}); }catch(e){} }, 180);
+    setTimeout(()=>{ try{ confetti({particleCount:70, angle:120, spread:60, origin:{x:1,y:0.7}}); }catch(e){} }, 320);
+  }catch(e){}
+}
+function partyFireworks(){
+  if(typeof confetti!=='function') return;
+  const end=Date.now()+1400;
+  (function frame(){
+    try{
+      confetti({particleCount:6, startVelocity:36, spread:360, ticks:60,
+        origin:{x:Math.random(), y:Math.random()*0.5+0.1},
+        colors:['#ffe6a0','#ffd873','#ffb43c','#fff2c8']});
+    }catch(e){}
+    if(Date.now()<end) requestAnimationFrame(frame);
+  })();
 }
 
 /* ===================== IMMAGINI LOCALI =====================
@@ -798,7 +1023,7 @@ function showQR(){
      telefono che lo inquadra entra automaticamente nella stanza giusta. */
   /* ?v= anche nell'URL del QR: così pure il telefono riscarica il controller
      aggiornato invece della versione in cache */
-  const ctrlUrl = new URL('controller.html?v=7' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
+  const ctrlUrl = new URL('controller.html?v=8' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
@@ -824,6 +1049,7 @@ function handleCtrlMessage(d){
   if(d.action==='restart') restart();
   if(d.action==='realm') openRealm(d.id);
   if(d.action==='home') goHome();
+  if(d.action==='medals') openMedals();
   /* risincronizzazione (§4.2): a ogni 'hello' (telefono appena collegato o
      riconnesso) la TV risponde con lo stato corrente, così il controller
      salta subito alla schermata giusta anche a storia già iniziata */
@@ -877,16 +1103,22 @@ try{
 
 function show(id){
   currentScreen = id;
-  ['screen-list','screen-realm','screen-story','screen-end'].forEach(s=>{
+  ['screen-list','screen-realm','screen-story','screen-end','screen-medals'].forEach(s=>{
     const el=document.getElementById(s);
     if(el) el.style.display = s===id ? 'block' : 'none';
   });
   const btn = document.getElementById('btn-home');
   btn.classList.toggle('visible', id!=='screen-list');
-  /* mostra/nascondi anche screen-realm nel btn-home */
+  /* il bottone galleria vive solo sulla mappa (dove btn-home è nascosto) */
+  const bm = document.getElementById('btn-medals');
+  if(bm) bm.classList.toggle('visible', id==='screen-list');
   if(id==='screen-realm'){
     btn.textContent='← Mappa';
     btn.onclick=()=>{ stopSpeak(); show('screen-list'); };
+  } else if(id==='screen-medals'){
+    /* dalla galleria si torna alla mappa senza toccare la storia */
+    btn.textContent='← Mappa';
+    btn.onclick=()=>show('screen-list');
   } else {
     btn.textContent='← Home';
     btn.onclick=goHome;

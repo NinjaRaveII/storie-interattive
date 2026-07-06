@@ -62,6 +62,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 /* tasto indietro (lista storie → regni) */
 #btn-back-realms{background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--muted);font-family:'Crimson Pro',serif;font-size:15px;padding:10px 0;border-radius:30px;cursor:pointer;width:100%;margin-top:4px;transition:all .2s}
 #btn-back-realms:active{border-color:var(--gold);color:var(--gold)}
+#btn-medals-ctrl{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.35);color:var(--gold);font-family:'Crimson Pro',serif;font-size:16px;padding:13px 0;border-radius:30px;cursor:pointer;width:100%;margin-top:14px;transition:all .2s}
+#btn-medals-ctrl:active{background:rgba(201,168,76,.18)}
 
 /* tasto per uscire da una storia avviata (es. partita per sbaglio):
    riporta TV e controller alla mappa dei regni */
@@ -104,6 +106,15 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <p class="section-lbl" id="list-title">Scegli un regno</p>
   <div id="story-btns"></div>
   <button id="btn-back-realms" onclick="backToRealms()" style="display:none">← Torna ai regni</button>
+  <button id="btn-medals-ctrl" onclick="openMedalsCtrl()">🏅 Le mie medaglie</button>
+</div>
+
+<!-- MEDAGLIE: il telefono resta telecomando, la galleria appare sulla TV -->
+<div id="ctrl-medals" style="display:none;text-align:center;padding-top:30px">
+  <div class="end-icon">🏅</div>
+  <h2 class="end-title">Le medaglie sono sulla TV 📺</h2>
+  <p class="end-sub">Guardale sullo schermo grande!</p>
+  <button class="btn-restart" onclick="closeMedalsCtrl()">← Chiudi galleria</button>
 </div>
 
 <!-- SCELTE -->
@@ -170,6 +181,7 @@ function applyState(d){
     document.getElementById('ctrl-choices').style.display='none';
     document.getElementById('ctrl-end').style.display='none';
     document.getElementById('ctrl-list').style.display='none';
+    document.getElementById('ctrl-medals').style.display='none';
     document.getElementById('how-to').style.display='none';
   };
   if(d.screen==='screen-story' && d.storyId){
@@ -197,6 +209,12 @@ function applyState(d){
   } else if(d.screen==='screen-end'){
     hideAll();
     document.getElementById('ctrl-end').style.display='block';
+  } else if(d.screen==='screen-medals'){
+    hideAll();
+    cur=null;phase=0;c1key=null;
+    document.getElementById('s-story').textContent='';
+    document.getElementById('ctrl-medals').style.display='block';
+    setStatus('Medaglie sulla TV 📺');
   } else {
     /* screen-list (mappa) */
     hideAll();
@@ -219,6 +237,7 @@ function send(data){
 function renderRealms(){
   document.getElementById('list-title').textContent='Scegli un regno';
   document.getElementById('btn-back-realms').style.display='none';
+  document.getElementById('btn-medals-ctrl').style.display='block';
   const active=REALMS.filter(r=>r.storyIds.length);
   document.getElementById('story-btns').innerHTML=active.map(r=>`
     <div class="story-btn" onclick="openRealmCtrl('${r.id}')">
@@ -239,6 +258,7 @@ function renderRealmStories(id){
   if(!realm) return;
   document.getElementById('list-title').textContent=realm.icon+' '+realm.name;
   document.getElementById('btn-back-realms').style.display='block';
+  document.getElementById('btn-medals-ctrl').style.display='none';
   document.getElementById('story-btns').innerHTML=realm.storyIds.map(sid=>{
     const s=STORIES.find(x=>x.id===sid);
     if(!s) return '';
@@ -329,6 +349,26 @@ function doRestart(){
   renderRealms();
   send({action:'restart'});
   setStatus('Pronto');
+}
+
+/* Galleria medaglie: il telefono NON mostra le medaglie, chiede alla TV di
+   aprire la galleria (telecomando). Chiudendo torna alla mappa (action:'home'). */
+function openMedalsCtrl(){
+  send({action:'medals'});
+  document.getElementById('ctrl-list').style.display='none';
+  document.getElementById('ctrl-choices').style.display='none';
+  document.getElementById('ctrl-end').style.display='none';
+  document.getElementById('how-to').style.display='none';
+  document.getElementById('ctrl-medals').style.display='block';
+  setStatus('Medaglie sulla TV 📺');
+}
+function closeMedalsCtrl(){
+  send({action:'home'}); /* la TV torna alla mappa */
+  document.getElementById('ctrl-medals').style.display='none';
+  document.getElementById('how-to').style.display='block';
+  document.getElementById('ctrl-list').style.display='block';
+  renderRealms();
+  setStatus('In ascolto…');
 }
 
 function setStatus(msg,color='var(--accent)'){

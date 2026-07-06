@@ -167,9 +167,24 @@ Scelta la forma **ritaglio sul corpo** (§5), per ogni **personaggio** e per ogn
 - **Forma scelta: ritaglio sul corpo** (medaglia a forma del personaggio). Richiede un **ritratto su sfondo trasparente** per ogni personaggio e regno (brief in `BRIEF_IMMAGINI.md`). Vedi §5/§6.
 - **Niente oro/argento**: tre stati → **da conquistare (grigia)** / **esplorata (personaggio a colori)** / **completa (accesa: glow + scintille + shimmer)**. Coerente coi 🌟 già usati sulle scelte.
 - Animazione a **fine storia dopo la morale**, **solo al primo sblocco**, medaglie multiple **affiancate**, con **coriandoli** (`canvas-confetti`) + **fuochi** per gli sblocchi "accesi". Ripiego statico sempre previsto. **Da testare sulla TV reale.**
-- **Galleria** sulla TV (cliccabili ingrandite, le bloccate in grigio + 🔒); stato "galleria" incluso nella risincronizzazione.
+- **Galleria** sulla TV (le bloccate in grigio + 🔒); stato "galleria" incluso nella risincronizzazione.
 - Bottone **"Guarda le mie medaglie"** sul telefono → apre la galleria **sulla TV** via `{action:'medals'}` sul canale realtime esistente.
 
 ---
 
-*Documento aggiornato il 5 luglio 2026 — versione 2.0. Mockup di riferimento del 2.5D: 3 stati di Tobia (da conquistare / esplorata / completa).*
+## 11. Stato implementazione (6 luglio 2026)
+
+**✅ IMPLEMENTATO** in `tv.html` + `controller.html`:
+- **Galleria** (`#screen-medals`): bottone «🏅 Medaglie» sulla mappa TV; medaglie generate **dinamicamente** da STORIES/REALMS con stati (da conquistare / esplorata / completa) **calcolati al volo da `progress.js`** (`medalDefs()`, `medalState`, `storyState`/`realmState`/`allRealmsState`). Layout **compatto TV-safe** (`clamp` in `vh`): sta a schermo intero anche a 720p, niente scroll. «Tutti i regni» = tutti i regni *attivi* (con storie).
+- **Controller**: bottone «🏅 Le mie medaglie» → `{action:'medals'}`; la galleria appare **sulla TV** (telefono resta telecomando), con pannello «Medaglie sulla TV 📺» + «Chiudi galleria» (`{action:'home'}`). Stato `screen-medals` gestito nella **risincronizzazione** (`applyState`).
+- **Festa** (`#end-medals` nella schermata di fine): allo step `end`, **prima** di `recordEnding` si fotografano gli stati, **dopo** si calcolano gli sblocchi (`newlyUnlocked`) → **solo al primo sblocco** compaiono le medaglie affiancate + `canvas-confetti` (coriandoli sempre, **fuochi** se c'è almeno una "accesa"). Verificato: rigiocare un finale già visto non rifà la festa.
+- **`canvas-confetti` via CDN con `async`** (⚠️ lezione: bloccante + CDN lento = intera app morta sulla TV, §13). Uso protetto da `typeof confetti === 'function'`: senza libreria la medaglia appare comunque, solo senza coriandoli.
+
+**⏳ Ancora da fare:**
+- **Test sulla TV Samsung reale**: animazioni CSS (`filter`/`drop-shadow`) e `canvas-confetti`, con eventuale ripiego statico.
+- **Click-per-ingrandire** una medaglia vinta nella galleria (rimandato: v1 mostra la griglia).
+- Suono di sblocco (§9 punto 3, da valutare).
+
+---
+
+*Documento aggiornato il 6 luglio 2026 — versione 2.1 (galleria + festa implementate). Mockup di riferimento del 2.5D: 3 stati di Tobia (da conquistare / esplorata / completa).*
