@@ -2,6 +2,8 @@
 
 > **Scopo di questo documento:** fornire a Claude Code (e a chiunque lavori al progetto) il contesto completo e *aggiornato*, allineato al codice reale, con le decisioni prese, le motivazioni e una roadmap passo-passo verso un MVP funzionante.
 >
+> *Versione 3.8 — 7 luglio 2026. **Code review completa + batteria di test (nessun bug funzionale trovato).** Prima review a tutto tondo del progetto dopo il sistema medaglie: validazione automatica dati↔asset (`STORIES`/`REALMS` ↔ 39 audio + 15 immagini + 7 medaglie, 9 finali×3 storie tutti raggiungibili — 18/18 check ok), test in-browser a 720p/1080p (mappa, motore storia, festa/galleria medaglie, controller, risincronizzazione — tutto verde), test logico della transizione esplorata→completa e della non-ripetizione della festa. Corrette **3 fragilità di compatibilità smart TV** trovate in review: (1) rimosso ogni `gap:` su flexbox (introdotto col sistema medaglie) e sostituito con `margin` sui figli — il flex-`gap` non è affidabile sui browser TV più vecchi e non ha fallback via `@supports`; (2) rimosso `backdrop-filter:blur()` da `#btn-home` (fondo reso più opaco); (3) aggiunto `onerror` sull'immagine della mappa (`buildMap()`), che ora degrada a un placeholder invece di far collassare i marker in alto a sinistra. Migliorata anche l'estetica della mappa (spazio verticale riservato ridotto, alone radiale dietro il fondale). Cache-busting QR a `?v=9`. Nuovo file **`TEST_CHECKLIST.md`**: checklist ripetibile con la parte automatica già eseguita e la checklist manuale per la **TV Samsung reale** (ancora il solo grande "da fare" aperto, ora con priorità sulla galleria/festa medaglie mai testate su un browser TV vero).*
+>
 > *Versione 3.7 — 6 luglio 2026. **Sistema medaglie implementato (galleria + festa).** Aggiunta la **galleria** in `tv.html` (`#screen-medals`): bottone «🏅 Medaglie» sulla mappa e «Le mie medaglie» sul controller (`{action:'medals'}` → la galleria appare sulla TV, telefono telecomando), medaglie generate dinamicamente da STORIES/REALMS con stati (da conquistare / esplorata / completa) calcolati da `progress.js`, layout compatto TV-safe; stato `screen-medals` nella risincronizzazione. Aggiunta la **festa a fine storia** (`#end-medals`): al **primo sblocco** mostra le medaglie appena conquistate affiancate + `canvas-confetti` (coriandoli + **fuochi** sugli sblocchi "accesi"). **`canvas-confetti` caricato `async`** (bloccante = rischio "app morta" su TV se il CDN è lento). Cache-busting QR a `?v=8`. Restano il test su TV reale e il click-per-ingrandire in galleria.*
 >
 > *Versione 3.6 — 6 luglio 2026. **Mappa dei regni dipinta + tutti gli asset delle medaglie.** (1) **Nuova mappa della home**: fondale dipinto (Gemini, stile delle storie) che «fluttua» sul nero senza cornice (bordi sfumati a trasparente con Pillow), con **6 marker cliccabili** al posto dei poligoni SVG piatti — `buildMap()` riscritta, coordinate `mapX/mapY` in `REALMS`, dimensionamento TV-safe senza scroll a 720p, cache-busting `?v=7`; asset in `images/map/world.png`. ⚠️ Da testare su TV reale. (2) **Asset medaglie completi** (`images/medals/`): landmark dei regni (`realm_forest/kingdom/desert.png` — generati isolati con Gemini nella chat della mappa, i ritagli diretti dalla mappa erano troppo piccoli) e **livello 1 deciso e fatto**: il **Libro delle Storie** (`first_story.png`, libro aperto + stella dorata). Livelli 6/7 riusano la mappa stessa. Resta solo la **galleria in `tv.html`** (+ festa a fine storia).*
@@ -306,9 +308,11 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 16. **✅ Schermo intero + pulizia pannello QR (4 luglio 2026).** Aggiunto pulsante «Schermo intero» (in alto a destra) che nasconde la barra del browser TV; essendo l'app una pagina sola, una volta in fullscreen ci si resta per tutta la sessione. Sul pannello QR: avviso che invita a premere schermo intero col telecomando prima di proseguire col telefono, e rimosso il link `http/...` sotto il codice stanza (inutile). *Limite noto:* il fullscreen si attiva **solo col telecomando** (vedi §13) — l'automatismo al collegamento del controller è stato tentato e **rimosso** perché non funziona.
 
 17. **✅ Test su reti diverse (5 luglio 2026).** Verificato col telefono su rete dati (4G): il cross-device funziona anche fuori dalla LAN, non dipende dalla rete locale.
+18. **✅ `gap` flexbox introdotto col sistema medaglie — risolto (7 luglio 2026).** La review ha trovato che il sistema medaglie (v3.7) aveva introdotto l'unica feature CSS moderna del progetto priva di fallback: `gap:` su flexbox (Chromium ≥84, 2020), usato in `.medals-row`, `#end-medals` e in vari punti già esistenti (`.choices`, `.realm-header`, badge…). Sostituito **ovunque** in `tv.html` e `controller.html` con `margin` sui figli, universali su qualsiasi browser TV. Rimosso anche `backdrop-filter:blur()` da `#btn-home` (fondo reso più opaco: non tutti i browser TV lo supportano).
+19. **✅ Mappa senza ripiego se l'immagine non carica — risolto (7 luglio 2026).** `buildMap()` non aveva `onerror` sull'`<img>` della mappa (a differenza delle scene): se `images/map/world.png` non si decodifica, i marker (posizionati in %) collasserebbero in alto a sinistra. Aggiunto un placeholder (dimensioni esplicite + sfumatura) come rete di sicurezza.
 
 ### Ancora aperti
-*(nessun problema noto aperto al momento)*
+- **Test su TV Samsung reale del sistema medaglie (galleria + festa).** Introdotto in v3.7, non ancora provato su un browser TV vero: priorità #1 per la prossima sessione hands-on con la TV (checklist in `TEST_CHECKLIST.md` §B4).
 
 ---
 
@@ -334,6 +338,7 @@ Tema **dark fantasy / libro illustrato** — nessun colore vivace, tutto caldo e
 - **Tasto «Esci dalla storia» sul controller (5 luglio 2026):** esce da una storia avviata (anche per sbaglio) riportando controller e TV alla mappa in sincrono.
 - **Robustezza cross-device (5 luglio 2026):** anti-doppio-tap, risincronizzazione via `state`, riconnessione con watchdog e stato visibile (§4.2 e Fase 2).
 - **Test 4G (5 luglio 2026):** confermato che il cross-device funziona col telefono su rete dati, indipendente dalla LAN. Chiave ElevenLabs rigenerata. **Fase 1 (MVP) completata al 100%.**
+- **Code review completa + batteria di test (7 luglio 2026):** validazione automatica dati↔asset (18/18 check ok, 0 errori), test in-browser 720p/1080p su mappa/motore storia/medaglie/controller/risincronizzazione, corrette 3 fragilità di compatibilità TV introdotte col sistema medaglie (`gap` flexbox, `backdrop-filter`, mappa senza `onerror` — vedi §9 punti 18-19). Creato `TEST_CHECKLIST.md` con la checklist manuale per il test su TV reale.
 
 ---
 
@@ -460,4 +465,4 @@ Questa modalità **rompe due assunti** del progetto base, in modo consapevole:
 
 ---
 
-*Documento generato il 30 giugno 2026, ultimo aggiornamento 5 luglio 2026 — versione 3.4.*
+*Documento generato il 30 giugno 2026, ultimo aggiornamento 7 luglio 2026 — versione 3.8.*

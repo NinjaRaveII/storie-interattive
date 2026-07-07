@@ -36,12 +36,15 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   width:100%;flex:1;
   display:flex;align-items:center;justify-content:center;
   position:relative;min-height:0;
+  /* alone radiale tenue: il nero attorno alla mappa sembra "spazio" voluto,
+     non un vuoto — attutisce la banda scura sotto la mappa a schermi bassi */
+  background:radial-gradient(ellipse 60% 55% at 50% 48%, rgba(60,70,95,.22), transparent 72%);
 }
 /* Lo stage si stringe attorno all'immagine (inline-block): i marker (% dello stage)
    restano allineati. L'immagine è limitata in altezza dal viewport (calc, TV-safe:
    niente min()/aspect-ratio) così su TV la pagina non scrolla. */
 .map-stage{position:relative;display:inline-block;line-height:0;max-width:100%}
-.world-map-img{display:block;max-width:100%;max-height:calc(100vh - 200px);width:auto;height:auto}
+.world-map-img{display:block;max-width:100%;max-height:calc(100vh - 170px);width:auto;height:auto}
 
 .map-marker{
   position:absolute;transform:translate(-50%,-50%);
@@ -79,24 +82,27 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   animation:fadeIn .5s ease;
   margin:auto 0;
 }
-.realm-header{display:flex;align-items:center;gap:16px;margin-bottom:28px}
-.realm-icon-big{font-size:52px;line-height:1}
+/* NB: niente flex `gap` in tutto il file — non è supportato dai browser delle
+   smart TV più vecchi (Chromium <84) e non ha fallback affidabile. Al suo posto
+   si usano i margin sui figli, che funzionano su qualsiasi TV. */
+.realm-header{display:flex;align-items:center;margin-bottom:28px}
+.realm-icon-big{font-size:52px;line-height:1;margin-right:16px}
 .realm-name{font-family:'Playfair Display',serif;font-size:38px;font-size:clamp(28px,3.5vw,48px);color:var(--gold2)}
 .realm-desc{font-size:16px;font-size:clamp(13px,1.5vw,18px);color:var(--muted);font-style:italic;margin-top:4px}
-.realm-stories{display:flex;flex-direction:column;gap:14px}
+.realm-stories{display:flex;flex-direction:column}
 
-.story-card{background:var(--card);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);padding:22px 28px;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;display:flex;align-items:center;gap:20px}
+.story-card{background:var(--card);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);padding:22px 28px;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;display:flex;align-items:center;margin-bottom:14px}
 .story-card::before{content:'';position:absolute;top:0;right:0;bottom:0;left:0;background:linear-gradient(135deg,rgba(201,168,76,.06),transparent);opacity:0;transition:opacity .3s}
 .story-card:hover{border-color:var(--gold);transform:translateX(6px);box-shadow:0 12px 40px rgba(201,168,76,.1)}
 .story-card:hover::before{opacity:1}
-.story-card-icon{font-size:36px;flex-shrink:0}
+.story-card-icon{font-size:36px;flex-shrink:0;margin-right:20px}
 .story-card-body{flex:1}
 .story-tag{display:inline-block;background:rgba(201,168,76,.12);color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-bottom:8px}
 .story-title{font-family:'Playfair Display',serif;font-size:22px;font-size:clamp(18px,2vw,26px);font-weight:700;margin-bottom:6px;color:var(--text)}
 .story-desc{color:var(--muted);font-size:15px;font-size:clamp(13px,1.3vw,17px);line-height:1.5;font-style:italic}
 .story-progress{margin-top:10px;font-size:13px;font-size:clamp(12px,1.1vw,15px);color:var(--muted);letter-spacing:.5px}
 .story-progress.complete{color:var(--gold2)}
-.story-arrow{font-size:22px;color:var(--gold);opacity:.35;transition:all .3s;flex-shrink:0}
+.story-arrow{font-size:22px;color:var(--gold);opacity:.35;transition:all .3s;flex-shrink:0;margin-left:20px}
 .story-card:hover .story-arrow{opacity:1;transform:translateX(4px)}
 
 /* regno vuoto */
@@ -181,7 +187,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 
 /* etichetta fase + indicatore voce (dentro la barra superiore sovrapposta) */
 .scene-meta{
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:center;
   margin-top:10px;
   flex-shrink:0;
 }
@@ -190,10 +196,11 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   color:var(--gold);background:rgba(201,168,76,.1);
   border:1px solid rgba(201,168,76,.2);
   padding:4px 12px;border-radius:20px;
+  margin-right:10px;
 }
-.speak-ind{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-size:12px;opacity:0;transition:opacity .3s}
+.speak-ind{display:inline-flex;align-items:center;color:var(--gold);font-size:12px;opacity:0;transition:opacity .3s}
 .speak-ind.on{opacity:1}
-.speak-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);animation:sdot 1s ease-in-out infinite}
+.speak-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);animation:sdot 1s ease-in-out infinite;margin-right:5px}
 .speak-dot:nth-child(2){animation-delay:.18s}.speak-dot:nth-child(3){animation-delay:.36s}
 @keyframes sdot{0%,100%{transform:scaleY(1)}50%{transform:scaleY(2.5)}}
 
@@ -207,19 +214,19 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   background:linear-gradient(transparent,rgba(5,5,10,.55) 22%,rgba(5,5,10,.9));
 }
 .choices-title{font-size:11px;font-size:clamp(11px,1.1vw,14px);letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;text-shadow:0 1px 6px rgba(0,0,0,.9)}
-.choices{display:flex;flex-direction:column;gap:7px}
+.choices{display:flex;flex-direction:column}
 .choice-btn{
   background:rgba(10,12,20,.5);border:1px solid rgba(201,168,76,.3);
   border-radius:10px;padding:9px 14px;text-align:left;cursor:pointer;
   color:var(--text);font-family:'Crimson Pro',serif;
   font-size:17px;font-size:clamp(14px,1.5vw,22px);
-  transition:all .2s;display:flex;align-items:center;gap:12px;
+  transition:all .2s;display:flex;align-items:center;margin-bottom:7px;
   text-shadow:0 1px 6px rgba(0,0,0,.8);
 }
-.choice-btn .cnum{min-width:26px;height:26px;border-radius:50%;border:1px solid rgba(201,168,76,.45);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold2);flex-shrink:0}
+.choice-btn .cnum{min-width:26px;height:26px;border-radius:50%;border:1px solid rgba(201,168,76,.45);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold2);flex-shrink:0;margin-right:12px}
 .choice-btn:hover,.choice-btn.focused{background:rgba(201,168,76,.16);border-color:var(--gold)}
 /* segno "già scoperto" (progress.js): spinto a destra, non toglie spazio al testo */
-.choice-mark{margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;gap:3px;font-size:13px;font-size:clamp(12px,1.2vw,17px);color:var(--gold);opacity:.85;text-shadow:0 1px 6px rgba(0,0,0,.9)}
+.choice-mark{margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;font-size:13px;font-size:clamp(12px,1.2vw,17px);color:var(--gold);opacity:.85;text-shadow:0 1px 6px rgba(0,0,0,.9)}
 .choice-mark.full{color:var(--gold2);opacity:1}
 
 /* MORAL CARD — sotto l'immagine (mostrata solo al finale, quando non ci sono scelte) */
@@ -243,23 +250,27 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   background:rgba(18,18,26,.97);
   border:1px solid rgba(201,168,76,.3);
   border-radius:20px;padding:32px 36px;
-  display:none;flex-direction:column;align-items:center;gap:16px;
+  display:none;flex-direction:column;align-items:center;
   z-index:200;text-align:center;
 }
+#qr-panel>*{margin-bottom:16px}
+#qr-panel>*:last-child{margin-bottom:0}
 #qr-panel h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold2)}
 #qr-panel p{font-size:14px;color:var(--muted);line-height:1.5;max-width:280px}
 #qr-img{border-radius:10px;border:2px solid rgba(201,168,76,.3)}
 .qr-fs-hint{font-size:13px;color:var(--gold2);background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.28);border-radius:10px;padding:10px 14px;line-height:1.5;max-width:280px}
 .qr-dismiss{background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--muted);font-family:'Crimson Pro',serif;font-size:14px;padding:8px 20px;border-radius:20px;cursor:pointer;margin-top:4px}
 .qr-dismiss:hover{border-color:var(--gold);color:var(--gold)}
-.ctrl-badge{position:fixed;bottom:20px;right:20px;background:rgba(18,18,26,.92);border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;z-index:100}
-.ctrl-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:cdot 2s infinite}
+.ctrl-badge{position:fixed;bottom:20px;right:20px;background:rgba(18,18,26,.92);border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--muted);display:flex;align-items:center;z-index:100}
+.ctrl-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:cdot 2s infinite;margin-right:8px}
 @keyframes cdot{0%,100%{opacity:1}50%{opacity:.2}}
 
 /* PULSANTE HOME FISSO */
 #btn-home{
   position:fixed;top:20px;left:24px;z-index:150;
-  background:rgba(18,18,26,.88);
+  /* fondo quasi opaco (niente backdrop-filter: il blur non è supportato dai
+     browser TV vecchi; così il testo resta leggibile su qualsiasi sfondo) */
+  background:rgba(18,18,26,.94);
   border:1px solid rgba(201,168,76,.25);
   border-radius:30px;
   padding:9px 18px 9px 14px;
@@ -268,9 +279,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   font-size:15px;
   cursor:pointer;
   display:none;
-  align-items:center;gap:8px;
+  align-items:center;
   transition:all .2s;
-  backdrop-filter:blur(4px);
 }
 #btn-home:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
 #btn-home.visible{display:flex}
@@ -290,7 +300,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   font-family:'Crimson Pro',serif;
   font-size:15px;
   cursor:pointer;
-  display:flex;align-items:center;gap:8px;
+  display:flex;align-items:center;
   transition:all .2s;
 }
 #btn-fullscreen:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
@@ -305,7 +315,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   background:rgba(18,18,26,.88);border:1px solid rgba(201,168,76,.25);
   border-radius:30px;padding:9px 18px;color:var(--gold);
   font-family:'Crimson Pro',serif;font-size:15px;cursor:pointer;
-  display:none;align-items:center;gap:8px;transition:all .2s;
+  display:none;align-items:center;transition:all .2s;
 }
 #btn-medals:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
 #btn-medals.visible{display:flex}
@@ -315,8 +325,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .medals-title{font-family:'Playfair Display',serif;font-size:24px;font-size:clamp(19px,2.3vw,32px);color:var(--gold2);margin:2px 0 1px}
 .medals-sub{color:var(--muted);font-style:italic;font-size:13px;font-size:clamp(11px,1.2vw,15px);margin-bottom:2px}
 .medals-group-lbl{font-family:'Crimson Pro',serif;color:var(--gold);font-size:13px;font-size:clamp(11px,1.2vw,15px);letter-spacing:1px;margin:8px 0 0;text-transform:uppercase;opacity:.8}
-.medals-row{display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
-.medal-item{width:116px;text-align:center}
+.medals-row{display:flex;flex-wrap:wrap;justify-content:center}
+.medal-item{width:116px;text-align:center;margin:0 8px 14px}
 .medal-frame{position:relative;height:80px;height:clamp(62px,9vh,96px);display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
 .medal-item .m-img{max-height:76px;max-height:clamp(58px,8.6vh,92px);max-width:108px;width:auto;height:auto;display:block}
 .medal-item .m-name{font-family:'Playfair Display',serif;font-size:12px;color:var(--gold2);line-height:1.1}
@@ -346,8 +356,8 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 
 /* festa a fine storia: medaglie appena sbloccate dentro screen-end */
 .end-newmsg{font-family:'Playfair Display',serif;color:var(--gold2);font-size:18px;font-size:clamp(15px,1.8vw,22px);margin:6px 0 2px}
-#end-medals{display:flex;flex-wrap:wrap;justify-content:center;gap:28px;margin:12px 0 20px}
-#end-medals .medal-item{width:150px}
+#end-medals{display:flex;flex-wrap:wrap;justify-content:center;margin:12px 0 20px}
+#end-medals .medal-item{width:150px;margin:0 14px}
 #end-medals .medal-frame{height:150px;height:clamp(120px,20vh,170px)}
 #end-medals .m-img{max-height:150px;max-height:clamp(116px,19vh,166px);max-width:150px}
 </style>
@@ -523,6 +533,17 @@ function buildMap(){
   img.className = 'world-map-img';
   img.src = 'images/map/world.png';
   img.alt = 'Mappa del mondo delle storie';
+  /* ripiego se la mappa non carica (asset mancante o decodifica fallita su una
+     TV): senza dimensioni lo stage inline-block collasserebbe e i marker (in %)
+     si accalcherebbero in alto a sinistra. Diamo all'immagine una dimensione
+     esplicita + un fondo sfumato, così i marker restano distribuiti. */
+  img.onerror = function(){
+    img.onerror = null;
+    img.style.width = '80vw';
+    img.style.height = '52vh';
+    img.style.borderRadius = '20px';
+    img.style.background = 'radial-gradient(ellipse at 50% 45%, #1b3550, #0a0a0f 75%)';
+  };
   stage.appendChild(img);
 
   REALMS.forEach(realm => {
@@ -1023,7 +1044,7 @@ function showQR(){
      telefono che lo inquadra entra automaticamente nella stanza giusta. */
   /* ?v= anche nell'URL del QR: così pure il telefono riscarica il controller
      aggiornato invece della versione in cache */
-  const ctrlUrl = new URL('controller.html?v=8' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
+  const ctrlUrl = new URL('controller.html?v=9' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
