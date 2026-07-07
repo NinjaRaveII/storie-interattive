@@ -258,9 +258,41 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 #qr-panel h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold2)}
 #qr-panel p{font-size:14px;color:var(--muted);line-height:1.5;max-width:280px}
 #qr-img{border-radius:10px;border:2px solid rgba(201,168,76,.3)}
-.qr-fs-hint{font-size:13px;color:var(--gold2);background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.28);border-radius:10px;padding:10px 14px;line-height:1.5;max-width:280px}
 .qr-dismiss{background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--muted);font-family:'Crimson Pro',serif;font-size:14px;padding:8px 20px;border-radius:20px;cursor:pointer;margin-top:4px}
 .qr-dismiss:hover{border-color:var(--gold);color:var(--gold)}
+
+/* STEP 1 — GATE SCHERMO INTERO.
+   Oscura tutta la pagina (z sopra i bottoni a z-150, sotto il QR a z-200) e
+   mostra un pop-up in alto a destra sotto il bottone «Schermo intero», che
+   viene portato sopra il velo con .fs-highlight. */
+#fs-gate{
+  position:fixed;top:0;right:0;bottom:0;left:0;
+  background:rgba(10,10,15,.82);
+  z-index:190;display:none;
+}
+#fs-gate.visible{display:block}
+.fs-gate-pop{
+  position:absolute;top:74px;right:24px;
+  max-width:300px;text-align:right;
+  background:rgba(18,18,26,.97);
+  border:1px solid rgba(201,168,76,.35);
+  border-radius:16px;padding:18px 22px;
+  animation:fadeIn .5s ease;
+}
+.fs-gate-arrow{font-size:30px;color:var(--gold2);line-height:1;margin-bottom:6px}
+.fs-gate-pop h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold2);margin-bottom:8px}
+.fs-gate-pop p{font-size:15px;color:var(--text);line-height:1.5;margin-bottom:14px}
+.fs-gate-skip{background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--muted);font-family:'Crimson Pro',serif;font-size:14px;padding:7px 18px;border-radius:20px;cursor:pointer}
+.fs-gate-skip:hover{border-color:var(--gold);color:var(--gold)}
+/* bottone schermo intero in evidenza sopra il velo durante lo step 1 */
+#btn-fullscreen.fs-highlight{
+  z-index:200;
+  border-color:var(--gold);
+  background:rgba(201,168,76,.18);
+  box-shadow:0 0 0 2px rgba(201,168,76,.35), 0 0 22px rgba(201,168,76,.4);
+  animation:fsPulse 1.6s ease-in-out infinite;
+}
+@keyframes fsPulse{0%,100%{box-shadow:0 0 0 2px rgba(201,168,76,.35), 0 0 18px rgba(201,168,76,.3)}50%{box-shadow:0 0 0 2px rgba(201,168,76,.5), 0 0 26px rgba(201,168,76,.55)}}
 .ctrl-badge{position:fixed;bottom:20px;right:20px;background:rgba(18,18,26,.92);border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--muted);display:flex;align-items:center;z-index:100}
 .ctrl-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:cdot 2s infinite;margin-right:8px}
 @keyframes cdot{0%,100%{opacity:1}50%{opacity:.2}}
@@ -517,10 +549,22 @@ window.onerror = function(msg, src, line){
   </div>
 </div>
 
-<!-- QR CODE PANEL -->
+<!-- STEP 1 — INVITO ALLO SCHERMO INTERO.
+     Oscura il resto e punta il pop-up verso il bottone «⛶ Schermo intero»
+     (che viene portato in primo piano via .fs-highlight). Appena la TV entra
+     in fullscreen, si chiude da solo e appare il pannello QR (step 2). -->
+<div id="fs-gate">
+  <div class="fs-gate-pop">
+    <div class="fs-gate-arrow">⤴</div>
+    <h3>📺 Metti a schermo intero</h3>
+    <p>Col telecomando premi il tasto «⛶ Schermo intero» qui sopra a destra.<br>Poi comparirà il QR per il telefono.</p>
+    <button class="fs-gate-skip" onclick="skipFsGate()">Continua senza →</button>
+  </div>
+</div>
+
+<!-- QR CODE PANEL (step 2) -->
 <div id="qr-panel">
   <h3>📱 Controller</h3>
-  <div class="qr-fs-hint">📺 Col telecomando premi «⛶ Schermo intero» in alto a destra, poi continua col telefono qui sotto.</div>
   <p>Inquadra il QR con il telefono per usarlo come telecomando</p>
   <div id="qr-img" style="width:160px;height:160px"></div>
   <div id="qr-room" style="display:none;font-family:'Playfair Display',serif;font-size:20px;letter-spacing:4px;color:var(--gold2)"></div>
@@ -1206,6 +1250,7 @@ function handleCtrlMessage(d){
   document.getElementById('ctrl-text').textContent='Controller attivo ✓';
   document.getElementById('ctrl-dot').style.background='#4caf50';
   document.getElementById('qr-panel').style.display='none';
+  closeFsGate(); /* se il telefono si collega durante lo step 1, non lasciare il velo */
 }
 
 function sendState(){
@@ -1303,23 +1348,53 @@ function updateFsBtn(){
   if(!b) return;
   b.innerHTML = fsElement() ? '⛶ Esci da schermo intero' : '⛶ Schermo intero';
 }
-document.addEventListener('fullscreenchange', updateFsBtn);
-document.addEventListener('webkitfullscreenchange', updateFsBtn);
-document.addEventListener('msfullscreenchange', updateFsBtn);
+/* Avvio in due passi: STEP 1 = invito allo schermo intero (gate); appena la TV
+   entra in fullscreen → STEP 2 = pannello QR. Il gate parte solo se il fullscreen
+   è supportato e non è già attivo, altrimenti si va dritti al QR. */
+function openFsGate(){
+  var gate = document.getElementById('fs-gate');
+  var b = document.getElementById('btn-fullscreen');
+  if(gate) gate.className='visible';
+  if(b) b.className='fs-highlight';
+}
+function closeFsGate(){
+  var gate = document.getElementById('fs-gate');
+  var b = document.getElementById('btn-fullscreen');
+  if(gate) gate.className='';
+  if(b) b.className='';
+}
+function skipFsGate(){ closeFsGate(); showQR(); }
+function onFsChange(){
+  updateFsBtn();
+  var gate = document.getElementById('fs-gate');
+  /* se l'utente è appena entrato in fullscreen mentre il gate era aperto,
+     chiudi il gate e mostra il QR (step 2) */
+  if(fsElement() && gate && gate.className==='visible'){
+    closeFsGate();
+    showQR();
+  }
+}
+document.addEventListener('fullscreenchange', onFsChange);
+document.addEventListener('webkitfullscreenchange', onFsChange);
+document.addEventListener('msfullscreenchange', onFsChange);
 
 makeStars();
 buildMap();
 show('screen-list');
-showQR();
 
 /* se il browser TV non supporta affatto il fullscreen, il pulsante sparisce
-   (meglio niente che un tasto che non fa nulla) */
+   (meglio niente che un tasto che non fa nulla) e si salta direttamente al QR */
 (function(){
   var el = document.documentElement;
   var supported = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-  if(!supported){
-    var b = document.getElementById('btn-fullscreen');
-    if(b) b.style.display='none';
+  if(supported && !fsElement()){
+    openFsGate();           /* STEP 1 */
+  } else {
+    if(!supported){
+      var b = document.getElementById('btn-fullscreen');
+      if(b) b.style.display='none';
+    }
+    showQR();               /* già in fullscreen o non supportato → STEP 2 */
   }
 })();
 </script>
