@@ -99,7 +99,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 .story-card-body{flex:1}
 .story-tag{display:inline-block;background:rgba(201,168,76,.12);color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-bottom:8px}
 .story-title{font-family:'Playfair Display',serif;font-size:22px;font-size:clamp(18px,2vw,26px);font-weight:700;margin-bottom:6px;color:var(--text)}
-.story-desc{color:var(--muted);font-size:15px;font-size:clamp(13px,1.3vw,17px);line-height:1.5;font-style:italic}
+.story-desc{color:var(--muted);font-size:17px;font-size:clamp(15px,1.7vw,22px);line-height:1.5;font-style:italic}
 .story-progress{margin-top:10px;font-size:13px;font-size:clamp(12px,1.1vw,15px);color:var(--muted);letter-spacing:.5px}
 .story-progress.complete{color:var(--gold2)}
 .story-arrow{font-size:22px;color:var(--gold);opacity:.35;transition:all .3s;flex-shrink:0;margin-left:20px}
@@ -176,9 +176,9 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 /* SOTTOTITOLI — frase intera con fade */
 .subtitle-text{
   font-family:'Crimson Pro',serif;
-  font-size:24px;font-size:clamp(18px,2.2vw,30px);
+  font-size:28px;font-size:clamp(21px,2.6vw,36px);
   font-style:italic;
-  font-weight:300;
+  font-weight:400;
   color:#fff;
   line-height:1.5;
   text-shadow:0 2px 14px rgba(0,0,0,.9),0 1px 4px rgba(0,0,0,1);
@@ -213,27 +213,27 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   padding:34px 22px 16px;
   background:linear-gradient(transparent,rgba(5,5,10,.55) 22%,rgba(5,5,10,.9));
 }
-.choices-title{font-size:11px;font-size:clamp(11px,1.1vw,14px);letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;text-shadow:0 1px 6px rgba(0,0,0,.9)}
+.choices-title{font-size:13px;font-size:clamp(13px,1.3vw,17px);letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;text-shadow:0 1px 6px rgba(0,0,0,.9)}
 .choices{display:flex;flex-direction:column}
 .choice-btn{
   background:rgba(10,12,20,.5);border:1px solid rgba(201,168,76,.3);
-  border-radius:10px;padding:9px 14px;text-align:left;cursor:pointer;
+  border-radius:10px;padding:12px 18px;text-align:left;cursor:pointer;
   color:var(--text);font-family:'Crimson Pro',serif;
-  font-size:17px;font-size:clamp(14px,1.5vw,22px);
-  transition:all .2s;display:flex;align-items:center;margin-bottom:7px;
+  font-size:21px;font-size:clamp(18px,1.9vw,28px);
+  transition:all .2s;display:flex;align-items:center;margin-bottom:9px;
   text-shadow:0 1px 6px rgba(0,0,0,.8);
 }
-.choice-btn .cnum{min-width:26px;height:26px;border-radius:50%;border:1px solid rgba(201,168,76,.45);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold2);flex-shrink:0;margin-right:12px}
+.choice-btn .cnum{min-width:32px;height:32px;border-radius:50%;border:1px solid rgba(201,168,76,.45);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--gold2);flex-shrink:0;margin-right:14px}
 .choice-btn:hover,.choice-btn.focused{background:rgba(201,168,76,.16);border-color:var(--gold)}
-/* segno "già scoperto" (progress.js): spinto a destra, non toglie spazio al testo */
-.choice-mark{margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;font-size:13px;font-size:clamp(12px,1.2vw,17px);color:var(--gold);opacity:.85;text-shadow:0 1px 6px rgba(0,0,0,.9)}
-.choice-mark.full{color:var(--gold2);opacity:1}
+/* segno "già scoperto" (progress.js): pill dorata leggibile, spinta a destra */
+.choice-mark{margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;font-size:16px;font-size:clamp(15px,1.6vw,22px);color:var(--gold2);background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.45);border-radius:16px;padding:3px 12px;font-weight:600;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,.9)}
+.choice-mark.full{color:#1a1608;background:var(--gold2);border-color:var(--gold2);opacity:1;text-shadow:none}
 
 /* MORAL CARD — sotto l'immagine (mostrata solo al finale, quando non ci sono scelte) */
 .moral-card{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:18px 22px;margin:18px auto 24px;max-width:820px;display:none}
-.moral-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.moral-text{font-size:18px;font-size:clamp(15px,1.6vw,20px);color:var(--text);font-style:italic;line-height:1.6}
-.moral-continue{background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold);font-family:'Crimson Pro',serif;font-size:15px;padding:8px 22px;border-radius:24px;cursor:pointer;margin-top:14px;transition:all .2s}
+.moral-label{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.moral-text{font-size:22px;font-size:clamp(19px,2.1vw,28px);color:var(--text);font-style:italic;line-height:1.6}
+.moral-continue{background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold);font-family:'Crimson Pro',serif;font-size:17px;padding:10px 26px;border-radius:24px;cursor:pointer;margin-top:14px;transition:all .2s}
 .moral-continue:hover{background:rgba(201,168,76,.1);border-color:var(--gold)}
 
 /* END */
@@ -320,17 +320,20 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 #btn-medals:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
 #btn-medals.visible{display:flex}
 
-/* compatta: deve stare tutta a schermo anche a 720p (la TV non scrolla) */
-#screen-medals{display:none;width:100%;max-width:1120px;margin:0 auto;animation:fadeIn .6s ease;text-align:center}
-.medals-title{font-family:'Playfair Display',serif;font-size:24px;font-size:clamp(19px,2.3vw,32px);color:var(--gold2);margin:2px 0 1px}
-.medals-sub{color:var(--muted);font-style:italic;font-size:13px;font-size:clamp(11px,1.2vw,15px);margin-bottom:2px}
-.medals-group-lbl{font-family:'Crimson Pro',serif;color:var(--gold);font-size:13px;font-size:clamp(11px,1.2vw,15px);letter-spacing:1px;margin:8px 0 0;text-transform:uppercase;opacity:.8}
+/* Medaglie più grandi e distribuite; i verticali usano vh così l'intera
+   galleria resta a schermo anche a 720p (la TV non scrolla). I valori px
+   statici (prima di ogni clamp) sono il ripiego per i browser TV vecchi che
+   ignorano clamp/vh (§13.8). */
+#screen-medals{display:none;width:100%;max-width:1440px;margin:0 auto;animation:fadeIn .6s ease;text-align:center}
+.medals-title{font-family:'Playfair Display',serif;font-size:28px;font-size:clamp(20px,2.4vw,34px);color:var(--gold2);margin:2px 0 1px}
+.medals-sub{color:var(--muted);font-style:italic;font-size:14px;font-size:clamp(12px,1.6vh,16px);margin-bottom:4px;margin-bottom:clamp(2px,.7vh,8px)}
+.medals-group-lbl{font-family:'Crimson Pro',serif;color:var(--gold);font-size:14px;font-size:clamp(12px,1.7vh,17px);letter-spacing:2px;margin:10px 0 3px;margin:clamp(4px,1.1vh,14px) 0 clamp(2px,.4vh,5px);text-transform:uppercase;opacity:.85}
 .medals-row{display:flex;flex-wrap:wrap;justify-content:center}
-.medal-item{width:116px;text-align:center;margin:0 8px 14px}
-.medal-frame{position:relative;height:80px;height:clamp(62px,9vh,96px);display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
-.medal-item .m-img{max-height:76px;max-height:clamp(58px,8.6vh,92px);max-width:108px;width:auto;height:auto;display:block}
-.medal-item .m-name{font-family:'Playfair Display',serif;font-size:12px;color:var(--gold2);line-height:1.1}
-.medal-item .m-state{font-size:9px;color:var(--muted)}
+.medal-item{width:170px;width:clamp(140px,14vw,196px);text-align:center;margin:0 20px 16px;margin:0 clamp(14px,1.6vw,30px) clamp(8px,1.4vh,20px)}
+.medal-frame{position:relative;height:104px;height:clamp(70px,9.5vh,140px);display:flex;align-items:flex-end;justify-content:center;margin-bottom:3px}
+.medal-item .m-img{max-height:100px;max-height:clamp(66px,9vh,132px);max-width:168px;max-width:clamp(136px,13.5vw,190px);width:auto;height:auto;display:block}
+.medal-item .m-name{font-family:'Playfair Display',serif;font-size:16px;font-size:clamp(13px,1.9vh,20px);color:var(--gold2);line-height:1.15}
+.medal-item .m-state{font-size:12px;font-size:clamp(10px,1.4vh,14px);color:var(--muted)}
 
 .medal-item:not(.locked) .m-float{animation:m-bob 4.4s ease-in-out infinite}
 @keyframes m-bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-5px) rotate(1deg)}}
@@ -347,12 +350,25 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 /* stato DA CONQUISTARE: silhouette grigia + lucchetto */
 .medal-item.locked .m-img{filter:grayscale(1) brightness(.3) drop-shadow(0 4px 6px rgba(0,0,0,.6))}
 .medal-item.locked .m-name{color:#8a8070}
-.medal-item.locked .m-lock{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:26px;filter:drop-shadow(0 2px 4px #000);z-index:3}
+.medal-item.locked .m-lock{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:38px;font-size:clamp(30px,5vh,46px);filter:drop-shadow(0 2px 4px #000);z-index:3}
 
 .m-spark{position:absolute;font-size:15px;color:#fff3c4;text-shadow:0 0 8px #ffd873,0 0 16px #ffb43c;opacity:0;z-index:4}
 .medal-item.complete .m-spark{animation:m-tw 2.4s ease-in-out infinite}
 .m-spark.a{top:0;left:20px}.m-spark.b{top:18px;right:12px;font-size:12px;animation-delay:.6s}.m-spark.c{bottom:16px;right:16px;font-size:17px;animation-delay:1.2s}
 @keyframes m-tw{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1)}}
+
+/* reset medaglie (genitore): tasto discreto + conferma inline */
+#medals-reset{margin-top:clamp(6px,1.4vh,16px)}
+#btn-reset-medals{background:transparent;border:1px solid rgba(201,168,76,.28);color:var(--muted);font-family:'Crimson Pro',serif;font-size:14px;font-size:clamp(13px,1.5vh,17px);padding:8px 20px;border-radius:22px;cursor:pointer;transition:all .2s}
+#btn-reset-medals:hover{border-color:var(--gold);color:var(--gold)}
+#reset-confirm{display:none;max-width:520px;margin:0 auto}
+.reset-q{color:var(--text);font-size:16px;font-size:clamp(14px,1.9vh,19px);margin-bottom:10px}
+.reset-yes,.reset-no{font-family:'Crimson Pro',serif;font-size:15px;font-size:clamp(14px,1.7vh,18px);padding:9px 24px;border-radius:24px;cursor:pointer;margin:0 8px;transition:all .2s}
+.reset-yes{background:rgba(180,60,60,.16);border:1px solid rgba(220,90,90,.55);color:#f0b8b8}
+.reset-yes:hover{background:rgba(200,70,70,.28)}
+.reset-no{background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold)}
+.reset-no:hover{background:rgba(201,168,76,.1)}
+#reset-done{display:none;color:var(--gold2);font-style:italic;font-size:16px;font-size:clamp(14px,1.9vh,19px)}
 
 /* festa a fine storia: medaglie appena sbloccate dentro screen-end */
 .end-newmsg{font-family:'Playfair Display',serif;color:var(--gold2);font-size:18px;font-size:clamp(15px,1.8vw,22px);margin:6px 0 2px}
@@ -360,6 +376,17 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 #end-medals .medal-item{width:150px;margin:0 14px}
 #end-medals .medal-frame{height:150px;height:clamp(120px,20vh,170px)}
 #end-medals .m-img{max-height:150px;max-height:clamp(116px,19vh,166px);max-width:150px}
+
+/* OVERLAY PAUSA — comandato dal controller (⏸): ferma audio + narrazione */
+#pause-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(5,5,10,.82);
+}
+.pause-box{text-align:center}
+.pause-ico{font-size:64px;font-size:clamp(52px,8vh,88px);margin-bottom:10px}
+.pause-txt{font-family:'Playfair Display',serif;font-size:44px;font-size:clamp(32px,4.4vw,58px);color:var(--gold2)}
+.pause-sub{font-size:18px;font-size:clamp(15px,1.8vw,22px);color:var(--muted);font-style:italic;margin-top:8px}
 </style>
 </head>
 <body>
@@ -460,7 +487,7 @@ window.onerror = function(msg, src, line){
     <!-- festa: medaglie appena sbloccate (solo al primo sblocco) -->
     <div id="end-newmsg" class="end-newmsg" style="display:none">✨ Hai conquistato una nuova medaglia!</div>
     <div id="end-medals" style="display:none"></div>
-    <button class="btn-restart" onclick="restart()">↩ Torna alle storie</button>
+    <button class="btn-restart" onclick="restart()">↩ Torna ai regni</button>
   </div>
 
   <!-- GALLERIA MEDAGLIE (aperta dal bottone TV o da {action:'medals'} del telefono) -->
@@ -468,6 +495,25 @@ window.onerror = function(msg, src, line){
     <h1 class="medals-title">🏅 Le mie medaglie</h1>
     <p class="medals-sub">Scopri le storie e i regni per accenderle tutte</p>
     <div id="medals-body"></div>
+    <!-- reset progressi (genitore): comandabile anche dal controller -->
+    <div id="medals-reset">
+      <button id="btn-reset-medals" onclick="askResetMedals()">🗑 Azzera medaglie</button>
+      <div id="reset-confirm">
+        <p class="reset-q">Vuoi davvero azzerare tutte le medaglie? I progressi andranno persi.</p>
+        <button class="reset-yes" onclick="doResetMedals()">Sì, azzera</button>
+        <button class="reset-no" onclick="cancelResetMedals()">Annulla</button>
+      </div>
+      <div id="reset-done">✓ Medaglie azzerate</div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY PAUSA: mostrato quando il controller mette in pausa (⏸) -->
+<div id="pause-overlay">
+  <div class="pause-box">
+    <div class="pause-ico">⏸</div>
+    <div class="pause-txt">In pausa</div>
+    <div class="pause-sub">Riprendi dal telefono ▶</div>
   </div>
 </div>
 
@@ -503,6 +549,9 @@ window.onerror = function(msg, src, line){
 
 /* ===================== STATO ===================== */
 let story=null, stepIdx=0, choice1=null, choice2=null, moralTimer=null;
+/* pausa (comandata dal controller): fermano audio, sottotitoli e timer morale */
+let paused=false, moralDeadline=0, moralRemaining=null;
+function setMoralTimer(ms){ moralDeadline=Date.now()+ms; moralTimer=setTimeout(showEnd, ms); }
 /* schermata e regno correnti: servono alla risincronizzazione (la TV li
    comunica al controller che si collega a storia già iniziata, §4.2) */
 let currentScreen='screen-list', currentRealm=null;
@@ -667,9 +716,9 @@ function renderStep(){
         document.getElementById('moral-card').style.display='block';
         /* la morale resta a schermo un tempo proporzionato alla lettura di un
            bambino (§9 punto 13); il tasto "Continua" permette di proseguire prima */
-        moralTimer=setTimeout(showEnd, Math.max(12000, 4000 + e.moral.length*90));
+        setMoralTimer(Math.max(12000, 4000 + e.moral.length*90));
       } else {
-        moralTimer=setTimeout(showEnd, 4000);
+        setMoralTimer(4000);
       }
     });
   }
@@ -726,13 +775,13 @@ function showEnd(){
 
 function restart(){
   stopSpeak();
-  /* niente optional chaining (story?.id): i browser delle smart TV più vecchi
-     non lo interpretano e l'errore di sintassi ucciderebbe l'intero script */
-  const lastId = story ? story.id : null;
+  /* Fine storia → torna alla MAPPA DEI REGNI (non alle storie del regno):
+     così TV e controller restano allineati (il controller torna anch'esso
+     alla lista dei regni). sendState() ri-sincronizza chi ha premuto dall'altra
+     parte. Niente optional chaining per i browser TV vecchi (§13). */
   story=null;choice1=null;choice2=null;stepIdx=0;
-  const realm = REALMS.find(r=>r.storyIds.includes(lastId||''));
-  if(realm) openRealm(realm.id);
-  else show('screen-list');
+  show('screen-list');
+  sendState();
 }
 
 /* ===================== MEDAGLIE =====================
@@ -825,7 +874,31 @@ function buildGallery(){
 
 function openMedals(){
   buildGallery();
+  cancelResetMedals();               /* riparte sempre dallo stato "tasto" */
+  document.getElementById('reset-done').style.display='none';
   show('screen-medals');
+}
+
+/* --- Reset progressi (genitore): tasto nel medagliere, con conferma.
+   Comandabile anche dal controller: reset-ask apre la conferma qui, reset la
+   esegue, reset-cancel la annulla (vedi handleCtrlMessage). --- */
+function askResetMedals(){
+  document.getElementById('btn-reset-medals').style.display='none';
+  document.getElementById('reset-done').style.display='none';
+  document.getElementById('reset-confirm').style.display='block';
+}
+function cancelResetMedals(){
+  document.getElementById('reset-confirm').style.display='none';
+  document.getElementById('btn-reset-medals').style.display='inline-block';
+}
+function doResetMedals(){
+  Progress.reset();
+  buildGallery();
+  document.getElementById('reset-confirm').style.display='none';
+  document.getElementById('btn-reset-medals').style.display='inline-block';
+  var done=document.getElementById('reset-done');
+  done.style.display='block';
+  setTimeout(function(){ done.style.display='none'; }, 2600);
 }
 
 /* --- Festa a fine storia: solo le medaglie appena sbloccate (primo sblocco) --- */
@@ -933,6 +1006,31 @@ function loadImg(path){
    Se un file manca o non carica, si passa automaticamente alla voce del browser.
    ============================================================================ */
 let currentAudio = null;
+/* piano dei sottotitoli dell'audio in corso (frasi + istante di inizio di
+   ciascuna): serve a ripianificarli quando si riprende dopo una pausa */
+let subPlan = null, subTimers = [];
+function clearSubTimers(){ subTimers.forEach(t=>clearTimeout(t)); subTimers=[]; }
+
+/* (Ri)programma la comparsa dei sottotitoli a partire da un istante dato
+   dell'audio (0 all'avvio, currentTime alla ripresa). Mostra subito la frase
+   attiva e schedula le successive. */
+function scheduleSubtitles(fromTime){
+  clearSubTimers();
+  if(!subPlan) return;
+  const sub=subPlan.sub, sentences=subPlan.sentences, starts=subPlan.starts;
+  if(!sentences.length) return;
+  let idx=0;
+  for(let i=0;i<starts.length;i++){ if(starts[i]<=fromTime+0.01) idx=i; }
+  sub.textContent=sentences[idx].trim(); sub.style.opacity='1';
+  for(let i=idx+1;i<sentences.length;i++){
+    const s=sentences[i];
+    const t=setTimeout(function(){
+      sub.style.opacity='0';
+      setTimeout(function(){ sub.textContent=s.trim(); sub.style.opacity='1'; },200);
+    }, Math.max(0,(starts[i]-fromTime)*1000));
+    subTimers.push(t);
+  }
+}
 
 function splitSentences(text){
   return text.match(/[^.!?]+[.!?]*/g) || [text];
@@ -967,26 +1065,20 @@ function speakPregenerated(text, src){
     const sub = document.getElementById('subtitle-text');
     const audio = new Audio(src);
     currentAudio = audio;
-    let timers = [];
-    const clearTimers = ()=>{ timers.forEach(t=>clearTimeout(t)); timers=[]; };
+    subPlan = null; clearSubTimers();
 
     audio.onloadedmetadata = ()=>{
       const duration = audio.duration;
       if(!duration || !isFinite(duration)) return;
       const totalLen = sentences.reduce((a,s)=>a+s.length,0) || 1;
-      let elapsed = 0;
-      sentences.forEach(s=>{
-        const t = setTimeout(()=>{
-          sub.style.opacity='0';
-          setTimeout(()=>{ sub.textContent=s.trim(); sub.style.opacity='1'; },200);
-        }, elapsed*1000);
-        timers.push(t);
-        elapsed += duration*(s.length/totalLen);
-      });
+      const starts=[]; let elapsed=0;
+      sentences.forEach(s=>{ starts.push(elapsed); elapsed += duration*(s.length/totalLen); });
+      subPlan = { sentences:sentences, starts:starts, sub:sub };
+      if(!paused) scheduleSubtitles(0);
     };
-    audio.onended = ()=>{ clearTimers(); resolve(true); };
-    audio.onerror = ()=>{ clearTimers(); resolve(false); };
-    audio.play().catch(()=>{ clearTimers(); resolve(false); });
+    audio.onended = ()=>{ clearSubTimers(); subPlan=null; resolve(true); };
+    audio.onerror = ()=>{ clearSubTimers(); subPlan=null; resolve(false); };
+    audio.play().catch(()=>{ clearSubTimers(); subPlan=null; resolve(false); });
   });
 }
 
@@ -1023,6 +1115,8 @@ function wsSentence(text, cb){
 
 function stopSpeak(){
   if(moralTimer){ clearTimeout(moralTimer); moralTimer=null; }
+  moralRemaining=null;
+  clearSubTimers(); subPlan=null;
   if(currentAudio){
     /* rimuove i listener PRIMA di fermare l'audio: altrimenti l'onerror
        innescato da src='' farebbe cadere sul ripiego Web Speech anche
@@ -1031,9 +1125,36 @@ function stopSpeak(){
     currentAudio.pause(); currentAudio.src=''; currentAudio=null;
   }
   window.speechSynthesis&&window.speechSynthesis.cancel();
+  /* qualsiasi interruzione della storia annulla anche la pausa e l'overlay */
+  paused=false;
+  var ov=document.getElementById('pause-overlay'); if(ov) ov.style.display='none';
   document.getElementById('speak-ind').classList.remove('on');
   const sub=document.getElementById('subtitle-text');
   if(sub){sub.textContent='';sub.style.opacity='1';}
+}
+
+/* ===================== PAUSA (comandata dal controller) =====================
+   Ferma l'audio, congela i sottotitoli e il timer della morale; l'overlay
+   "In pausa" appare sulla TV. resumeStory() riprende da dove eravamo. */
+function pauseStory(){
+  if(paused) return;
+  paused=true;
+  if(currentAudio){ try{ currentAudio.pause(); }catch(e){} }
+  clearSubTimers();
+  if(window.speechSynthesis){ try{ window.speechSynthesis.pause(); }catch(e){} }
+  if(moralTimer){ clearTimeout(moralTimer); moralTimer=null; moralRemaining=Math.max(0, moralDeadline-Date.now()); }
+  var ov=document.getElementById('pause-overlay'); if(ov) ov.style.display='flex';
+}
+function resumeStory(){
+  if(!paused) return;
+  paused=false;
+  var ov=document.getElementById('pause-overlay'); if(ov) ov.style.display='none';
+  if(currentAudio){
+    scheduleSubtitles(currentAudio.currentTime||0);
+    try{ currentAudio.play(); }catch(e){}
+  }
+  if(window.speechSynthesis){ try{ window.speechSynthesis.resume(); }catch(e){} }
+  if(moralRemaining!=null){ setMoralTimer(moralRemaining); moralRemaining=null; }
 }
 
 /* ===================== QR CODE controller ===================== */
@@ -1044,7 +1165,7 @@ function showQR(){
      telefono che lo inquadra entra automaticamente nella stanza giusta. */
   /* ?v= anche nell'URL del QR: così pure il telefono riscarica il controller
      aggiornato invece della versione in cache */
-  const ctrlUrl = new URL('controller.html?v=9' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
+  const ctrlUrl = new URL('controller.html?v=10' + (roomCode ? '&room='+roomCode : ''), window.location.href).href;
   const container = document.getElementById('qr-img');
   container.innerHTML = '';
   new QRCode(container, {
@@ -1071,6 +1192,13 @@ function handleCtrlMessage(d){
   if(d.action==='realm') openRealm(d.id);
   if(d.action==='home') goHome();
   if(d.action==='medals') openMedals();
+  if(d.action==='pause') pauseStory();
+  if(d.action==='resume') resumeStory();
+  /* reset medaglie dal controller: la conferma appare sulla TV, il telefono
+     la comanda (reset-ask → reset / reset-cancel) */
+  if(d.action==='reset-ask'){ openMedals(); askResetMedals(); }
+  if(d.action==='reset') doResetMedals();
+  if(d.action==='reset-cancel') cancelResetMedals();
   /* risincronizzazione (§4.2): a ogni 'hello' (telefono appena collegato o
      riconnesso) la TV risponde con lo stato corrente, così il controller
      salta subito alla schermata giusta anche a storia già iniziata */

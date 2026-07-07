@@ -2,7 +2,7 @@
 
 > Checklist ripetibile per validare l'app dopo ogni modifica importante.
 > Legenda esito: ✅ ok · ⚠️ ok con riserva · ❌ problema (annota cosa).
-> Ultima revisione automatica (code review + test): **6 luglio 2026**, commit di partenza `5237b5a`.
+> Ultima revisione automatica (code review + test): **7 luglio 2026** (v3.9: font più grandi, medaglie ingrandite, pausa, reset, fine→regni).
 
 ---
 
@@ -34,6 +34,14 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 - [x] `controller.html` carica senza errori; 3 regni; `phaseData` OK su tutte le storie e tutti i rami.
 - [x] Risincronizzazione controller (`applyState`): storia/finale/medaglie/regno/mappa + `storyId` inesistente gestito senza crash.
 
+### A3. Test in-browser delle novità v3.9 (720p + 1080p)
+- [x] Font ingranditi: scelte 28px, sottotitoli 36px, morale 28px (misurati a 1080p).
+- [x] Segno finali `.choice-mark` = pillola dorata leggibile («🌟 2/3»).
+- [x] Galleria medaglie ingrandita **sta dentro lo schermo senza scroll** a 720p (fondo reset a 709/720) e a 1080p (955/1080).
+- [x] Reset: `askResetMedals` mostra la conferma → `doResetMedals` azzera `progress.js` e mostra «Medaglie azzerate».
+- [x] Pausa: `pauseStory` mostra l'overlay + `paused=true`; `resumeStory` lo nasconde. Toggle controller `⏸ Pausa ↔ ▶ Riprendi`.
+- [x] `restart()` porta la TV a `screen-list` (mappa dei regni), non a `screen-realm`.
+
 ---
 
 ## B. Test manuali su TV Samsung reale + telefono (DA FARE)
@@ -41,8 +49,10 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 > Questi coprono ciò che il browser desktop non può dimostrare: browser della smart TV, animazioni, confetti, e il vero cross-device telefono↔TV. È l'ultimo grande "aperto" del progetto.
 
 ### B0. Preparazione
+- [ ] **v3.9:** `tv.html` e `controller.html` sono stati modificati direttamente → fai **hard-reload sulla TV** (il browser TV tiene la pagina in cache). Il QR punta già a `controller.html?v=10`, quindi il telefono si aggiorna da solo.
 - [ ] Bump `?v=N` se hai toccato `stories.js`/`transport.js`/`progress.js` (in `tv.html`, `controller.html` e `showQR`). Poi hard-reload sulla TV.
 - [ ] Apri `tv.html` sulla TV. **Nessun overlay rosso di errore** in basso? (se compare, annota il testo: è la diagnosi).
+- [ ] **Leggibilità (v3.9):** da distanza divano, scelte / sottotitoli / morale / descrizioni si leggono bene?
 - [ ] Premi col telecomando «⛶ Schermo intero»: la barra del browser sparisce.
 
 ### B1. Mappa e navigazione (TV da sola)
@@ -63,6 +73,8 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 - [ ] Fai la 1ª scelta dal telefono → la TV avanza; poi la 2ª scelta → finale con **morale**.
 - [ ] La **terza scelta** è sempre interamente visibile sull'immagine (non tagliata in basso).
 - [ ] Anti-doppio-tap: tap rapidi ripetuti non fanno saltare scene.
+- [ ] **Fine storia (v3.9):** premendo «↩ Torna ai regni» (da TV o telefono) **entrambi** tornano alla **mappa dei regni** (non alle storie del regno) — niente disallineamento.
+- [ ] **Pausa (v3.9):** durante la narrazione premi «⏸ Pausa» sul telefono → la TV mostra l'overlay «In pausa» e l'audio si ferma; «▶ Riprendi» riparte dal punto giusto coi sottotitoli in sincrono.
 
 ### B4. Medaglie (il pezzo NUOVO — mai testato su TV reale)
 - [ ] Alla **prima** conquista di un finale: la schermata di fine mostra le medaglie appena sbloccate **affiancate** + **coriandoli** (`canvas-confetti`).
@@ -70,6 +82,7 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 - [ ] Se il CDN dei coriandoli è lento/irraggiungibile: le medaglie compaiono **comunque** (solo senza coriandoli) — l'app **non** si blocca.
 - [ ] Dal telefono «🏅 Le mie medaglie» → la **galleria appare sulla TV** (il telefono resta telecomando e mostra "Medaglie sulla TV 📺").
 - [ ] La galleria sta **tutta a schermo senza scroll**; i tre stati (accesa / esplorata / da conquistare 🔒) sono distinguibili.
+- [ ] **v3.9:** le medaglie sono **abbastanza grandi e spaziate** (non più minuscole e ammassate al centro).
 - [ ] Le animazioni (bob, glow, scintille) sono fluide o almeno non impuntano l'app. *Se scattano/rallentano molto: candidato a ripiego statico su TV.*
 - [ ] **Spaziatura medaglie**: le medaglie hanno spazio tra loro e non si sovrappongono. *(Il flex `gap` è stato sostituito da `margin` universali il 6 lug 2026, così vale su qualsiasi TV — questo è solo un controllo di conferma sul dispositivo reale.)*
 
@@ -84,6 +97,12 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 - [ ] Le scelte già esplorate mostrano il segno 🌟 (restano cliccabili).
 - [ ] Riapri la TV il giorno dopo (stesso browser): i progressi ci sono ancora.
 - [ ] Nota limite noto: i progressi sono legati **al browser di quella TV**, non alla persona.
+
+### B7. Reset medaglie / memoria (NUOVO v3.9)
+- [ ] Sulla TV, in fondo al medagliere: «🗑 Azzera medaglie» → conferma → i progressi si azzerano e le medaglie tornano **tutte col lucchetto**.
+- [ ] Dal controller (in schermata medaglie): «🗑 Azzera medaglie» → la conferma appare **sia sul telefono sia sulla TV**; confermando dal telefono la TV azzera; «Annulla» non cancella nulla.
+- [ ] Dopo il reset, ri-completa una storia: la **festa di sblocco riparte** (medaglie + coriandoli), perché è di nuovo il 1° sblocco.
+- [ ] Alla primissima apertura del medagliere (memoria vergine) tutte le medaglie sono col lucchetto.
 
 ---
 

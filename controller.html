@@ -69,8 +69,22 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 
 /* tasto per uscire da una storia avviata (es. partita per sbaglio):
    riporta TV e controller alla mappa dei regni */
-#btn-exit-story{background:transparent;border:1px solid rgba(201,168,76,.25);color:var(--muted);font-family:'Crimson Pro',serif;font-size:15px;padding:12px 0;border-radius:30px;cursor:pointer;width:100%;margin-top:26px;transition:all .2s}
+#btn-exit-story{background:transparent;border:1px solid rgba(201,168,76,.25);color:var(--muted);font-family:'Crimson Pro',serif;font-size:15px;padding:12px 0;border-radius:30px;cursor:pointer;width:100%;margin-top:14px;transition:all .2s}
 #btn-exit-story:active{border-color:var(--gold);color:var(--gold)}
+
+/* tasto PAUSA (⏸/▶): ferma audio + storia sulla TV se il bimbo si distrae */
+#btn-pause-ctrl{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-family:'Crimson Pro',serif;font-size:17px;padding:15px 0;border-radius:30px;cursor:pointer;width:100%;margin-top:26px;transition:all .2s;font-weight:600}
+#btn-pause-ctrl:active{background:rgba(201,168,76,.2)}
+#btn-pause-ctrl.paused{background:rgba(74,144,164,.16);border-color:var(--accent);color:#8fd0e0}
+
+/* reset medaglie dal controller (con conferma) */
+#btn-reset-ctrl{background:transparent;border:1px solid rgba(201,168,76,.25);color:var(--muted);font-family:'Crimson Pro',serif;font-size:14px;padding:11px 0;border-radius:26px;cursor:pointer;width:100%;margin-top:18px;transition:all .2s}
+#btn-reset-ctrl:active{border-color:var(--gold);color:var(--gold)}
+#reset-confirm-ctrl{display:none;margin-top:18px;background:var(--card);border:1px solid rgba(220,90,90,.35);border-radius:14px;padding:16px}
+#reset-confirm-ctrl p{font-size:14px;color:var(--text);margin-bottom:14px;line-height:1.5}
+.reset-yes-ctrl{background:rgba(180,60,60,.16);border:1px solid rgba(220,90,90,.55);color:#f0b8b8;font-family:'Crimson Pro',serif;font-size:15px;padding:12px 0;border-radius:26px;cursor:pointer;width:100%;margin-bottom:10px}
+.reset-yes-ctrl:active{background:rgba(200,70,70,.28)}
+.reset-no-ctrl{background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold);font-family:'Crimson Pro',serif;font-size:15px;padding:12px 0;border-radius:26px;cursor:pointer;width:100%}
 
 /* --- STATUS BAR --- */
 .status-bar{
@@ -117,6 +131,12 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <h2 class="end-title">Le medaglie sono sulla TV 📺</h2>
   <p class="end-sub">Guardale sullo schermo grande!</p>
   <button class="btn-restart" onclick="closeMedalsCtrl()">← Chiudi galleria</button>
+  <button id="btn-reset-ctrl" onclick="askResetCtrl()">🗑 Azzera medaglie</button>
+  <div id="reset-confirm-ctrl">
+    <p>Vuoi davvero azzerare tutte le medaglie? I progressi (finali, storie e regni scoperti) andranno persi su questa TV.</p>
+    <button class="reset-yes-ctrl" onclick="confirmResetCtrl()">Sì, azzera tutto</button>
+    <button class="reset-no-ctrl" onclick="cancelResetCtrl()">Annulla</button>
+  </div>
 </div>
 
 <!-- SCELTE -->
@@ -125,6 +145,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <div class="preview" id="preview-txt">La storia sta per cominciare…</div>
   <p class="section-lbl">La vostra scelta</p>
   <div id="choice-btns"></div>
+  <button id="btn-pause-ctrl" onclick="togglePauseCtrl()">⏸ Pausa</button>
   <button id="btn-exit-story" onclick="exitStory()">← Esci dalla storia</button>
 </div>
 
@@ -133,7 +154,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
   <div class="end-icon">🌟</div>
   <h2 class="end-title">Bravi!</h2>
   <p class="end-sub">Avete completato la storia insieme.<br>Qual è la prossima avventura?</p>
-  <button class="btn-restart" onclick="doRestart()">↩ Torna alle storie</button>
+  <button class="btn-restart" onclick="doRestart()">↩ Torna ai regni</button>
 </div>
 
 <!-- STATUS -->
@@ -152,6 +173,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
    (anteprima + scelte per fase) viene derivata in phaseData(). */
 
 let cur=null,phase=0,c1key=null;
+let ctrlPaused=false; /* stato del toggle Pausa/Riprendi */
 
 /* Stanza: arriva dal QR della TV (?room=CODICE). Senza stanza resta attivo
    solo il ripiego locale (stesso browser/dispositivo). */
@@ -282,6 +304,7 @@ function init(){
 
 function selectStory(id){
   cur=STORIES.find(s=>s.id===id);phase=0;c1key=null;
+  resetPauseCtrl();
   document.getElementById('s-story').textContent=cur.title;
   send({action:'start',id});
   document.getElementById('ctrl-list').style.display='none';
@@ -331,7 +354,7 @@ function pickChoice(key,el){
    controller alla lista dei regni e la TV alla mappa (action:'home', che
    lato TV ferma anche la narrazione audio). */
 function exitStory(){
-  cur=null;phase=0;c1key=null;
+  cur=null;phase=0;c1key=null;resetPauseCtrl();
   document.getElementById('ctrl-choices').style.display='none';
   document.getElementById('ctrl-end').style.display='none';
   document.getElementById('ctrl-list').style.display='block';
@@ -343,7 +366,7 @@ function exitStory(){
 }
 
 function doRestart(){
-  cur=null;phase=0;c1key=null;
+  cur=null;phase=0;c1key=null;resetPauseCtrl();
   document.getElementById('ctrl-end').style.display='none';
   document.getElementById('ctrl-list').style.display='block';
   document.getElementById('how-to').style.display='block';
@@ -357,6 +380,7 @@ function doRestart(){
    aprire la galleria (telecomando). Chiudendo torna alla mappa (action:'home'). */
 function openMedalsCtrl(){
   send({action:'medals'});
+  resetResetCtrlUI();
   document.getElementById('ctrl-list').style.display='none';
   document.getElementById('ctrl-choices').style.display='none';
   document.getElementById('ctrl-end').style.display='none';
@@ -366,11 +390,54 @@ function openMedalsCtrl(){
 }
 function closeMedalsCtrl(){
   send({action:'home'}); /* la TV torna alla mappa */
+  resetResetCtrlUI();
   document.getElementById('ctrl-medals').style.display='none';
   document.getElementById('how-to').style.display='block';
   document.getElementById('ctrl-list').style.display='block';
   renderRealms();
   setStatus('In ascolto…');
+}
+
+/* ===== PAUSA (toggle): mette in pausa / riprende audio e storia sulla TV ===== */
+function togglePauseCtrl(){
+  ctrlPaused=!ctrlPaused;
+  send({action: ctrlPaused ? 'pause' : 'resume'});
+  const b=document.getElementById('btn-pause-ctrl');
+  b.textContent = ctrlPaused ? '▶ Riprendi' : '⏸ Pausa';
+  b.classList.toggle('paused', ctrlPaused);
+  setStatus(ctrlPaused ? 'Storia in pausa ⏸' : 'In riproduzione ▶');
+}
+/* rimette il toggle su "Pausa" quando si esce/riavvia una storia */
+function resetPauseCtrl(){
+  ctrlPaused=false;
+  const b=document.getElementById('btn-pause-ctrl');
+  if(b){ b.textContent='⏸ Pausa'; b.classList.remove('paused'); }
+}
+
+/* ===== RESET MEDAGLIE dal controller (con conferma) =====
+   La conferma appare sia qui sia sulla TV: reset-ask apre il dialogo, poi
+   reset esegue / reset-cancel annulla (gestiti dalla TV). */
+function askResetCtrl(){
+  send({action:'reset-ask'});
+  document.getElementById('btn-reset-ctrl').style.display='none';
+  document.getElementById('reset-confirm-ctrl').style.display='block';
+  setStatus('Conferma qui sotto…','#e6a23c');
+}
+function confirmResetCtrl(){
+  send({action:'reset'});
+  resetResetCtrlUI();
+  setStatus('Medaglie azzerate ✓','#c9a84c');
+}
+function cancelResetCtrl(){
+  send({action:'reset-cancel'});
+  resetResetCtrlUI();
+  setStatus('Annullato');
+}
+function resetResetCtrlUI(){
+  const c=document.getElementById('reset-confirm-ctrl');
+  const b=document.getElementById('btn-reset-ctrl');
+  if(c) c.style.display='none';
+  if(b) b.style.display='block';
 }
 
 function setStatus(msg,color='var(--accent)'){
