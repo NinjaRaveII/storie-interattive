@@ -225,9 +225,16 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 }
 .choice-btn .cnum{min-width:32px;height:32px;border-radius:50%;border:1px solid rgba(201,168,76,.45);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--gold2);flex-shrink:0;margin-right:14px}
 .choice-btn:hover,.choice-btn.focused{background:rgba(201,168,76,.16);border-color:var(--gold)}
-/* segno "già scoperto" (progress.js): pill dorata leggibile, spinta a destra */
-.choice-mark{margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;font-size:16px;font-size:clamp(15px,1.6vw,22px);color:var(--gold2);background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.45);border-radius:16px;padding:3px 12px;font-weight:600;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,.9)}
+/* segno "già scoperto" (progress.js): pill dorata leggibile, spinta a destra.
+   Mostra stelline accese/spente + un'etichetta ("n finali su N" / "opzione
+   completata"): la scelta resta comunque cliccabile, è solo un promemoria. */
+.choice-mark{margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;font-size:15px;font-size:clamp(14px,1.5vw,20px);color:var(--gold2);background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.45);border-radius:16px;padding:3px 12px;font-weight:600;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,.9)}
 .choice-mark.full{color:#1a1608;background:var(--gold2);border-color:var(--gold2);opacity:1;text-shadow:none}
+.cm-stars{margin-right:8px;letter-spacing:1px;font-size:17px;font-size:clamp(16px,1.7vw,23px);line-height:1}
+.cm-on{color:#ffe08a}
+.cm-off{color:#6a6250}
+.choice-mark.full .cm-on{color:#1a1608}
+.choice-mark.full .cm-off{color:#7a6a2e}
 
 /* MORAL CARD — sotto l'immagine (mostrata solo al finale, quando non ci sono scelte) */
 .moral-card{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:18px 22px;margin:18px auto 24px;max-width:820px;display:none}
@@ -352,73 +359,89 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
 #btn-medals:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
 #btn-medals.visible{display:flex}
 
-/* Medaglie più grandi e distribuite; i verticali usano vh così l'intera
+/* Medaglie GRANDI e ben distanziate; i verticali usano vh così l'intera
    galleria resta a schermo anche a 720p (la TV non scrolla). I valori px
    statici (prima di ogni clamp) sono il ripiego per i browser TV vecchi che
    ignorano clamp/vh (§13.8). */
-#screen-medals{display:none;width:100%;max-width:1440px;margin:0 auto;animation:fadeIn .6s ease;text-align:center}
-.medals-title{font-family:'Playfair Display',serif;font-size:28px;font-size:clamp(20px,2.4vw,34px);color:var(--gold2);margin:2px 0 1px}
-.medals-sub{color:var(--muted);font-style:italic;font-size:14px;font-size:clamp(12px,1.6vh,16px);margin-bottom:4px;margin-bottom:clamp(2px,.7vh,8px)}
-.medals-group-lbl{font-family:'Crimson Pro',serif;color:var(--gold);font-size:14px;font-size:clamp(12px,1.7vh,17px);letter-spacing:2px;margin:10px 0 3px;margin:clamp(4px,1.1vh,14px) 0 clamp(2px,.4vh,5px);text-transform:uppercase;opacity:.85}
+#screen-medals{display:none;width:100%;max-width:1500px;margin:0 auto;animation:fadeIn .6s ease;text-align:center}
+.medals-title{font-family:'Playfair Display',serif;font-size:30px;font-size:clamp(22px,2.6vw,38px);color:var(--gold2);margin:2px 0 1px}
+.medals-sub{color:var(--muted);font-style:italic;font-size:14px;font-size:clamp(12px,1.6vh,16px);margin-bottom:6px;margin-bottom:clamp(3px,.9vh,10px)}
+.medals-group-lbl{font-family:'Crimson Pro',serif;color:var(--gold);font-size:14px;font-size:clamp(12px,1.7vh,17px);letter-spacing:2px;margin:8px 0 2px;margin:clamp(3px,1vh,12px) 0 clamp(1px,.3vh,4px);text-transform:uppercase;opacity:.8}
 .medals-row{display:flex;flex-wrap:wrap;justify-content:center}
-.medal-item{width:170px;width:clamp(140px,14vw,196px);text-align:center;margin:0 20px 16px;margin:0 clamp(14px,1.6vw,30px) clamp(8px,1.4vh,20px)}
-.medal-frame{position:relative;height:104px;height:clamp(70px,9.5vh,140px);display:flex;align-items:flex-end;justify-content:center;margin-bottom:3px}
-.medal-item .m-img{max-height:100px;max-height:clamp(66px,9vh,132px);max-width:168px;max-width:clamp(136px,13.5vw,190px);width:auto;height:auto;display:block}
-.medal-item .m-name{font-family:'Playfair Display',serif;font-size:16px;font-size:clamp(13px,1.9vh,20px);color:var(--gold2);line-height:1.15}
-.medal-item .m-state{font-size:12px;font-size:clamp(10px,1.4vh,14px);color:var(--muted)}
+.medal-item{width:220px;width:clamp(158px,18vw,252px);text-align:center;margin:0 28px 16px;margin:0 clamp(18px,2.6vw,48px) clamp(8px,1.4vh,20px)}
+.medal-frame{position:relative;height:150px;height:clamp(112px,16.5vh,206px);display:flex;align-items:flex-end;justify-content:center;margin-bottom:6px}
+.medal-item .m-img{max-height:144px;max-height:clamp(104px,15.8vh,198px);max-width:216px;max-width:clamp(150px,17.5vw,244px);width:auto;height:auto;display:block}
+.medal-item .m-name{font-family:'Playfair Display',serif;font-size:19px;font-size:clamp(15px,2.1vh,24px);color:var(--gold2);line-height:1.15}
+.medal-item .m-state{font-size:13px;font-size:clamp(11px,1.55vh,16px);color:var(--muted)}
 
 .medal-item:not(.locked) .m-float{animation:m-bob 4.4s ease-in-out infinite}
 @keyframes m-bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-5px) rotate(1deg)}}
 
-/* stato ESPLORATA (spenta): colori pieni, spessore + bordo dorato tenue */
-.medal-item.explored .m-img{filter:drop-shadow(.8px 1.1px 0 #4a3620) drop-shadow(.8px 1.1px 0 #43301c) drop-shadow(.8px 1.1px 0 #382816) drop-shadow(.8px 1.1px 0 #2c1f11) drop-shadow(0 0 1px #caa242) drop-shadow(0 4px 7px rgba(0,0,0,.5))}
-/* stato COMPLETA (accesa): alone dorato pulsante */
-.medal-item.complete .m-img{animation:m-glow 2.6s ease-in-out infinite}
+/* Filtri SEMPLIFICATI (max 2 drop-shadow): le catene lunghe di drop-shadow e
+   le animazioni di filter non sono affidabili sui browser TV (§13.8). Ogni
+   stato ha una base statica visibile anche se la TV ignora l'animazione. */
+/* stato ESPLORATA (spenta): colori pieni + ombra morbida */
+.medal-item.explored .m-img{filter:drop-shadow(0 4px 7px rgba(0,0,0,.55))}
+/* stato COMPLETA (accesa): alone dorato pulsante (base statica già luminosa) */
+.medal-item.complete .m-img{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5)) drop-shadow(0 0 9px rgba(255,214,120,.75));animation:m-glow 2.6s ease-in-out infinite}
 @keyframes m-glow{
-  0%,100%{filter:drop-shadow(.8px 1.1px 0 #5a4326) drop-shadow(.8px 1.1px 0 #40301b) drop-shadow(.8px 1.1px 0 #322512) drop-shadow(0 0 1px #ffe6a0) drop-shadow(0 0 6px rgba(255,224,130,.6)) drop-shadow(0 0 14px rgba(255,200,80,.4))}
-  50%{filter:drop-shadow(.8px 1.1px 0 #5a4326) drop-shadow(.8px 1.1px 0 #40301b) drop-shadow(.8px 1.1px 0 #322512) drop-shadow(0 0 2px #fff2c8) drop-shadow(0 0 12px rgba(255,232,150,.95)) drop-shadow(0 0 26px rgba(255,205,90,.6))}
+  0%,100%{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5)) drop-shadow(0 0 7px rgba(255,214,120,.6))}
+  50%{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(255,228,150,.95))}
 }
 .medal-item.complete .m-name{color:#ffe6a0}
-/* stato DA CONQUISTARE: silhouette grigia + lucchetto */
-.medal-item.locked .m-img{filter:grayscale(1) brightness(.3) drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+/* stato DA CONQUISTARE: silhouette grigia VISIBILE (brightness/opacity tarati
+   per non sparire sul fondo scuro della TV — era il bug §9) + lucchetto chiaro */
+.medal-item.locked .m-img{filter:grayscale(1) brightness(.78);opacity:.55}
 .medal-item.locked .m-name{color:#8a8070}
-.medal-item.locked .m-lock{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:38px;font-size:clamp(30px,5vh,46px);filter:drop-shadow(0 2px 4px #000);z-index:3}
+.medal-item.locked .m-lock{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-size:40px;font-size:clamp(32px,5.4vh,52px);filter:drop-shadow(0 2px 5px #000);z-index:3}
 
 .m-spark{position:absolute;font-size:15px;color:#fff3c4;text-shadow:0 0 8px #ffd873,0 0 16px #ffb43c;opacity:0;z-index:4}
 .medal-item.complete .m-spark{animation:m-tw 2.4s ease-in-out infinite}
 .m-spark.a{top:0;left:20px}.m-spark.b{top:18px;right:12px;font-size:12px;animation-delay:.6s}.m-spark.c{bottom:16px;right:16px;font-size:17px;animation-delay:1.2s}
 @keyframes m-tw{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1)}}
 
-/* reset medaglie (genitore): tasto discreto + conferma inline */
-#medals-reset{margin-top:clamp(6px,1.4vh,16px)}
-#btn-reset-medals{background:transparent;border:1px solid rgba(201,168,76,.28);color:var(--muted);font-family:'Crimson Pro',serif;font-size:14px;font-size:clamp(13px,1.5vh,17px);padding:8px 20px;border-radius:22px;cursor:pointer;transition:all .2s}
-#btn-reset-medals:hover{border-color:var(--gold);color:var(--gold)}
-#reset-confirm{display:none;max-width:520px;margin:0 auto}
-.reset-q{color:var(--text);font-size:16px;font-size:clamp(14px,1.9vh,19px);margin-bottom:10px}
-.reset-yes,.reset-no{font-family:'Crimson Pro',serif;font-size:15px;font-size:clamp(14px,1.7vh,18px);padding:9px 24px;border-radius:24px;cursor:pointer;margin:0 8px;transition:all .2s}
+/* reset medaglie (genitore): tasto FISSO in alto a destra, sotto il tasto
+   schermo intero (visibile solo nel medagliere); conferma come piccolo modale. */
+#btn-reset-medals{
+  position:fixed;top:62px;right:24px;z-index:150;
+  background:rgba(18,18,26,.88);border:1px solid rgba(201,168,76,.25);
+  border-radius:30px;padding:9px 18px;color:var(--gold);
+  font-family:'Crimson Pro',serif;font-size:15px;cursor:pointer;
+  display:none;align-items:center;transition:all .2s;
+}
+#btn-reset-medals:hover{background:rgba(201,168,76,.15);border-color:var(--gold);transform:scale(1.03)}
+#btn-reset-medals.visible{display:flex}
+#reset-confirm{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:210;background:rgba(18,18,26,.98);border:1px solid rgba(220,90,90,.4);border-radius:18px;padding:24px 30px;max-width:540px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.reset-q{color:var(--text);font-size:16px;font-size:clamp(15px,1.9vh,20px);margin-bottom:16px;line-height:1.5}
+.reset-yes,.reset-no{font-family:'Crimson Pro',serif;font-size:15px;font-size:clamp(14px,1.7vh,18px);padding:10px 26px;border-radius:24px;cursor:pointer;margin:0 8px;transition:all .2s}
 .reset-yes{background:rgba(180,60,60,.16);border:1px solid rgba(220,90,90,.55);color:#f0b8b8}
 .reset-yes:hover{background:rgba(200,70,70,.28)}
 .reset-no{background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold)}
 .reset-no:hover{background:rgba(201,168,76,.1)}
-#reset-done{display:none;color:var(--gold2);font-style:italic;font-size:16px;font-size:clamp(14px,1.9vh,19px)}
+#reset-done{display:none;position:fixed;top:62px;right:24px;z-index:210;background:rgba(18,18,26,.95);border:1px solid rgba(201,168,76,.4);border-radius:30px;padding:9px 20px;color:var(--gold2);font-style:italic;font-size:15px}
 
 /* festa a fine storia: medaglie appena sbloccate dentro screen-end */
 .end-newmsg{font-family:'Playfair Display',serif;color:var(--gold2);font-size:18px;font-size:clamp(15px,1.8vw,22px);margin:6px 0 2px}
 #end-medals{display:flex;flex-wrap:wrap;justify-content:center;margin:12px 0 20px}
-#end-medals .medal-item{width:150px;margin:0 14px}
-#end-medals .medal-frame{height:150px;height:clamp(120px,20vh,170px)}
-#end-medals .m-img{max-height:150px;max-height:clamp(116px,19vh,166px);max-width:150px}
+#end-medals .medal-item{width:170px;margin:0 18px}
+#end-medals .medal-frame{height:170px;height:clamp(130px,22vh,190px)}
+#end-medals .m-img{max-height:166px;max-height:clamp(126px,21vh,186px);max-width:170px}
 
-/* OVERLAY PAUSA — comandato dal controller (⏸): ferma audio + narrazione */
+/* BADGE PAUSA — comandato dal controller (⏸): ferma audio + narrazione ma
+   NON copre la scena, così il bimbo continua a vedere immagine e sottotitoli.
+   Piccolo, in alto a destra sotto il tasto schermo intero. */
 #pause-overlay{
-  position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
-  display:none;align-items:center;justify-content:center;
-  background:rgba(5,5,10,.82);
+  position:fixed;top:62px;right:24px;z-index:180;
+  display:none;align-items:center;
+  background:rgba(18,18,26,.92);
+  border:1px solid rgba(74,144,164,.55);
+  border-radius:30px;
+  padding:9px 20px;
+  color:#8fd0e0;
+  font-family:'Crimson Pro',serif;
+  font-size:15px;font-size:clamp(14px,1.5vw,18px);
 }
-.pause-box{text-align:center}
-.pause-ico{font-size:64px;font-size:clamp(52px,8vh,88px);margin-bottom:10px}
-.pause-txt{font-family:'Playfair Display',serif;font-size:44px;font-size:clamp(32px,4.4vw,58px);color:var(--gold2)}
-.pause-sub{font-size:18px;font-size:clamp(15px,1.8vw,22px);color:var(--muted);font-style:italic;margin-top:8px}
+.pause-ico{margin-right:9px;font-size:18px}
 </style>
 </head>
 <body>
@@ -527,27 +550,23 @@ window.onerror = function(msg, src, line){
     <h1 class="medals-title">🏅 Le mie medaglie</h1>
     <p class="medals-sub">Scopri le storie e i regni per accenderle tutte</p>
     <div id="medals-body"></div>
-    <!-- reset progressi (genitore): comandabile anche dal controller -->
-    <div id="medals-reset">
-      <button id="btn-reset-medals" onclick="askResetMedals()">🗑 Azzera medaglie</button>
-      <div id="reset-confirm">
-        <p class="reset-q">Vuoi davvero azzerare tutte le medaglie? I progressi andranno persi.</p>
-        <button class="reset-yes" onclick="doResetMedals()">Sì, azzera</button>
-        <button class="reset-no" onclick="cancelResetMedals()">Annulla</button>
-      </div>
-      <div id="reset-done">✓ Medaglie azzerate</div>
-    </div>
   </div>
 </div>
 
-<!-- OVERLAY PAUSA: mostrato quando il controller mette in pausa (⏸) -->
-<div id="pause-overlay">
-  <div class="pause-box">
-    <div class="pause-ico">⏸</div>
-    <div class="pause-txt">In pausa</div>
-    <div class="pause-sub">Riprendi dal telefono ▶</div>
-  </div>
+<!-- reset progressi (genitore): tasto fisso in alto a destra (di fianco al
+     tasto schermo intero), comandabile anche dal controller. Fuori dalle
+     schermate perché fisso: la conferma è un piccolo modale centrale. -->
+<button id="btn-reset-medals" onclick="askResetMedals()">🗑 Azzera medaglie</button>
+<div id="reset-confirm">
+  <p class="reset-q">Vuoi davvero azzerare tutte le medaglie?<br>I progressi andranno persi.</p>
+  <button class="reset-yes" onclick="doResetMedals()">Sì, azzera</button>
+  <button class="reset-no" onclick="cancelResetMedals()">Annulla</button>
 </div>
+<div id="reset-done">✓ Medaglie azzerate</div>
+
+<!-- BADGE PAUSA: piccolo, non copre la scena (immagine + sottotitoli restano
+     visibili). Mostrato quando il controller mette in pausa (⏸). -->
+<div id="pause-overlay"><span class="pause-ico">⏸</span>In pausa · riprendi dal telefono ▶</div>
 
 <!-- STEP 1 — INVITO ALLO SCHERMO INTERO.
      Oscura il resto e punta il pop-up verso il bottone «⛶ Schermo intero»
@@ -784,19 +803,32 @@ function showChoices(choices){
 }
 
 /* Segno "già scoperto" su una scelta, ricavato dai finali salvati (progress.js).
-   Le scelte restano cliccabili: il segno è solo un promemoria per il bambino.
-   - stepIdx 0 (prima scelta): porta a più finali → contatore "🌟 n/tot" del ramo
-   - stepIdx 1 (seconda scelta): choice1_key è un finale preciso → "🌟" se già visto */
+   Le scelte restano SEMPRE cliccabili: il segno è solo un promemoria visivo.
+   - stepIdx 0 (prima scelta): il ramo porta a N finali → N stelline (accese =
+     finali scoperti, spente = ancora da scoprire) + "n finali su N"; a ramo
+     completo diventa una pill piena "ramo completato".
+   - stepIdx 1 (seconda scelta): choice1_key è un finale preciso → se già visto
+     una stellina + "opzione completata". */
+function stars(on, total){
+  var s='';
+  for(var i=0;i<total;i++){ s += i<on ? '<span class="cm-on">★</span>' : '<span class="cm-off">☆</span>'; }
+  return '<span class="cm-stars">'+s+'</span>';
+}
 function choiceMark(key){
   if(!story) return '';
   if(stepIdx===0){
     const branch = story.steps[1] && story.steps[1].variants[key];
     const total = branch ? branch.choices.length : 0;
     const found = Progress.branchEndingsCount(story.id, key);
-    if(found<=0) return '';
-    return `<span class="choice-mark${found>=total?' full':''}">🌟 ${found}/${total}</span>`;
+    if(found<=0 || total<=0) return '';
+    const full = found>=total;
+    const label = full ? 'ramo completato' : found+' final'+(found===1?'e':'i')+' su '+total;
+    return '<span class="choice-mark'+(full?' full':'')+'">'+stars(found,total)+label+'</span>';
   }
-  return Progress.hasEnding(story.id, choice1+'_'+key) ? '<span class="choice-mark">🌟</span>' : '';
+  if(Progress.hasEnding(story.id, choice1+'_'+key)){
+    return '<span class="choice-mark full">'+stars(1,1)+'opzione completata</span>';
+  }
+  return '';
 }
 
 function pick(key,si){
@@ -887,29 +919,36 @@ function medalDefs(){
   return defs;
 }
 
+/* cache-buster degli asset medaglie: da alzare quando un'immagine cambia (es.
+   first_story.png reso trasparente) — i browser TV cachano gli asset e senza
+   questo rischerebbero di ripescare la versione vecchia (§13.8). */
+const MEDAL_ASSET_V = '3';
 function medalItemHtml(def){
   const st=def.state();
   const stLabel = st==='complete' ? 'Completa ✨' : (st==='explored' ? 'Esplorata' : 'Da conquistare');
   const lock = st==='locked' ? '<div class="m-lock">🔒</div>' : '';
   const sparks = st==='complete' ? '<span class="m-spark a">✦</span><span class="m-spark b">✧</span><span class="m-spark c">✦</span>' : '';
+  const src = def.img + (def.img.indexOf('?')<0 ? '?m='+MEDAL_ASSET_V : '&m='+MEDAL_ASSET_V);
   return `<div class="medal-item ${st}">
-    <div class="medal-frame">${sparks}${lock}<div class="m-float"><img class="m-img" src="${def.img}" alt="${def.name}"></div></div>
+    <div class="medal-frame">${sparks}${lock}<div class="m-float"><img class="m-img" src="${src}" alt="${def.name}"></div></div>
     <div class="m-name">${def.name}</div>
     <div class="m-state">${stLabel}</div>
   </div>`;
 }
 
+/* Galleria a PIRAMIDE su 3 righe (non 4): l'ultima riga unisce i regni e il
+   gran finale "Tutti i regni". Meno righe = medaglie più grandi che stanno
+   comunque a schermo a 720p (la TV non scrolla). */
 function buildGallery(){
   const defs=medalDefs();
   const groups=[
-    {lbl:'La prima storia', ids:['first']},
-    {lbl:'Le storie', pref:'story:'},
-    {lbl:'I regni', pref:'realm:'},
-    {lbl:'Tutti i regni', ids:['all']}
+    {lbl:'La prima storia', match:d=> d.id==='first'},
+    {lbl:'Le storie',       match:d=> d.id.indexOf('story:')===0},
+    {lbl:'I regni',         match:d=> d.id.indexOf('realm:')===0 || d.id==='all'}
   ];
   let html='';
   groups.forEach(g=>{
-    const items=defs.filter(d=> g.ids ? g.ids.indexOf(d.id)>=0 : d.id.indexOf(g.pref)===0);
+    const items=defs.filter(g.match);
     if(!items.length) return;
     html+=`<div class="medals-group-lbl">${g.lbl}</div><div class="medals-row">${items.map(medalItemHtml).join('')}</div>`;
   });
@@ -918,31 +957,35 @@ function buildGallery(){
 
 function openMedals(){
   buildGallery();
-  cancelResetMedals();               /* riparte sempre dallo stato "tasto" */
+  document.getElementById('reset-confirm').style.display='none';
   document.getElementById('reset-done').style.display='none';
-  show('screen-medals');
+  show('screen-medals');               /* show() rende visibile il tasto reset */
 }
 
 /* --- Reset progressi (genitore): tasto nel medagliere, con conferma.
    Comandabile anche dal controller: reset-ask apre la conferma qui, reset la
    esegue, reset-cancel la annulla (vedi handleCtrlMessage). --- */
 function askResetMedals(){
-  document.getElementById('btn-reset-medals').style.display='none';
+  document.getElementById('btn-reset-medals').classList.remove('visible');
   document.getElementById('reset-done').style.display='none';
   document.getElementById('reset-confirm').style.display='block';
 }
 function cancelResetMedals(){
   document.getElementById('reset-confirm').style.display='none';
-  document.getElementById('btn-reset-medals').style.display='inline-block';
+  if(currentScreen==='screen-medals') document.getElementById('btn-reset-medals').classList.add('visible');
 }
 function doResetMedals(){
   Progress.reset();
   buildGallery();
   document.getElementById('reset-confirm').style.display='none';
-  document.getElementById('btn-reset-medals').style.display='inline-block';
+  /* il toast "azzerate" occupa lo stesso angolo del tasto: tengo il tasto
+     nascosto finché il toast è a schermo, poi lo rimetto */
   var done=document.getElementById('reset-done');
   done.style.display='block';
-  setTimeout(function(){ done.style.display='none'; }, 2600);
+  setTimeout(function(){
+    done.style.display='none';
+    if(currentScreen==='screen-medals') document.getElementById('btn-reset-medals').classList.add('visible');
+  }, 2600);
 }
 
 /* --- Festa a fine storia: solo le medaglie appena sbloccate (primo sblocco) --- */
@@ -1306,6 +1349,14 @@ function show(id){
   /* il bottone galleria vive solo sulla mappa (dove btn-home è nascosto) */
   const bm = document.getElementById('btn-medals');
   if(bm) bm.classList.toggle('visible', id==='screen-list');
+  /* il tasto "Azzera medaglie" (in alto a destra) vive solo nel medagliere */
+  const br = document.getElementById('btn-reset-medals');
+  if(br) br.classList.toggle('visible', id==='screen-medals');
+  if(id!=='screen-medals'){
+    /* uscendo dal medagliere, chiudi eventuale conferma/toast di reset rimasti */
+    var rc=document.getElementById('reset-confirm'); if(rc) rc.style.display='none';
+    var rd=document.getElementById('reset-done'); if(rd) rd.style.display='none';
+  }
   if(id==='screen-realm'){
     btn.textContent='← Mappa';
     btn.onclick=()=>{ stopSpeak(); show('screen-list'); };

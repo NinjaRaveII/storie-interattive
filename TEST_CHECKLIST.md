@@ -2,7 +2,7 @@
 
 > Checklist ripetibile per validare l'app dopo ogni modifica importante.
 > Legenda esito: ✅ ok · ⚠️ ok con riserva · ❌ problema (annota cosa).
-> Ultima revisione automatica (code review + test): **7 luglio 2026** (v3.9: font più grandi, medaglie ingrandite, pausa, reset, fine→regni).
+> Ultima revisione automatica (code review + test): **8 luglio 2026** (v3.11: reset in alto a destra, badge pausa discreto, medaglia «prima storia» trasparente, segni scelte a stelline, medaglie piramide 3 righe più grandi, silhouette lucchetto visibili).
 
 ---
 
@@ -42,6 +42,14 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 - [x] Pausa: `pauseStory` mostra l'overlay + `paused=true`; `resumeStory` lo nasconde. Toggle controller `⏸ Pausa ↔ ▶ Riprendi`.
 - [x] `restart()` porta la TV a `screen-list` (mappa dei regni), non a `screen-realm`.
 
+### A4. Test in-browser delle correzioni v3.11 (720p + 1080p, Chrome DevTools)
+- [x] **Reset spostato**: `#btn-reset-medals` è fisso in alto a destra (`top:62px right:24px`), visibile **solo** in `#screen-medals`; `askResetMedals` mostra il modale centrale e nasconde il tasto; `cancel`/`do` lo ripristinano; il toast «azzerate» non si sovrappone al tasto.
+- [x] **Badge pausa**: `pauseStory` mostra un badge piccolo in alto a destra (~306×43px), **non copre** la scena; il sottotitolo resta visibile; `resumeStory` lo nasconde.
+- [x] **Medaglia «La prima storia»**: `first_story.png` ora trasparente → l'immagine renderizza (box ~174×114, non 0), stato `complete` con alone. Cache-buster `?m=3` presente sulle `src`.
+- [x] **Segni scelte**: 1ª scelta → `★★☆ 2 finali su 3` / `★☆☆ 1 finale su 3` / niente; 2ª scelta già percorsa → `★ opzione completata` (pill piena). Tutte restano cliccabili.
+- [x] **Medaglie piramide 3 righe**: prima storia · storie (3) · regni+gran finale (4); img ~115px @720p, ~170px @1080p; **nessuno scroll** (fondo 677/720, 977/1080).
+- [x] **Lucchetto visibile**: medaglie `locked` con `opacity:.55` + `grayscale(1) brightness(.78)` → silhouette visibile; `.m-lock` 🔒 `display:block/visible`. Filtri semplificati (max 2 drop-shadow, niente animazioni di `filter`).
+
 ---
 
 ## B. Test manuali su TV Samsung reale + telefono (DA FARE)
@@ -49,7 +57,7 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 > Questi coprono ciò che il browser desktop non può dimostrare: browser della smart TV, animazioni, confetti, e il vero cross-device telefono↔TV. È l'ultimo grande "aperto" del progetto.
 
 ### B0. Preparazione
-- [ ] **v3.9:** `tv.html` e `controller.html` sono stati modificati direttamente → fai **hard-reload sulla TV** (il browser TV tiene la pagina in cache). Il QR punta già a `controller.html?v=10`, quindi il telefono si aggiorna da solo.
+- [ ] **v3.11:** modificati **solo `tv.html`** e l'asset `images/medals/first_story.png` → fai **hard-reload sulla TV**. Il cache-buster `?m=3` sulle immagini medaglie forza il ri-scarico della `first_story.png` corretta (prima era nera e invisibile). Controller/protocollo invariati: QR resta `?v=10`.
 - [ ] Bump `?v=N` se hai toccato `stories.js`/`transport.js`/`progress.js` (in `tv.html`, `controller.html` e `showQR`). Poi hard-reload sulla TV.
 - [ ] Apri `tv.html` sulla TV. **Nessun overlay rosso di errore** in basso? (se compare, annota il testo: è la diagnosi).
 - [ ] **Leggibilità (v3.9):** da distanza divano, scelte / sottotitoli / morale / descrizioni si leggono bene?
@@ -74,7 +82,8 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 - [ ] La **terza scelta** è sempre interamente visibile sull'immagine (non tagliata in basso).
 - [ ] Anti-doppio-tap: tap rapidi ripetuti non fanno saltare scene.
 - [ ] **Fine storia (v3.9):** premendo «↩ Torna ai regni» (da TV o telefono) **entrambi** tornano alla **mappa dei regni** (non alle storie del regno) — niente disallineamento.
-- [ ] **Pausa (v3.9):** durante la narrazione premi «⏸ Pausa» sul telefono → la TV mostra l'overlay «In pausa» e l'audio si ferma; «▶ Riprendi» riparte dal punto giusto coi sottotitoli in sincrono.
+- [ ] **Pausa (v3.11):** durante la narrazione premi «⏸ Pausa» sul telefono → sulla TV appare un **badge piccolo in alto a destra** (non un velo che copre tutto): **immagine e sottotitoli restano visibili**; l'audio si ferma; «▶ Riprendi» riparte dal punto giusto coi sottotitoli in sincrono.
+- [ ] **Segni scelte (v3.11):** dopo aver scoperto qualche finale, rientrando in una storia le scelte mostrano le **stelline** («★★☆ 2 finali su 3» sulla 1ª, «★ opzione completata» sulla 2ª già percorsa) — leggibili da divano e ancora cliccabili.
 
 ### B4. Medaglie (il pezzo NUOVO — mai testato su TV reale)
 - [ ] Alla **prima** conquista di un finale: la schermata di fine mostra le medaglie appena sbloccate **affiancate** + **coriandoli** (`canvas-confetti`).
@@ -82,7 +91,9 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 - [ ] Se il CDN dei coriandoli è lento/irraggiungibile: le medaglie compaiono **comunque** (solo senza coriandoli) — l'app **non** si blocca.
 - [ ] Dal telefono «🏅 Le mie medaglie» → la **galleria appare sulla TV** (il telefono resta telecomando e mostra "Medaglie sulla TV 📺").
 - [ ] La galleria sta **tutta a schermo senza scroll**; i tre stati (accesa / esplorata / da conquistare 🔒) sono distinguibili.
-- [ ] **v3.9:** le medaglie sono **abbastanza grandi e spaziate** (non più minuscole e ammassate al centro).
+- [ ] **v3.11:** la **medaglia «La prima storia» (libro) si vede** (prima invisibile per lo sfondo nero) e brilla quando è completa.
+- [ ] **v3.11:** le medaglie **col lucchetto NON spariscono** — restano silhouette grigie visibili con il 🔒 dorato (prima erano quasi nere sul fondo scuro).
+- [ ] **v3.11:** medaglie **grandi e su 3 righe a piramide** (prima storia · storie · regni+gran finale), ben spaziate.
 - [ ] Le animazioni (bob, glow, scintille) sono fluide o almeno non impuntano l'app. *Se scattano/rallentano molto: candidato a ripiego statico su TV.*
 - [ ] **Spaziatura medaglie**: le medaglie hanno spazio tra loro e non si sovrappongono. *(Il flex `gap` è stato sostituito da `margin` universali il 6 lug 2026, così vale su qualsiasi TV — questo è solo un controllo di conferma sul dispositivo reale.)*
 
@@ -98,8 +109,8 @@ Script: `scratchpad/validate.mjs` (o rigenerabile). Verifica in un colpo solo:
 - [ ] Riapri la TV il giorno dopo (stesso browser): i progressi ci sono ancora.
 - [ ] Nota limite noto: i progressi sono legati **al browser di quella TV**, non alla persona.
 
-### B7. Reset medaglie / memoria (NUOVO v3.9)
-- [ ] Sulla TV, in fondo al medagliere: «🗑 Azzera medaglie» → conferma → i progressi si azzerano e le medaglie tornano **tutte col lucchetto**.
+### B7. Reset medaglie / memoria (v3.9, tasto spostato in v3.11)
+- [ ] Sulla TV, **in alto a destra sotto «Schermo intero»** (v3.11): «🗑 Azzera medaglie» → conferma (piccolo modale centrale) → i progressi si azzerano e le medaglie tornano **tutte col lucchetto**.
 - [ ] Dal controller (in schermata medaglie): «🗑 Azzera medaglie» → la conferma appare **sia sul telefono sia sulla TV**; confermando dal telefono la TV azzera; «Annulla» non cancella nulla.
 - [ ] Dopo il reset, ri-completa una storia: la **festa di sblocco riparte** (medaglie + coriandoli), perché è di nuovo il 1° sblocco.
 - [ ] Alla primissima apertura del medagliere (memoria vergine) tutte le medaglie sono col lucchetto.
