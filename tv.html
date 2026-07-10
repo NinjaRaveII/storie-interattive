@@ -382,12 +382,14 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,se
    stato ha una base statica visibile anche se la TV ignora l'animazione. */
 /* stato ESPLORATA (spenta): colori pieni + ombra morbida */
 .medal-item.explored .m-img{filter:drop-shadow(0 4px 7px rgba(0,0,0,.55))}
-/* stato COMPLETA (accesa): alone dorato pulsante (base statica già luminosa) */
-.medal-item.complete .m-img{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5)) drop-shadow(0 0 9px rgba(255,214,120,.75));animation:m-glow 2.6s ease-in-out infinite}
-@keyframes m-glow{
-  0%,100%{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5)) drop-shadow(0 0 7px rgba(255,214,120,.6))}
-  50%{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(255,228,150,.95))}
-}
+/* stato COMPLETA (accesa): alone dorato FISSO (non animato). L'animazione di
+   filter (m-glow, rimossa il 10 luglio 2026) interpolava tra due catene di
+   drop-shadow ad ogni frame per sempre: su alcuni browser TV questo pattern
+   può far sparire l'immagine invece di essere semplicemente ignorato (§13.8)
+   — la "prima storia" lo mostrava per prima perché è la medaglia che si
+   accende più presto. filter statico = calcolato una sola volta, nessun
+   rischio di repaint continuo. */
+.medal-item.complete .m-img{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5)) drop-shadow(0 0 12px rgba(255,220,140,.85))}
 .medal-item.complete .m-name{color:#ffe6a0}
 /* stato DA CONQUISTARE: silhouette grigia VISIBILE (brightness/opacity tarati
    per non sparire sul fondo scuro della TV — era il bug §9) + lucchetto chiaro */
