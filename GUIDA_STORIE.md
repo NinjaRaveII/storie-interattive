@@ -140,7 +140,7 @@ Schema completo da copiare in `STORIES[]` di `tv.html` (vedi §5 di `CLAUDE.md`)
    - Fase 2: oggetto **branch-aware** con `variants`: una voce per ogni chiave di scelta 1, ciascuna con la sua `preview` e le sue `choices` reali (chiavi e testi identici a `tv.html`). *(La vecchia mappa `PHASE2_KEYS` è stata eliminata: non va più aggiornata.)*
 3. [ ] **`tv.html` → `REALMS[]`**: se la storia appartiene a un regno, aggiungi il suo `id` in `storyIds` del regno giusto (così appare sulla mappa e il regno si sblocca da solo).
 4. [ ] **Audio**: aggiungi i testi (identici a `tv.html`) in `generate-audio.mjs` ed esegui `node generate-audio.mjs` → crea i 13 file in `audio/NUOVO_ID/`.
-5. [ ] **Immagini**: aggiungi i brief in `BRIEF_IMMAGINI.md` e genera i 5 file in `images/NUOVO_ID/` (vedi §6).
+5. [ ] **Immagini**: aggiungi i brief in `BRIEF_IMMAGINI.md` e genera i 5 file in `images/NUOVO_ID/` (o 7, se si sceglie la variante opzionale a 3 finali — vedi §6).
 6. [ ] **Verifica** con la checklist qualità (§8).
 
 > 💡 La soluzione pulita e definitiva resta unificare i dati in `stories.js` (Fase 1 di `CLAUDE.md`): dopo, il passo 2 sparisce e basta modificare **un solo file**.
@@ -149,7 +149,7 @@ Schema completo da copiare in `STORIES[]` di `tv.html` (vedi §5 di `CLAUDE.md`)
 
 ## 6. Brief per le immagini
 
-Servono **5 immagini per storia**:
+Servono **5 immagini per storia** (standard, usato da `oasis`/`bell`/`firefly`):
 
 | File | Scena |
 |---|---|
@@ -159,7 +159,14 @@ Servono **5 immagini per storia**:
 | `images/<id>/middle_<k1c>.jpg` | ramo C |
 | `images/<id>/end.jpg` | scena conclusiva **generica/trionfale** |
 
-> L'immagine di fine è **condivisa dai 9 finali**: deve essere una scena conclusiva "neutra e positiva" della storia, non legata a un finale specifico. *(In futuro, fase 3 di `CLAUDE.md`, si potranno fare 9 immagini di finale.)*
+> L'immagine di fine è **condivisa dai 9 finali**: deve essere una scena conclusiva "neutra e positiva" della storia, non legata a un finale specifico.
+
+### Variante opzionale: 7 immagini con 3 finali per ramo *(dalla v3.14 di `CLAUDE.md`)*
+
+Su richiesta esplicita, una storia può avere **3 immagini di finale invece di 1** — una per ramo della prima scelta (`end_<k1a>.jpg`/`end_<k1b>.jpg`/`end_<k1c>.jpg`), sullo stesso principio delle `middle_<k1>.jpg`: **non** una per ciascuno dei 9 finali completi, ma una per ramo (i 3 finali di uno stesso ramo restano visivamente uniti, come già succede con la scena `middle`). Esempio: `tide` (regno dell'Oceano).
+
+- Il codice (`imgPath()`/`loadImg()` in `tv.html`) prova prima `end_<scelta1>.jpg`; se manca (404), **ricade automaticamente** su `end.jpg`. Quindi questa variante è **puramente additiva**: le storie con lo standard a 5 immagini non vanno toccate, e una nuova storia può anche partire con la sola `end.jpg` e aggiungere le 3 varianti in un secondo momento.
+- Le 9 immagini di finale per **combinazione completa** (choice1×choice2) restano un possibile step futuro più costoso (Fase 3 di `CLAUDE.md`), non ancora adottato.
 
 ### Formato
 

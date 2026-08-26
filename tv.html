@@ -600,7 +600,7 @@ window.onerror = function(msg, src, line){
 <!-- ?v=N: cache-busting per i browser delle smart TV, che tengono i .js in
      cache anche ricaricando la pagina. Aumentare N (qui, nel controller e
      in showQR) ogni volta che stories.js o transport.js cambiano. -->
-<script src="stories.js?v=7"></script>
+<script src="stories.js?v=8"></script>
 <script src="transport.js?v=6"></script>
 <script src="progress.js?v=2"></script>
 <!-- canvas-confetti (CDN, uso parsimonioso): festa di sblocco medaglie.
@@ -770,7 +770,7 @@ function renderStep(){
     Progress.recordEnding(story.id, key);
     justUnlocked = newlyUnlocked(beforeMedals);
     setLabel(step.label);
-    loadImg(imgPath(story.id,'end',null));
+    loadImg(imgPath(story.id,'end',choice1), imgPath(story.id,'end',null));
     speak(e.text, audioPath(story.id,'end',key), ()=>{
       document.getElementById('prog').style.width='100%';
       /* al finale niente scelte: libero la fascia bassa dai sottotitoli e
@@ -932,7 +932,7 @@ function medalItemHtml(def){
   const sparks = st==='complete' ? '<span class="m-spark a">✦</span><span class="m-spark b">✧</span><span class="m-spark c">✦</span>' : '';
   const src = def.img + (def.img.indexOf('?')<0 ? '?m='+MEDAL_ASSET_V : '&m='+MEDAL_ASSET_V);
   return `<div class="medal-item ${st}">
-    <div class="medal-frame">${sparks}${lock}<div class="m-float"><img class="m-img" src="${src}" alt="${def.name}"></div></div>
+    <div class="medal-frame">${sparks}${lock}<div class="m-float"><img class="m-img" src="${src}" alt="${def.name}" onerror="this.style.visibility='hidden'"></div></div>
     <div class="m-name">${def.name}</div>
     <div class="m-state">${stLabel}</div>
   </div>`;
@@ -1057,15 +1057,22 @@ function partyFireworks(){
 
 function imgPath(storyId, type, variant){
   /* type = 'intro' | 'middle' | 'end'
-     variant = chiave scelta (es. 'deep') oppure null */
+     variant = chiave scelta (es. 'deep') oppure null
+     end: se la storia ha immagini di finale per ramo (end_<c1>.jpg, es.
+     'tide') le usa; altrimenti resta la end.jpg unica condivisa (oasis/
+     bell/firefly) — vedi fallback in loadImg() per le storie vecchie. */
   const base = `images/${storyId}/`;
   if(type==='intro') return base+'intro.jpg';
-  if(type==='end')   return base+'end.jpg';
+  if(type==='end')   return variant ? base+`end_${variant}.jpg` : base+'end.jpg';
   if(type==='middle' && variant) return base+`middle_${variant}.jpg`;
   return base+'intro.jpg';
 }
 
-function loadImg(path){
+function loadImg(path, fallbackPath){
+  /* fallbackPath: se path dà 404, ritenta con questo prima di arrendersi
+     (usato per le 3 immagini di finale end_<c1>.jpg: se una storia non le
+     ha, ricade sulla end.jpg unica condivisa — nessuna rottura per le
+     storie vecchie che hanno solo quella). */
   const block = document.getElementById('scene-img-block');
   const old = block.querySelector('img'); if(old) old.remove();
   const loading = document.getElementById('img-loading');
@@ -1082,6 +1089,7 @@ function loadImg(path){
     requestAnimationFrame(()=>{ img.style.opacity='1'; });
   };
   img.onerror = ()=>{
+    if(fallbackPath && fallbackPath!==path){ loadImg(fallbackPath); return; }
     /* immagine non trovata: mostra placeholder con nome file */
     loading.textContent = '🖼 ' + path;
   };

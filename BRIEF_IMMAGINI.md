@@ -219,7 +219,94 @@ forest, a sense of magical celebration and cozy warmth.
 
 ---
 
-## Checklist di verifica finale (per ogni storia, prima di salvare)
+## Storia 4 — La Nave delle Stelle Sommerse (`images/tide/`)
+
+> **Variante «3 finali»** (vedi `CLAUDE.md` v3.14 e `GUIDA_STORIE.md` §6): questa storia usa `end_dive.jpg`/`end_boat.jpg`/`end_cave.jpg` invece di un'unica `end.jpg` — **7 immagini di scena**, non 5. Stesso preambolo di stile e stessi due capisaldi (coerenza personaggio + adeguatezza 3-6 anni) di cui sopra.
+
+### Scheda personaggio — Christian (protagonista, presente in tutte e 7 le immagini)
+
+```
+Christian: a boy around 8 years old, sun-kissed light-tan skin, tousled
+sandy-blonde wavy hair, bright sea-blue eyes, wearing a striped blue-and-
+white sailor shirt with rolled-up sleeves and beige rolled-up trousers,
+barefoot, a small pale-gold seashell pendant on a cord necklace, warm
+curious and kind expression.
+```
+
+### Schede personaggi secondari (un solo ramo ciascuno)
+
+```
+Nerea (antica tartaruga marina): an ancient sea turtle with a weathered
+blue-green shell covered in softly glowing coral patches, kind wrinkled
+eyes, slow and gentle movements, warm grandmotherly presence.
+
+Vela (narvalo guardiano degli abissi): a gentle narwhal with pearly
+bluish-grey skin, a long spiraled ivory horn that glows faintly at the
+tip, big warm dark eyes, graceful and majestic yet friendly.
+
+Rubino (piccolo polpo timido): a small shy octopus that shifts through
+soft warm colors (coral pink, amber, soft violet) with its feelings, big
+round curious eyes, delicate curling tentacles, half-hiding behind rocks.
+```
+
+### 1. `intro.jpg`
+```
+[STYLE] [Christian]. Christian stands on a moonlit beach at dusk, holding
+a small glowing golden seashell to his ear, a quiet fishing village and
+sea cliffs behind him, a sense of gentle wonder and quiet mystery.
+```
+
+### 2. `middle_dive.jpg`
+```
+[STYLE] [Christian] [Nerea]. Christian swims gently underwater near a
+glowing coral reef, wrapped in a soft golden bubble of light, beside
+Nerea the ancient sea turtle with a coral-covered shell, warm
+bioluminescent light, dreamlike and safe underwater atmosphere.
+```
+
+### 3. `middle_boat.jpg`
+```
+[STYLE] [Christian] [Vela]. Christian sits in a small wooden boat on a
+calm moonlit sea, following a glowing trail on the water, Vela the
+gentle narwhal with a faintly glowing ivory horn surfacing beside the
+boat, warm night atmosphere.
+```
+
+### 4. `middle_cave.jpg`
+```
+[STYLE] [Christian] [Rubino]. Christian kneels inside a glowing sea cave
+lit by blue and gold bioluminescent crystals and anemones, Rubino the
+shy little octopus peeking out from behind a rock, tender and curious
+atmosphere.
+```
+
+### 5. `end_dive.jpg`
+```
+[STYLE] [Christian] [Nerea]. Christian and Nerea the sea turtle float
+joyfully by a blooming coral garden shaped like an old ship's wheel,
+glowing with warm golden-blue light, the silhouette of a sunken ship
+glowing softly in the distance, triumphant warmth.
+```
+
+### 6. `end_boat.jpg`
+```
+[STYLE] [Christian] [Vela]. Christian's little boat rests on calm glowing
+water at dawn, Vela the narwhal leaping gently nearby, a warm golden
+light rising from the depths below like a sunrise underwater, peaceful
+celebration.
+```
+
+### 7. `end_cave.jpg`
+```
+[STYLE] [Christian] [Rubino]. Christian and Rubino the octopus sit
+together in a hidden glowing chamber filled with luminescent crystals
+and the ship's golden figurehead, warm amber light filling the cave,
+cozy magical celebration.
+```
+
+---
+
+
 
 - [ ] Le 5 immagini affiancate mostrano lo **stesso identico protagonista** (specie/aspetto, colori, vestiti).
 - [ ] Nessuna immagine contiene elementi spaventosi, minacciosi o inadatti a un bambino di 3-6 anni (vedi capisaldo 2 sopra).
@@ -245,6 +332,14 @@ images/firefly/middle_owl.jpg
 images/firefly/middle_stream.jpg
 images/firefly/middle_oak.jpg
 images/firefly/end.jpg
+
+images/tide/intro.jpg
+images/tide/middle_dive.jpg
+images/tide/middle_boat.jpg
+images/tide/middle_cave.jpg
+images/tide/end_dive.jpg
+images/tide/end_boat.jpg
+images/tide/end_cave.jpg
 ```
 
 ---
@@ -288,11 +383,12 @@ fully inside frame with generous margin. Nothing scary, no weapons.
 ### Soggetti (protagonisti)
 
 ```
-[STYLE-RITRATTO] [Sara]  → images/medals/oasis.png
-[STYLE-RITRATTO] [Tobia] → images/medals/bell.png
-[STYLE-RITRATTO] [Bruno] → images/medals/firefly.png
+[STYLE-RITRATTO] [Sara]      → images/medals/oasis.png
+[STYLE-RITRATTO] [Tobia]     → images/medals/bell.png
+[STYLE-RITRATTO] [Bruno]     → images/medals/firefly.png
+[STYLE-RITRATTO] [Christian] → images/medals/tide.png
 ```
-(le schede `[Sara]`, `[Tobia]`, `[Bruno]` sono quelle già definite sopra per ciascuna storia.)
+(le schede `[Sara]`, `[Tobia]`, `[Bruno]`, `[Christian]` sono quelle già definite sopra per ciascuna storia.)
 
 ### Soggetti (regni) — livelli 4/5 (✅ fatti, 6 luglio 2026)
 
@@ -302,8 +398,18 @@ La Grande Foresta     → grande quercia con lucciole + pini    → images/medal
 Le Terre di Mezzo     → castello dorato (senza il campanile
                         staccato: sagoma unica)               → images/medals/realm_kingdom.png  ✅
 Le Terre Dimenticate  → oasi con palme e laghetto turchese    → images/medals/realm_desert.png   ✅
+L'Oceano Profondo     → la Nave delle Stelle sommersa che
+                        riemerge con un bagliore dorato        → images/medals/realm_sea.png      ✅
 ```
-(i nomi file usano gli **id dei regni** in `stories.js`: `forest`/`kingdom`/`desert`.)
+(i nomi file usano gli **id dei regni** in `stories.js`: `forest`/`kingdom`/`desert`/`sea`.)
+
+Preambolo prompt per `realm_sea.png` (stesso stile "ritratto medaglia", nessun personaggio):
+```
+[STYLE-RITRATTO] An old sunken ship gently rising toward the surface, its
+bow and broken mast wrapped in soft glowing coral and seaweed, a warm
+golden light glowing from within the hull, dreamy and majestic, no crew,
+no danger, plain flat solid white background, generous margin.
+```
 
 ### Soggetto livello 1 — «Prima storia in assoluto» (✅ fatto, 6 luglio 2026)
 
@@ -312,14 +418,16 @@ Le Terre Dimenticate  → oasi con palme e laghetto turchese    → images/medal
 images/medals/first_story.png   ✅
 ```
 
-### Da salvare (stato: ✅ tutti presenti)
+### Da salvare (stato: ✅ tutti presenti, v3.14)
 ```
 images/medals/oasis.png          (Sara)      ✅
 images/medals/bell.png           (Tobia)     ✅
 images/medals/firefly.png        (Bruno)     ✅
+images/medals/tide.png           (Christian) ✅
 images/medals/realm_forest.png   (quercia)   ✅
 images/medals/realm_kingdom.png  (castello)  ✅
 images/medals/realm_desert.png   (oasi)      ✅
+images/medals/realm_sea.png      (nave)      ✅
 images/medals/first_story.png    (libro)     ✅
 ```
 Livelli 6/7: nessun asset dedicato — riusano `images/map/world.png` (mappa dipinta della home).

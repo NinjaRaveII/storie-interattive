@@ -226,6 +226,79 @@ const STORIES = [
         }
       }
     ]
+  },
+
+  /* ---- 4. LA NAVE DELLE STELLE SOMMERSE ---- */
+  {
+    id:'tide', tag:'Mistero gentile · bambini', icon:'🐚',
+    title:'La Nave delle Stelle Sommerse',
+    desc:'Una conchiglia dorata canta la ninnananna di una nave scomparsa negli abissi, e Christian parte a cercarla.',
+    ctrl:{
+      intro:'Una conchiglia dorata sussurra la ninnananna di una nave scomparsa nel mare, e Christian decide di seguirne la scia…',
+      middle:{
+        dive:'Sott\'acqua, tra i coralli, Nerea l\'antica tartaruga marina conosce il segreto della nave addormentata…',
+        boat:'In barca, Vela il narvalo luminoso accompagna Christian verso il largo, dove il mare custodisce i ricordi…',
+        cave:'Nella grotta marina, il piccolo Rubino il polpo timido nasconde un segreto tutto da scoprire…'
+      }
+    },
+    steps:[
+      {
+        type:'intro', label:'L\'inizio',
+        text:'Nel piccolo villaggio di pescatori affacciato sulla scogliera viveva Christian, un bambino che ogni sera si sedeva sulla spiaggia ad ascoltare il mare. Una notte, tra la sabbia bagnata, trovò una conchiglia che brillava di una luce dorata, come se dentro custodisse una stella. Quando la portò all\'orecchio, sentì un canto lontanissimo, dolce e un po\' misterioso: era la ninnananna della Nave delle Stelle, una nave leggendaria scomparsa negli abissi tanto tempo fa. La conchiglia sembrava indicare la via verso il mare aperto.',
+        keyword:'boy golden seashell beach dusk glowing shell village cliffs',
+        choices:[
+          {text:'Immergersi vicino alla barriera corallina, dove la luce sembra più forte', key:'dive'},
+          {text:'Prendere la piccola barca di legno e seguire la scia luminosa sull\'acqua', key:'boat'},
+          {text:'Esplorare la grotta marina sotto la scogliera, da dove arriva un lieve bagliore', key:'cave'}
+        ]
+      },
+      {
+        type:'middle', label:'Il cuore della storia',
+        variants:{
+          dive:{
+            text:'Christian scivolò dolcemente nell\'acqua calda, avvolto da una bolla di luce dorata che lo teneva al sicuro. Vicino alla barriera corallina incontrò Nerea, un\'antica tartaruga marina dal guscio coperto di corallo luminoso. "Conosco quella ninnananna," disse piano Nerea. "Appartiene a una nave che dorme qui sotto da tantissimo tempo. Vuoi che ti aiuti a svegliarla, con dolcezza?"',
+            keyword:'boy swimming coral reef glowing ancient sea turtle underwater gentle light',
+            choices:[
+              {text:'Cercare la perla che canta ancora la vecchia ninnananna', key:'pearl'},
+              {text:'Seguire il sentiero di corallo luminoso verso il cuore della barriera', key:'coral'},
+              {text:'Aiutare i pesci lanterna smarriti a ritrovare la strada', key:'light'}
+            ]
+          },
+          boat:{
+            text:'Christian salì sulla sua piccola barca di legno e seguì la scia di luce che danzava sull\'acqua calma. Poco dopo, accanto a lui riemerse Vela, un narvalo dal corno d\'avorio che brillava appena nella notte. "Sento anch\'io quel canto," soffiò Vela. "Vieni, ti accompagno verso il largo, dove il mare custodisce i suoi ricordi."',
+            keyword:'boy wooden boat moonlit sea narwhal glowing horn trail gentle night',
+            choices:[
+              {text:'Lasciarsi guidare dall\'onda luminosa verso il largo', key:'wave'},
+              {text:'Cantare insieme a Vela per richiamare la nave', key:'song'},
+              {text:'Leggere la piccola mappa nascosta nella conchiglia', key:'map'}
+            ]
+          },
+          cave:{
+            text:'Christian entrò nella grotta marina, dove le pareti di roccia scintillavano di una luce blu e dorata. Tra le anemoni luminose scorse un piccolo polpo timido, che si nascose subito dietro una roccia. Era Rubino, che cambiava colore ogni volta che si sentiva osservato. Christian si fermò, paziente, per non spaventarlo.',
+            keyword:'boy sea cave bioluminescent shy octopus glowing crystals gentle',
+            choices:[
+              {text:'Aspettare con pazienza che Rubino esca dal nascondiglio', key:'friend'},
+              {text:'Seguire i cristalli luminosi lungo le pareti della grotta', key:'glow'},
+              {text:'Chiedere a Rubino di raccontare il segreto della grotta', key:'secret'}
+            ]
+          }
+        }
+      },
+      {
+        type:'end', label:'Il finale',
+        ends:{
+          dive_pearl:{text:'Christian trovò la perla nascosta in una conchiglia dimenticata tra i coralli. Appena la avvicinò all\'orecchio, sentì di nuovo la ninnananna, questa volta più chiara e vicina. La melodia si sparse nell\'acqua come un respiro caldo, e in fondo, tra le alghe dorate, la sagoma della nave si illuminò dolcemente, come se si fosse appena svegliata da un lungo sonno.', moral:'Ascoltare con pazienza, a volte, è il modo più bello per trovare qualcosa di prezioso.', keyword:'boy golden pearl shell coral glowing sunken ship awakening warm light'},
+          dive_coral:{text:'Seguendo il sentiero di corallo luminoso, Christian e Nerea arrivarono al cuore della barriera, dove i rami di corallo disegnavano la forma di un\'antica ruota di timone. Quando Christian la sfiorò, un tepore dorato si accese tutto intorno, e la barriera fiorì di colori come non accadeva da anni. Nerea sorrise: il mare non dimentica mai le navi che ha amato.', moral:'Prendersi cura delle cose antiche le fa rifiorire, un po\' come i ricordi belli.', keyword:'boy sea turtle coral garden ship wheel shape blooming colors'},
+          dive_light:{text:'Christian notò un gruppo di pesci lanterna smarriti, con le lucine tremolanti e quasi spente per lo spavento. Con calma li guidò verso casa, tenendo alta la conchiglia dorata come un piccolo faro. Grati, i pesciolini si accesero tutti insieme, illuminando la barriera come un cielo di stelle sott\'acqua, proprio sopra il luogo dove riposava la nave.', moral:'Aiutare chi si è perso è sempre un gesto che torna, prima o poi, come luce.', keyword:'boy guiding lantern fish coral reef glowing stars underwater'},
+          boat_wave:{text:'Christian lasciò che l\'onda luminosa guidasse la sua piccola barca, mentre Vela nuotava silenziosa al suo fianco. L\'onda li portò in un cerchio d\'acqua immobile e chiara, proprio sopra il punto più profondo. Da lì, una luce calda cominciò a salire piano dal fondo, come un\'alba che nasceva sott\'acqua.', moral:'Non serve remare sempre: a volte basta lasciarsi accompagnare da chi ci vuole bene.', keyword:'boy boat calm sea narwhal glowing light rising dawn'},
+          boat_song:{text:'Christian iniziò a canticchiare la melodia della conchiglia, e Vela lo accompagnò con un canto lungo e dolce, che rimbalzava sott\'acqua come un\'eco gentile. In fondo al mare, una vecchia campana di bronzo tornò a suonare, un solo rintocco limpido e felice, come se la nave stessa avesse ripreso a respirare.', moral:'Cantare insieme a qualcuno rende ogni cosa, anche la più antica, di nuovo viva.', keyword:'boy singing narwhal underwater bell ringing ship joyful'},
+          boat_map:{text:'Con l\'aiuto della luce delle stelle, Christian srotolò la piccola mappa nascosta dentro la conchiglia. Le linee disegnate sembravano muoversi da sole, indicando la rotta esatta. Quando la barca si fermò, videro la nave riposare sotto di loro, avvolta in una luce calda e paziente, come se avesse aspettato solo loro.', moral:'Le risposte a volte sono già lì, basta avere la pazienza di leggerle bene.', keyword:'boy reading map starlight boat sunken ship glowing patient'},
+          cave_friend:{text:'Christian si sedette in silenzio vicino alla roccia dove si nascondeva Rubino, aspettando senza fretta. Poco a poco, il piccolo polpo uscì, colorandosi di rosa caldo per la fiducia ritrovata. Insieme raggiunsero una piccola stanza nella grotta, dove la polena dorata della nave riposava, custodita e al sicuro.', moral:'La vera amicizia, quella che dura, si costruisce piano, con pazienza.', keyword:'boy shy octopus cave hidden chamber golden figurehead warm'},
+          cave_glow:{text:'Seguendo i cristalli che punteggiavano le pareti della grotta, Christian e Rubino trovarono una stanza segreta ricoperta di gemme luminose. Toccandole nell\'ordine giusto, le gemme suonarono le note della ninnananna, e tutta la grotta si accese di una luce calda e dorata.', moral:'La curiosità, seguita con calma, porta sempre a scoperte meravigliose.', keyword:'boy octopus glowing crystals cave secret chamber golden light'},
+          cave_secret:{text:'Rubino, ormai fidato compagno, condusse Christian fino a un piccolo scrigno di conchiglie: dentro, una campanella dorata, lasciata tanto tempo prima dall\'equipaggio della nave come dono di ringraziamento per chi avesse avuto il coraggio gentile di cercarla. Christian la strinse tra le mani, sentendola calda come un abbraccio.', moral:'Anche i segreti più antichi custodiscono, spesso, un grazie ad aspettare.', keyword:'boy octopus golden bell treasure chest cave gratitude warm'}
+        }
+      }
+    ]
   }
 ];
 
@@ -259,7 +332,7 @@ const REALMS = [
     id:'sea', icon:'🌊', name:'L\'Oceano Profondo',
     desc:'Navi misteriose, abissi senza fondo e segreti del mare',
     color:'#1a4a7a', colorLight:'#2c6fad', colorDark:'#0d2d4f',
-    storyIds:[],
+    storyIds:['tide'],
     shape:'M 620,220 L 780,180 L 860,300 L 820,420 L 660,440 L 560,360 L 580,260 Z',
     labelX:710, labelY:320,
     mapX:42, mapY:74,
